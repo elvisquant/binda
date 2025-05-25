@@ -34,7 +34,7 @@ def login_for_access_token(
     if not db_user or not utils.verify(password, db_user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, 
-            detail="Incorrect username/email or password",
+            detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"} 
         )
 
