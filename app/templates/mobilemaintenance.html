@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - Maintenance Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' }
+  </script>
+  <style>
+    .modal { transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out; }
+    .modal.hidden { visibility: hidden; opacity: 0; }
+    .modal:not(.hidden) { visibility: visible; opacity: 1; }
+    .dark .modal-content { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5), 0 10px 10px -5px rgba(0,0,0,0.2); }
+    .date-filter-btn.active { background-color: #3b82f6; color: white; }
+    .dark .date-filter-btn.active { background-color: #60a5fa; }
+    .view-detail-label { font-weight: 500; color: #4b5563; }
+    .dark .view-detail-label { color: #d1d5db; }
+    .view-detail-value { color: #1f2937; }
+    .dark .view-detail-value { color: #f9fafb; }
+  </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
+
+<!-- Main application wrapper -->
+<div class="flex h-screen">
+
+    <!-- Sidebar (Left) - Modified for responsiveness -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg 
+                             transform -translate-x-full transition-transform duration-300 ease-in-out 
+                             md:relative md:translate-x-0 md:shadow-lg md:border-r dark:border-gray-700 
+                             flex flex-col flex-shrink-0">
+      <div class="flex justify-between items-center">
+        <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
+          <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
+        </div>
+        <!-- Close button for mobile sidebar -->
+        <button id="sidebar-close-button" class="md:hidden text-gray-700 dark:text-gray-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+      <nav class="flex-1 overflow-y-auto">
+        <ul class="space-y-2">
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="layout-dashboard" class="w-5 h-5"></i><a href="dashboard">Dashboard</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="pie-chart" class="w-5 h-5"></i><a href="analytics">Analytics</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="users" class="w-5 h-5"></i><a href="users">User</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="user" class="w-5 h-5"></i><a href="driver">Driver</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="alert-triangle" class="w-5 h-5"></i><a href="panne">Pannes (Issues)</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="car" class="w-5 h-5"></i><a href="vehicle">Vehicles</a>
+        </li>
+         <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="wrench" class="w-5 h-5"></i><a href="reparation">Reparation</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="droplet" class="w-5 h-5"></i><a href="fuel">Fuel</a>
+        </li>
+        <li id="maintenance-nav-link" class="flex items-center space-x-3 text-blue-600 dark:text-blue-400 font-semibold bg-blue-50 dark:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="tool" class="w-5 h-5"></i><a href="maintenance">Maintenance</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="route" class="w-5 h-5"></i><a href="trip">Trip</a>
+        </li>
+      </ul>
+      </nav>
+       <div class="pt-4 border-t border-gray-200 dark:border-gray-700/50 mt-auto">
+            <a href="#" id="global-logout-btn" class="flex items-center space-x-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/40 p-2.5 rounded-lg transition-colors">
+                <i data-lucide="log-out" class="w-5 h-5"></i><span>Logout</span>
+            </a>
+       </div>
+    </aside>
+
+    <!-- Overlay for mobile menu -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+    
+    <!-- Content Area Wrapper (Header + Main Content + Right Sidebar) -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      
+      <!-- Header (Mobile Hamburger, Desktop Title, Theme Toggle, User Info) -->
+      <header class="bg-white dark:bg-gray-800 shadow p-3 flex justify-between items-center flex-shrink-0 h-16">
+          <!-- Hamburger Menu Button - visible only on mobile -->
+          <button id="mobile-menu-button" class="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none p-2">
+              <i data-lucide="menu" class="w-6 h-6"></i>
+          </button>
+          
+          <!-- Mobile Title - visible only on mobile -->
+          <div class="text-lg font-bold text-primary dark:text-primary-light md:hidden">
+              FleetDash
+          </div>
+
+          <!-- Desktop Title/Context - hidden on mobile -->
+          <div class="hidden md:block text-xl font-semibold text-gray-700 dark:text-gray-200">
+              Maintenance Management
+          </div>
+          
+          <!-- Right side of header: Theme Toggle & User Info -->
+          <div class="flex items-center space-x-3">
+              <button id="theme-toggle-header" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                  <!-- Icon will be set by JS -->
+              </button>
+              <!-- User info for desktop header - hidden on mobile -->
+              <div class="hidden md:flex items-center space-x-2">
+                  <div class="text-sm font-semibold" id="userDisplayNameHeader">User</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">Admin</div>
+              </div>
+          </div>
+      </header>
+
+      <!-- Main scrollable content area (Main Page Content + Right Sidebar) -->
+      <div class="flex-1 flex overflow-hidden">
+        <main class="flex-1 overflow-y-auto p-6">
+          <!-- Maintenance Table Section -->
+          <section id="maintenance-section" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
+              <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-2 sm:mb-0">Records</h2>
+              <div class="flex flex-wrap gap-2 items-center">
+                <button id="openAddMaintenanceModalButton" class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 text-sm shadow-sm">
+                  <i data-lucide="plus" class="w-4 h-4"></i> Add Maintenance
+                </button>
+                <input type="text" id="maintenanceSearch" placeholder="Search (category, vehicle, receipt...)" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
+              </div>
+              <div class="flex flex-wrap gap-2 items-center">
+                <button id="exportExcelButton" class="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 text-sm shadow-sm">📄 Excel</button>
+                <button id="exportPdfButton" class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 text-sm shadow-sm">🧾 PDF</button>
+              </div>
+            </div>
+
+            <div class="mb-4 flex flex-wrap items-center gap-2">
+              <span class="text-sm font-medium mr-2">Filter Maintenance by Date:</span>
+              <button id="maintenance-filter-today" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Today</button>
+              <button id="maintenance-filter-last7" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Last 7 Days</button>
+              <button id="maintenance-filter-last30" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Last 30 Days</button>
+              <button id="maintenance-filter-all" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 active">All Time</button>
+              <button id="maintenance-filter-custom-btn" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Custom Range</button>
+            </div>
+            <div id="maintenanceCustomDateRange" class="mb-4 hidden items-center gap-2 p-3 border dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800/50">
+              <input type="date" id="maintenanceCustomStartDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
+              <span class="text-sm">to</span>
+              <input type="date" id="maintenanceCustomEndDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
+              <button id="applyCustomDateFilterButton" class="bg-blue-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-blue-600">Apply</button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table id="maintenancesTable" class="w-full text-left text-sm">
+                <thead>
+                  <tr class="border-b dark:border-gray-700">
+                    <th class="py-3 px-2 font-semibold">ID</th>
+                    <th class="px-2 font-semibold">Category</th>
+                    <th class="px-2 font-semibold">Vehicle</th>
+                    <th class="px-2 font-semibold">Cost ($)</th>
+                    <th class="px-2 font-semibold">Receipt</th>
+                    <th class="px-2 font-semibold">Garage</th>
+                    <th class="px-2 font-semibold">Maint. Date</th>
+                    <th class="px-2 font-semibold text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="maintenancesBody"></tbody>
+              </table>
+            </div>
+            <div class="mt-6 flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
+              <div class="text-sm text-gray-600 dark:text-gray-400" id="maintenancesCount"></div>
+              <div class="flex items-center space-x-1" id="maintenancesPagination"></div>
+            </div>
+          </section>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="w-1/5 bg-white dark:bg-gray-800 p-4 space-y-6 shadow-md hidden lg:block flex-shrink-0 overflow-y-auto border-l dark:border-gray-700">
+            <div class="flex justify-end items-center">
+              <div>
+                  <div class="text-sm font-semibold text-right" id="userDisplayNameRightSidebar">User</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400 text-right">Admin</div>
+              </div>
+            </div>
+            <div><h4 class="font-bold mb-4 text-lg">Recent Updates</h4><div class="flex flex-col space-y-6 relative"><div class="absolute left-5 top-0 bottom-0 w-0.5 bg-blue-500"></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">New maintenance logged</p><p class="text-sm text-gray-500 dark:text-gray-400">1 minute ago</p></div></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">Vehicle status updated</p><p class="text-sm text-gray-500 dark:text-gray-400">5 minutes ago</p></div></div></div></div>
+            <div class="mt-8"><h4 class="font-bold mb-4 text-lg">Quick Actions</h4><div class="grid grid-cols-2 gap-2"><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="file-plus-2" class="w-5 h-5 mb-1"></i><span class="text-xs">New Report</span></button><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="sliders-horizontal" class="w-5 h-5 mb-1"></i><span class="text-xs">Filters</span></button><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="help-circle" class="w-5 h-5 mb-1"></i><span class="text-xs">Help</span></button><button id="quick-logout-btn" class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="log-out" class="w-5 h-5 mb-1"></i><span class="text-xs">Logout</span></button></div></div>
+        </aside>
+      </div>
+    </div>
+</div>
+
+
+<!-- Add/Edit Maintenance Modal -->
+<div id="addMaintenanceModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
+  <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h3 class="text-xl font-bold text-gray-800 dark:text-white" id="maintenanceModalTitle">Add New Maintenance</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Fill in the maintenance details below</p>
+        </div>
+        <button id="closeAddMaintenanceModalButtonTop" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i data-lucide="x" class="w-5 h-5 text-gray-500 dark:text-gray-400"></i>
+        </button>
+      </div>
+      <form id="addMaintenanceForm" class="space-y-4">
+        <input type="hidden" id="maintenanceId_form">
+        <div>
+          <label for="cat_maintenance_id_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Maintenance Category</label>
+          <select id="cat_maintenance_id_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+            <option value="">Loading Categories...</option>
+          </select>
+        </div>
+        <div>
+          <label for="vehicle_id_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vehicle</label>
+          <select id="vehicle_id_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+            <option value="">Loading Vehicles...</option>
+          </select>
+        </div>
+        <div>
+          <label for="maintenance_cost_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Maintenance Cost ($)</label>
+          <input type="number" step="0.01" id="maintenance_cost_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="e.g., 150.75">
+        </div>
+        <div>
+          <label for="maintenance_receipt_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Receipt (e.g., URL or Ref#)</label>
+          <input type="text" id="maintenance_receipt_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Receipt details or link">
+        </div>
+        <div>
+          <label for="maintenance_garage_id_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Garage</label>
+          <select id="maintenance_garage_id_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+             <option value="">Loading Garages...</option>
+          </select>
+        </div>
+        <div>
+          <label for="maintenance_date_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Maintenance Date</label>
+          <input type="date" id="maintenance_date_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+        </div>
+        <div class="flex justify-end gap-3 pt-4">
+          <button type="button" id="cancelAddMaintenanceModalButton" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
+          <button type="submit" id="maintenanceSubmitButton" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center gap-2">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Maintenance
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- View Maintenance Record Modal -->
+<div id="viewMaintenanceModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
+  <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-gray-800 dark:text-white">Record Details</h3>
+        <button id="closeViewMaintenanceModalButtonTop" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i data-lucide="x" class="w-5 h-5 text-gray-500 dark:text-gray-400"></i>
+        </button>
+      </div>
+      <div id="viewMaintenanceDetails" class="space-y-3 text-sm">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-2">
+            <span class="view-detail-label sm:col-span-1">Record ID:</span><span id="view-maintenance-id" class="view-detail-value sm:col-span-2"></span>
+            <span class="view-detail-label sm:col-span-1">Category:</span><span id="view-maintenance-category" class="view-detail-value sm:col-span-2"></span>
+            <span class="view-detail-label sm:col-span-1">Vehicle:</span><span id="view-maintenance-vehicle" class="view-detail-value sm:col-span-2"></span>
+            <span class="view-detail-label sm:col-span-1">Cost:</span><span id="view-maintenance-cost" class="view-detail-value sm:col-span-2"></span>
+            <span class="view-detail-label sm:col-span-1">Receipt:</span><span id="view-maintenance-receipt" class="view-detail-value sm:col-span-2 break-all"></span>
+            <span class="view-detail-label sm:col-span-1">Garage:</span><span id="view-maintenance-garage" class="view-detail-value sm:col-span-2"></span>
+            <span class="view-detail-label sm:col-span-1">Maint. Date:</span><span id="view-maintenance-maintenance_date" class="view-detail-value sm:col-span-2"></span>
+            <span class="view-detail-label sm:col-span-1">Created At:</span><span id="view-maintenance-created_at" class="view-detail-value sm:col-span-2"></span>
+        </div>
+      </div>
+      <div class="flex justify-end pt-6">
+          <button type="button" id="closeViewMaintenanceModalButtonBottom" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Generic Confirmation Modal -->
+<div id="genericConfirmModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
+  <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 id="genericConfirmModalTitle" class="text-xl font-bold text-gray-800 dark:text-white">Confirm Action</h3>
+        <button id="closeGenericConfirmModalButtonX" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i data-lucide="x" class="w-5 h-5 text-gray-500 dark:text-gray-400"></i>
+        </button>
+      </div>
+      <p id="genericConfirmModalMessage" class="text-sm text-gray-600 dark:text-gray-400 mb-6">Are you sure?</p>
+      <div class="flex justify-end gap-3 pt-4">
+        <button id="cancelGenericConfirmModalButton" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
+        <button id="genericConfirmModalConfirmBtn" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center gap-2">
+          {/* Content set by JS */} Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Information/Status Modal -->
+<div id="infoStatusModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
+  <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md">
+    <div class="p-6 text-center">
+      <div id="infoStatusModalIconContainer" class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+        {/* Icon set by JS */}
+      </div>
+      <h3 id="infoStatusModalTitle" class="text-lg font-medium text-gray-900 dark:text-white mb-2">Status</h3>
+      <div class="mt-2">
+        <p id="infoStatusModalMessage" class="text-sm text-gray-500 dark:text-gray-400">Message.</p>
+      </div>
+      <div class="mt-5 sm:mt-6">
+        <button type="button" id="infoStatusModalOkButton" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  const API_BASE_URL = 'http://34.201.67.218:8000';
+  const LOGIN_PAGE_URL = 'login.html';
+
+  // --- Authentication Helper ---
+  function getAuthToken() { return localStorage.getItem('accessToken'); }
+  function parseJwt(token) { try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { console.error("JWT Parse Error:", e); return null; }}
+
+  function updateUserInfoDisplay() {
+    const token = getAuthToken();
+     const userDisplayElements = [
+        document.getElementById('userDisplayNameHeader'),
+        document.getElementById('userDisplayNameRightSidebar')
+    ];
+
+    userDisplayElements.forEach(userDisplayElement => {
+        if (!userDisplayElement) return;
+        if (token) {
+            const decoded = parseJwt(token);
+            userDisplayElement.textContent = (decoded && decoded.sub) ? decoded.sub : 'User (Authenticated)';
+            // If you have role display elements in header/sidebar, update them here too
+            // e.g., document.getElementById('userRoleDisplayHeader').textContent = decoded.role || 'User';
+        } else {
+            userDisplayElement.textContent = 'Guest';
+            // e.g., document.getElementById('userRoleDisplayHeader').textContent = '';
+        }
+    });
+  }
+
+  async function apiRequest(endpoint, method = 'GET', body = null) {
+    const token = getAuthToken();
+    const headers = { 'Content-Type': 'application/json' };
+    const publicEndpoints = ['/category_maintenance/', '/garage/', '/vehicle/'];
+    const isPublic = publicEndpoints.some(publicEp => endpoint.startsWith(publicEp) && method === 'GET');
+
+    if (token && !isPublic) headers['Authorization'] = `Bearer ${token}`;
+    else if (!token && !isPublic && !endpoint.startsWith('/login')) { console.warn(`WARN: Protected endpoint ${endpoint} called without token.`); }
+
+    const config = { method, headers };
+    if (body) config.body = JSON.stringify(body);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+      const responseForJson = response.clone();
+      const responseForText = response.clone();
+
+      if (response.status === 401 && !isPublic && !endpoint.endsWith('/login/')) {
+        openInfoStatusModal("Authentication Error", "Session expired or unauthorized. Please log in again.", "error", 5000);
+        return null;
+      }
+      if (response.status === 204) return true;
+
+      const responseData = await responseForJson.json().catch(async (jsonError) => {
+          const text = await responseForText.text();
+          console.error(`JSON Parse Error for ${endpoint}. Status: ${response.status}. Response (first 100 chars): ${text.substring(0,100)}...`, jsonError);
+          if (!response.ok) {
+              return Promise.reject({ detail: text || `Server error ${response.status}` });
+          }
+          throw new Error(`Invalid JSON response from server (status ${response.status}). Check console for raw response.`);
+      });
+
+      if (!response.ok) {
+        const errorDetail = responseData.detail || (typeof responseData === 'object' ? JSON.stringify(responseData) : responseData) || 'Unknown error from server.';
+        console.error(`API Error for ${endpoint}: ${response.status}`, errorDetail);
+        if (!(response.status === 401 && endpoint.endsWith('/login/'))) {
+            openInfoStatusModal(`API Error: ${response.status}`, errorDetail, "error");
+        }
+        return null;
+      }
+      return responseData;
+    } catch (error) {
+      console.error(`Network/Catch Error during API request to ${endpoint}:`, error);
+      const errorMessage = error.detail || error.message || "A network or request error occurred.";
+      openInfoStatusModal("Request Error", errorMessage, "error");
+      return null;
+    }
+  }
+
+  // --- Global Variables for Maintenance ---
+  let allMaintenances = [];
+  const maintenancesPerPage = 5;
+  let currentMaintenancePage = 1;
+  let maintenanceToEditId = null;
+
+  let activeMaintenanceDateFilter = 'all';
+  let customMaintenanceFilterStartDate = null;
+  let customMaintenanceFilterEndDate = null;
+
+  let allMaintenanceCategories = [];
+  let allVehiclesForDropdown = [];
+  let allGaragesForDropdown = [];
+
+  let currentConfirmAction = null;
+  let currentActionData = null;
+  let infoStatusModalTimeout = null;
+
+  // --- Sidebar Toggle Functionality ---
+  const sidebar = document.getElementById('sidebar');
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const sidebarCloseButton = document.getElementById('sidebar-close-button');
+  const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+  function openMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('translate-x-0');
+        sidebarOverlay.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden', 'md:overflow-auto');
+    }
+  }
+
+  function closeMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.add('-translate-x-full');
+        sidebar.classList.remove('translate-x-0');
+        sidebarOverlay.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+  }
+  
+  // --- Theme Toggle ---
+  const themeToggleButton = document.getElementById('theme-toggle-header');
+  function setInitialThemeIcon() {
+    if (themeToggleButton) {
+        if (document.documentElement.classList.contains('dark')) {
+            themeToggleButton.innerHTML = '<i data-lucide="sun" class="w-5 h-5"></i>';
+        } else {
+            themeToggleButton.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>';
+        }
+        lucide.createIcons();
+    }
+  }
+
+  // --- MODAL CONTROL FUNCTIONS ---
+  function closeAddMaintenanceModal() {
+    document.getElementById('addMaintenanceModal').classList.add('hidden');
+    document.body.style.overflow = '';
+    maintenanceToEditId = null;
+    document.getElementById('addMaintenanceForm').reset();
+    const submitButton = document.getElementById('maintenanceSubmitButton');
+    if (submitButton) submitButton.disabled = false; 
+  }
+  function closeViewMaintenanceModal() {
+    document.getElementById('viewMaintenanceModal').classList.add('hidden'); document.body.style.overflow = '';
+  }
+  function closeGenericConfirmModal() {
+    document.getElementById('genericConfirmModal').classList.add('hidden');
+    document.body.style.overflow = '';
+    currentConfirmAction = null; currentActionData = null;
+  }
+  function closeInfoStatusModal() {
+    if (infoStatusModalTimeout) { clearTimeout(infoStatusModalTimeout); infoStatusModalTimeout = null; }
+    document.getElementById('infoStatusModal').classList.add('hidden'); document.body.style.overflow = '';
+  }
+
+  function openGenericConfirmModal(title, message, confirmButtonText, confirmButtonIcon, onConfirmCallback, actionData = null) {
+    document.getElementById('genericConfirmModalTitle').textContent = title;
+    document.getElementById('genericConfirmModalMessage').textContent = message;
+    const confirmBtn = document.getElementById('genericConfirmModalConfirmBtn');
+    confirmBtn.innerHTML = `<i data-lucide="${confirmButtonIcon || 'check-circle'}" class="w-4 h-4 mr-1"></i> ${confirmButtonText || 'Confirm'}`;
+    if(confirmButtonIcon === 'trash-2'){
+        confirmBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+        confirmBtn.classList.add('bg-red-500', 'hover:bg-red-600');
+    } else {
+        confirmBtn.classList.remove('bg-red-500', 'hover:bg-red-600');
+        confirmBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+    }
+    lucide.createIcons();
+    currentConfirmAction = onConfirmCallback; currentActionData = actionData;
+    document.getElementById('genericConfirmModal').classList.remove('hidden'); document.body.style.overflow = 'hidden';
+  }
+
+  function openInfoStatusModal(title, message, type = 'success', autoCloseDelay = 3000) {
+    const modal = document.getElementById('infoStatusModal');
+    const titleEl = document.getElementById('infoStatusModalTitle');
+    const messageEl = document.getElementById('infoStatusModalMessage');
+    const iconContainer = document.getElementById('infoStatusModalIconContainer');
+    const okButton = document.getElementById('infoStatusModalOkButton');
+
+    titleEl.textContent = title; messageEl.textContent = message;
+    if (infoStatusModalTimeout) clearTimeout(infoStatusModalTimeout);
+    iconContainer.innerHTML = '';
+    let iconName = 'info', iconColorClass = 'text-blue-600', bgColorClass = 'bg-blue-100', btnClass = 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500';
+
+    if (type === 'success') {
+        iconName = 'check'; iconColorClass = 'text-green-600'; bgColorClass = 'bg-green-100'; btnClass = 'bg-green-600 hover:bg-green-700 focus:ring-green-500';
+    } else if (type === 'error') {
+        iconName = 'x-circle'; iconColorClass = 'text-red-600'; bgColorClass = 'bg-red-100'; btnClass = 'bg-red-600 hover:bg-red-700 focus:ring-red-500';
+    }
+    iconContainer.className = `mx-auto flex items-center justify-center h-12 w-12 rounded-full ${bgColorClass} mb-4`;
+    iconContainer.innerHTML = `<i data-lucide="${iconName}" class="h-6 w-6 ${iconColorClass}"></i>`;
+    okButton.className = `inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white ${btnClass} focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm`;
+    lucide.createIcons();
+    modal.classList.remove('hidden'); document.body.style.overflow = 'hidden';
+    if (autoCloseDelay > 0) {
+        infoStatusModalTimeout = setTimeout(() => { closeInfoStatusModal(); }, autoCloseDelay);
+    }
+  }
+
+  // --- DOMContentLoaded & Event Listeners ---
+  document.addEventListener('DOMContentLoaded', async () => {
+      lucide.createIcons();
+      updateUserInfoDisplay();
+      
+      themeToggleButton?.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        setInitialThemeIcon(); 
+      });
+      setInitialThemeIcon();
+
+      mobileMenuButton?.addEventListener('click', openMobileMenu);
+      sidebarCloseButton?.addEventListener('click', closeMobileMenu);
+      sidebarOverlay?.addEventListener('click', closeMobileMenu);
+       document.querySelectorAll('#sidebar nav a').forEach(link => {
+          link.addEventListener('click', () => {
+              if (window.innerWidth < 768) { // md breakpoint
+                  closeMobileMenu();
+              }
+          });
+      });
+
+
+      document.getElementById('addMaintenanceModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeAddMaintenanceModal(); });
+      document.getElementById('viewMaintenanceModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeViewMaintenanceModal(); });
+      document.getElementById('genericConfirmModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeGenericConfirmModal(); });
+      document.getElementById('infoStatusModal').addEventListener('click', e => { if (e.target.id === 'infoStatusModal' || e.target.closest('#infoStatusModalOkButton')) closeInfoStatusModal(); });
+
+      document.getElementById('closeAddMaintenanceModalButtonTop')?.addEventListener('click', closeAddMaintenanceModal);
+      document.getElementById('cancelAddMaintenanceModalButton')?.addEventListener('click', closeAddMaintenanceModal);
+      document.getElementById('closeViewMaintenanceModalButtonTop')?.addEventListener('click', closeViewMaintenanceModal);
+      document.getElementById('closeViewMaintenanceModalButtonBottom')?.addEventListener('click', closeViewMaintenanceModal);
+      document.getElementById('closeGenericConfirmModalButtonX')?.addEventListener('click', closeGenericConfirmModal);
+      
+      document.getElementById('cancelGenericConfirmModalButton')?.addEventListener('click', () => {
+          closeGenericConfirmModal();
+          const maintenanceSubmitButton = document.getElementById('maintenanceSubmitButton');
+          if (maintenanceSubmitButton) {
+              maintenanceSubmitButton.disabled = false;
+          }
+      });
+
+      document.getElementById('genericConfirmModalConfirmBtn').addEventListener('click', async () => {
+        if (typeof currentConfirmAction === 'function') {
+             try {
+                await currentConfirmAction(currentActionData);
+             } catch (error) {
+                console.error("Error in currentConfirmAction:", error);
+                const maintenanceSubmitButton = document.getElementById('maintenanceSubmitButton');
+                if (maintenanceSubmitButton && !document.getElementById('addMaintenanceModal').classList.contains('hidden')) {
+                     maintenanceSubmitButton.disabled = false;
+                }
+             }
+        }
+        closeGenericConfirmModal();
+      });
+
+      const handleLogout = (e) => {
+          e.preventDefault();
+          localStorage.removeItem('accessToken');
+          openInfoStatusModal('Logged Out', 'You have been successfully logged out.', 'success', 2500);
+          updateUserInfoDisplay(); allMaintenances = [];
+          fetchAndRenderMaintenances(); 
+      };
+      document.getElementById('global-logout-btn')?.addEventListener('click', handleLogout);
+      document.getElementById('quick-logout-btn')?.addEventListener('click', handleLogout);
+
+      document.getElementById('openAddMaintenanceModalButton')?.addEventListener('click', openAddMaintenanceModal);
+      document.getElementById('exportExcelButton')?.addEventListener('click', exportMaintenancesExcel);
+      document.getElementById('exportPdfButton')?.addEventListener('click', exportMaintenancesPDF);
+      document.getElementById('maintenanceSearch').addEventListener('input', () => { currentMaintenancePage = 1; renderMaintenancesTable(); });
+      document.getElementById('maintenance-filter-today')?.addEventListener('click', () => applyMaintenanceDateFilter('today'));
+      document.getElementById('maintenance-filter-last7')?.addEventListener('click', () => applyMaintenanceDateFilter('last7days'));
+      document.getElementById('maintenance-filter-last30')?.addEventListener('click', () => applyMaintenanceDateFilter('last30days'));
+      document.getElementById('maintenance-filter-all')?.addEventListener('click', () => applyMaintenanceDateFilter('all'));
+      document.getElementById('maintenance-filter-custom-btn')?.addEventListener('click', toggleMaintenanceCustomDateRange);
+      document.getElementById('applyCustomDateFilterButton')?.addEventListener('click', applyMaintenanceCustomDateFilter);
+      document.getElementById('addMaintenanceForm').addEventListener('submit', handleMaintenanceFormSubmit);
+
+      await initializeMaintenanceSection();
+  });
+
+  // --- Date Helper Functions ---
+  function getISODateString(date) { return new Date(date).toISOString().split('T')[0]; }
+  function getDateRange(filterType) {
+    const today = new Date(); today.setHours(0,0,0,0);
+    let sD = new Date(today); let eD = new Date(today); eD.setHours(23,59,59,999);
+    switch(filterType){
+      case 'today': break;
+      case 'last7days': sD.setDate(today.getDate()-6); break;
+      case 'last30days': sD.setDate(today.getDate()-29); break;
+      case 'all': return {startDate:null,endDate:null};
+      default: return {startDate:null,endDate:null};
+    }
+    return {startDate:getISODateString(sD),endDate:getISODateString(eD)};
+  }
+
+  // --- Initialization & Dropdown Population ---
+  async function initializeMaintenanceSection() {
+    await populateLookupData(); 
+    await fetchAndRenderMaintenances(); 
+    setActiveMaintenanceDateFilterButton('all');
+  }
+
+  async function populateLookupData() {
+    allMaintenanceCategories = await apiRequest('/category_maintenance/?limit=200') || [];
+    allVehiclesForDropdown = await apiRequest('/vehicle/?limit=1000') || [];
+    allGaragesForDropdown = await apiRequest('/garage/?limit=200') || [];
+    populateMaintenanceDropdowns();
+  }
+
+  function populateMaintenanceDropdowns() {
+    const populate = (selectId, data, valueField, textField, placeholder) => {
+        const select = document.getElementById(selectId);
+        select.innerHTML = `<option value="">${placeholder}</option>`;
+        (data || []).forEach(item => {
+            const option = document.createElement('option');
+            option.value = item[valueField];
+            if (textField.includes('+')) {
+                const fields = textField.split('+').map(f => f.trim());
+                option.textContent = fields.map(f => item[f] || 'N/A').join(' ') + (item.plate_number ? ` (${item.plate_number})` : '');
+            } else {
+                option.textContent = item[textField] || `ID: ${item[valueField]}`;
+            }
+            select.appendChild(option);
+        });
+    };
+    populate('cat_maintenance_id_form', allMaintenanceCategories, 'id', 'cat_maintenance', 'Select Category');
+    populate('vehicle_id_form', allVehiclesForDropdown, 'id', 'make+model', 'Select Vehicle');
+    populate('maintenance_garage_id_form', allGaragesForDropdown, 'id', 'nom_garage', 'Select Garage');
+  }
+
+  // --- Filter Logic ---
+  function applyMaintenanceDateFilter(filterType) {
+    activeMaintenanceDateFilter = filterType; customMaintenanceFilterStartDate = null; customMaintenanceFilterEndDate = null;
+    document.getElementById('maintenanceCustomDateRange').classList.add('hidden');
+    setActiveMaintenanceDateFilterButton(filterType); currentMaintenancePage = 1; renderMaintenancesTable();
+  }
+  function toggleMaintenanceCustomDateRange() {
+    document.getElementById('maintenanceCustomDateRange').classList.toggle('hidden');
+    if (!document.getElementById('maintenanceCustomDateRange').classList.contains('hidden')) {
+        setActiveMaintenanceDateFilterButton('maintenance-filter-custom-btn');
+    } else if (activeMaintenanceDateFilter === 'custom') {
+        applyMaintenanceDateFilter('all');
+    }
+  }
+  function applyMaintenanceCustomDateFilter() {
+    const startDate = document.getElementById('maintenanceCustomStartDate').value;
+    const endDate = document.getElementById('maintenanceCustomEndDate').value;
+    if (!startDate || !endDate) { openInfoStatusModal("Input Error","Please select both start and end dates.", "error"); return; }
+    if (new Date(startDate) > new Date(endDate)) { openInfoStatusModal("Input Error", "Start date cannot be after end date.", "error"); return; }
+    activeMaintenanceDateFilter = 'custom'; customMaintenanceFilterStartDate = startDate; customMaintenanceFilterEndDate = endDate;
+    setActiveMaintenanceDateFilterButton('maintenance-filter-custom-btn'); currentMaintenancePage = 1; renderMaintenancesTable();
+  }
+  function setActiveMaintenanceDateFilterButton(filterId) {
+    document.querySelectorAll('#maintenance-section .date-filter-btn').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById(filterId.startsWith('maintenance-filter-') ? filterId : `maintenance-filter-${filterId}`);
+    if (activeBtn) activeBtn.classList.add('active');
+  }
+
+  // --- CRUD & Table Rendering ---
+  async function fetchAndRenderMaintenances(options = {}) {
+    if (!getAuthToken() && !options.isInitialLoadForGuest) { 
+        allMaintenances = []; 
+        renderMaintenancesTable(); 
+        return;
+    }
+
+    const data = await apiRequest(`/maintenance/?limit=10000&skip=0`);
+    allMaintenances = Array.isArray(data) ? data : [];
+
+    const totalPages = Math.ceil(allMaintenances.length / maintenancesPerPage);
+
+    if (options.goToLastPage) {
+        currentMaintenancePage = totalPages > 0 ? totalPages : 1;
+    } else {
+        if (currentMaintenancePage > totalPages) {
+            currentMaintenancePage = totalPages > 0 ? totalPages : 1;
+        }
+        if (allMaintenances.length === 0) {
+            currentMaintenancePage = 1;
+        }
+    }
+    renderMaintenancesTable();
+  }
+
+
+  function renderMaintenancesTable() {
+    let recordsToDisplay = [...allMaintenances];
+    if (!getAuthToken()) { 
+        document.getElementById('maintenancesBody').innerHTML = `<tr><td colspan="8" class="text-center py-8 text-red-500">Please log in to view maintenance records.</td></tr>`;
+        document.getElementById('maintenancesCount').textContent = '0 records';
+        document.getElementById('maintenancesPagination').innerHTML = '';
+        return;
+    }
+
+    if (activeMaintenanceDateFilter !== 'all') {
+      let range = (activeMaintenanceDateFilter === 'custom' && customMaintenanceFilterStartDate && customMaintenanceFilterEndDate)
+                  ? { startDate: customMaintenanceFilterStartDate, endDate: customMaintenanceFilterEndDate }
+                  : getDateRange(activeMaintenanceDateFilter);
+      if (range.startDate && range.endDate) {
+        recordsToDisplay = recordsToDisplay.filter(m => {
+          const mDate = getISODateString(new Date(m.maintenance_date));
+          return mDate >= range.startDate && mDate <= range.endDate;
+        });
+      }
+    }
+    const searchTerm = document.getElementById('maintenanceSearch').value.toLowerCase();
+    if (searchTerm) {
+      recordsToDisplay = recordsToDisplay.filter(m => {
+        const cat = (allMaintenanceCategories.find(c => c.id === m.cat_maintenance_id)?.cat_maintenance.toLowerCase()) || '';
+        const veh = allVehiclesForDropdown.find(v => v.id === m.vehicle_id);
+        const vehText = veh ? `${veh.make||''} ${veh.model||''} ${veh.plate_number||''}`.toLowerCase() : '';
+        const gar = (allGaragesForDropdown.find(g => g.id === m.garage_id)?.nom_garage.toLowerCase()) || '';
+        const receipt = m.receipt ? m.receipt.toLowerCase() : '';
+        return (m.id.toString().includes(searchTerm)) || cat.includes(searchTerm) || vehText.includes(searchTerm) ||
+               (m.maintenance_cost.toString().includes(searchTerm)) || receipt.includes(searchTerm) || gar.includes(searchTerm);
+      });
+    }
+
+    const start = (currentMaintenancePage - 1) * maintenancesPerPage;
+    const paginatedRecords = recordsToDisplay.slice(start, start + maintenancesPerPage);
+    const maintenancesBody = document.getElementById('maintenancesBody');
+
+    maintenancesBody.innerHTML = paginatedRecords.length > 0 ? paginatedRecords.map(m => {
+      const catName = (allMaintenanceCategories.find(c => c.id === m.cat_maintenance_id)?.cat_maintenance) || `Cat.ID ${m.cat_maintenance_id}`;
+      const veh = allVehiclesForDropdown.find(v => v.id === m.vehicle_id);
+      const vehName = veh ? `${veh.make||'N/A'} ${veh.model||'N/A'} (${veh.plate_number||'N/A'})` : `Veh.ID ${m.vehicle_id}`;
+      const garName = (allGaragesForDropdown.find(g => g.id === m.garage_id)?.nom_garage) || `Gar.ID ${m.garage_id}`;
+      return `<tr class="border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50" data-id="${m.id}">
+                <td class="py-3 px-2">${m.id}</td>
+                <td class="px-2">${catName}</td>
+                <td class="px-2">${vehName}</td>
+                <td class="px-2 text-right">${parseFloat(m.maintenance_cost).toFixed(2)}</td>
+                <td class="px-2 truncate max-w-[100px] sm:max-w-xs" title="${m.receipt || ''}">${m.receipt || 'N/A'}</td>
+                <td class="px-2">${garName}</td>
+                <td class="px-2">${new Date(m.maintenance_date).toLocaleDateString()}</td>
+                <td class="px-2 text-center whitespace-nowrap">
+                  <button onclick="openViewMaintenanceModal(${m.id})" class="text-green-600 dark:text-green-400 p-1" title="View"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                  <button onclick="openEditMaintenanceModal(${m.id})" class="text-blue-600 dark:text-blue-400 p-1 ml-1" title="Edit"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                  <button onclick="openConfirmDeleteMaintenanceModal(${m.id})" class="text-red-600 dark:text-red-400 p-1 ml-1" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </td></tr>`;
+    }).join('') : `<tr><td colspan="8" class="text-center py-8 text-gray-500">No maintenance records found${searchTerm || activeMaintenanceDateFilter !== 'all' ? ' matching criteria' : (allMaintenances.length === 0 ? '. Try adding one!' : '')}.</td></tr>`;
+    lucide.createIcons();
+    document.getElementById('maintenancesCount').textContent = `Showing ${paginatedRecords.length > 0 ? start + 1 : 0} to ${Math.min(start + maintenancesPerPage, recordsToDisplay.length)} of ${recordsToDisplay.length} records`;
+    renderMaintenancePagination(recordsToDisplay.length);
+  }
+
+  function renderMaintenancePagination(totalRecordsInView) { 
+    const totalPages = Math.ceil(totalRecordsInView / maintenancesPerPage);
+    const paginationContainer = document.getElementById('maintenancesPagination');
+    paginationContainer.innerHTML = '';
+    if (totalPages <= 1) return;
+
+    const btnClasses = "px-3 py-1.5 text-sm rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-900 focus:ring-blue-500";
+    const itemClasses = "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700";
+    const activeClasses = "bg-blue-500 text-white border border-blue-500 hover:bg-blue-600";
+    const disabledClasses = "bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed";
+
+    const createButton = (text, lucideIcon, pageNum, isDisabled = false, isActive = false) => {
+        const button = document.createElement('button');
+        if (lucideIcon) button.innerHTML = `<i data-lucide="${lucideIcon}" class="w-4 h-4 inline-block mr-1"></i> `;
+        button.appendChild(document.createTextNode(text));
+        button.className = `${btnClasses} ${isDisabled ? disabledClasses : (isActive ? activeClasses : itemClasses)}`;
+        if (!isDisabled) button.onclick = () => { currentMaintenancePage = pageNum; renderMaintenancesTable(); }; 
+        else button.disabled = true;
+        return button;
+    };
+    paginationContainer.appendChild(createButton('Prev', 'chevron-left', currentMaintenancePage - 1, currentMaintenancePage === 1));
+
+    const pageInfo = document.createElement('span');
+    pageInfo.className = "px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400";
+    pageInfo.textContent = `Page ${currentMaintenancePage} of ${totalPages}`;
+    paginationContainer.appendChild(pageInfo);
+
+    paginationContainer.appendChild(createButton('Next', 'chevron-right', currentMaintenancePage + 1, currentMaintenancePage === totalPages));
+    lucide.createIcons();
+  }
+
+  // --- Modal Operations ---
+  function openAddMaintenanceModal() {
+    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to add records.", "error"); return; }
+    maintenanceToEditId = null;
+    document.getElementById('addMaintenanceForm').reset();
+    document.getElementById('maintenanceModalTitle').textContent = "Add New Maintenance Record";
+    document.getElementById('maintenanceSubmitButton').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4 mr-1"></i> Add Record`;
+    document.getElementById('maintenanceSubmitButton').disabled = false; 
+    lucide.createIcons();
+    document.getElementById('addMaintenanceModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  async function openEditMaintenanceModal(id) {
+    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to edit records.", "error"); return; }
+    const m = await apiRequest(`/maintenance/${id}`);
+    if (!m) { openInfoStatusModal("Error","Could not fetch record for editing.", "error"); return; }
+    maintenanceToEditId = id;
+    document.getElementById('maintenanceModalTitle').textContent = "Edit Maintenance Record";
+    document.getElementById('maintenanceSubmitButton').innerHTML = `<i data-lucide="save" class="w-4 h-4 mr-1"></i> Save Changes`;
+    document.getElementById('maintenanceSubmitButton').disabled = false; 
+    lucide.createIcons();
+    document.getElementById('maintenanceId_form').value = m.id;
+    document.getElementById('cat_maintenance_id_form').value = m.cat_maintenance_id;
+    document.getElementById('vehicle_id_form').value = m.vehicle_id;
+    document.getElementById('maintenance_cost_form').value = m.maintenance_cost;
+    document.getElementById('maintenance_receipt_form').value = m.receipt;
+    document.getElementById('maintenance_garage_id_form').value = m.garage_id;
+    document.getElementById('maintenance_date_form').value = new Date(m.maintenance_date).toISOString().split('T')[0];
+    document.getElementById('addMaintenanceModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  async function openViewMaintenanceModal(id) {
+    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to view records.", "error"); return; }
+    const m = await apiRequest(`/maintenance/${id}`);
+    if (!m) { openInfoStatusModal("Error", "Could not fetch record details.", "error"); return; }
+    const catName = (allMaintenanceCategories.find(c => c.id === m.cat_maintenance_id)?.cat_maintenance) || `Cat.ID ${m.cat_maintenance_id}`;
+    const veh = allVehiclesForDropdown.find(v => v.id === m.vehicle_id);
+    const vehName = veh ? `${veh.make||'N/A'} ${veh.model||'N/A'} (${veh.plate_number||'N/A'})` : `Veh.ID ${m.vehicle_id}`;
+    const garName = (allGaragesForDropdown.find(g => g.id === m.garage_id)?.nom_garage) || `Gar.ID ${m.garage_id}`;
+
+    document.getElementById('view-maintenance-id').textContent = m.id;
+    document.getElementById('view-maintenance-category').textContent = catName;
+    document.getElementById('view-maintenance-vehicle').textContent = vehName;
+    document.getElementById('view-maintenance-cost').textContent = `$${parseFloat(m.maintenance_cost).toFixed(2)}`;
+    document.getElementById('view-maintenance-receipt').textContent = m.receipt || 'N/A';
+    document.getElementById('view-maintenance-garage').textContent = garName;
+    document.getElementById('view-maintenance-maintenance_date').textContent = new Date(m.maintenance_date).toLocaleDateString();
+    document.getElementById('view-maintenance-created_at').textContent = new Date(m.created_at).toLocaleString();
+    document.getElementById('viewMaintenanceModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  async function handleMaintenanceFormSubmit(event) {
+    event.preventDefault();
+    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in.", "error"); return; }
+
+    const submitButton = document.getElementById('maintenanceSubmitButton');
+    if (submitButton.disabled) return; 
+    submitButton.disabled = true; 
+
+    const formData = {
+      cat_maintenance_id: parseInt(document.getElementById('cat_maintenance_id_form').value),
+      vehicle_id: parseInt(document.getElementById('vehicle_id_form').value),
+      maintenance_cost: parseFloat(document.getElementById('maintenance_cost_form').value),
+      receipt: document.getElementById('maintenance_receipt_form').value.trim(),
+      garage_id: parseInt(document.getElementById('maintenance_garage_id_form').value),
+      maintenance_date: document.getElementById('maintenance_date_form').value
+    };
+    if (!formData.cat_maintenance_id || !formData.vehicle_id || isNaN(formData.maintenance_cost) || !formData.receipt || !formData.garage_id || !formData.maintenance_date) {
+      openInfoStatusModal("Validation Error", "Please fill all required fields correctly.", "error");
+      submitButton.disabled = false; 
+      return;
+    }
+    if (formData.maintenance_cost < 0) {
+        openInfoStatusModal("Validation Error", "Maintenance cost cannot be negative.", "error");
+        submitButton.disabled = false; return;
+    }
+    const today = new Date().toISOString().split('T')[0];
+    if (formData.maintenance_date > today) {
+        openInfoStatusModal("Validation Error", "Maintenance date cannot be in the future.", "error");
+        submitButton.disabled = false; return;
+    }
+    formData.maintenance_date = new Date(formData.maintenance_date).toISOString();
+
+    const actionType = maintenanceToEditId ? "update" : "add";
+    openGenericConfirmModal(
+        maintenanceToEditId ? "Confirm Update" : "Confirm Add",
+        `Are you sure you want to ${actionType} this maintenance record?`,
+        maintenanceToEditId ? "Update" : "Add", maintenanceToEditId ? "save" : "plus-circle",
+        async (data) => { 
+            let result;
+            try {
+                if (maintenanceToEditId) {
+                    result = await apiRequest(`/maintenance/${maintenanceToEditId}`, 'PUT', data);
+                } else {
+                    result = await apiRequest('/maintenance/', 'POST', data);
+                }
+
+                if (result) {
+                    openInfoStatusModal("Success", `Maintenance record ${actionType}d successfully!`, "success");
+                    closeAddMaintenanceModal(); 
+                    await fetchAndRenderMaintenances({ goToLastPage: actionType === 'add' });
+                } else {
+                    if (submitButton) submitButton.disabled = false; 
+                }
+            } catch (error) {
+                console.error("Error processing maintenance form action:", error);
+                openInfoStatusModal("Processing Error", `An error occurred: ${error.message || 'Unknown error'}.`, "error");
+                if (submitButton) submitButton.disabled = false; 
+            }
+        },
+        formData
+    );
+  }
+
+  function openConfirmDeleteMaintenanceModal(id) {
+      if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to delete.", "error"); return; }
+      openGenericConfirmModal(
+        "Confirm Deletion", `Are you sure you want to delete maintenance record ID: ${id}? This action cannot be undone.`,
+        "Delete", "trash-2",
+        async (recordIdToDelete) => {
+            const result = await apiRequest(`/maintenance/${recordIdToDelete}`, 'DELETE');
+            if (result === true) {
+                openInfoStatusModal("Success", `Maintenance record ID: ${recordIdToDelete} deleted successfully.`, "success");
+                await fetchAndRenderMaintenances(); 
+            }
+        },
+        id
+      );
+  }
+
+  // --- Export Functions ---
+  function getFilteredMaintenancesForExport() {
+    let recordsToExport = [...allMaintenances];
+    if (activeMaintenanceDateFilter !== 'all') {
+      let range = (activeMaintenanceDateFilter === 'custom' && customMaintenanceFilterStartDate && customMaintenanceFilterEndDate)
+                  ? { startDate: customMaintenanceFilterStartDate, endDate: customMaintenanceFilterEndDate }
+                  : getDateRange(activeMaintenanceDateFilter);
+      if (range.startDate && range.endDate) {
+        recordsToExport = recordsToExport.filter(m => {
+          const mDate = getISODateString(new Date(m.maintenance_date));
+          return mDate >= range.startDate && mDate <= range.endDate;
+        });
+      }
+    }
+    const searchTerm = document.getElementById('maintenanceSearch').value.toLowerCase();
+    if (searchTerm) {
+      recordsToExport = recordsToExport.filter(m => {
+        const cat = (allMaintenanceCategories.find(c => c.id === m.cat_maintenance_id)?.cat_maintenance.toLowerCase()) || '';
+        const veh = allVehiclesForDropdown.find(v => v.id === m.vehicle_id);
+        const vehText = veh ? `${veh.make||''} ${veh.model||''} ${veh.plate_number||''}`.toLowerCase() : '';
+        const gar = (allGaragesForDropdown.find(g => g.id === m.garage_id)?.nom_garage.toLowerCase()) || '';
+        const receipt = m.receipt ? m.receipt.toLowerCase() : '';
+        return (m.id.toString().includes(searchTerm)) || cat.includes(searchTerm) || vehText.includes(searchTerm) ||
+               (m.maintenance_cost.toString().includes(searchTerm)) || receipt.includes(searchTerm) || gar.includes(searchTerm);
+      });
+    }
+    return recordsToExport;
+  }
+
+  function exportMaintenancesExcel() {
+    const records = getFilteredMaintenancesForExport();
+    if (records.length === 0) { openInfoStatusModal("Info", "No data to export based on current filters.", "info"); return; }
+    const data = records.map(m => ({
+        ID: m.id,
+        Category: (allMaintenanceCategories.find(c => c.id === m.cat_maintenance_id)?.cat_maintenance) || `Cat.ID ${m.cat_maintenance_id}`,
+        Vehicle: ((v=allVehiclesForDropdown.find(ve=>ve.id===m.vehicle_id)) => v ? `${v.make||'N/A'} ${v.model||'N/A'} (${v.plate_number||'N/A'})` : `Veh.ID ${m.vehicle_id}`)(),
+        Cost: parseFloat(m.maintenance_cost).toFixed(2),
+        Receipt: m.receipt,
+        Garage: (allGaragesForDropdown.find(g => g.id === m.garage_id)?.nom_garage) || `Gar.ID ${m.garage_id}`,
+        'Maintenance Date': new Date(m.maintenance_date).toLocaleDateString(),
+        'Created At': new Date(m.created_at).toLocaleString()
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Maintenances");
+    XLSX.writeFile(wb, "maintenances_export.xlsx");
+    openInfoStatusModal("Success", "Data exported to Excel.", "success");
+  }
+
+  function exportMaintenancesPDF() {
+    const records = getFilteredMaintenancesForExport();
+    if (records.length === 0) { openInfoStatusModal("Info", "No data to export based on current filters.", "info"); return; }
+    const {jsPDF} = window.jspdf; const doc = new jsPDF('l');
+    doc.setFontSize(18); doc.text('Maintenance Records', 14, 15);
+    const headers = [['ID', 'Category', 'Vehicle (Plate)', 'Cost ($)', 'Receipt (Ref)', 'Garage', 'Maint. Date']];
+    const data = records.map(m => [
+        m.id,
+        (allMaintenanceCategories.find(c => c.id === m.cat_maintenance_id)?.cat_maintenance) || `Cat.ID ${m.cat_maintenance_id}`,
+        (allVehiclesForDropdown.find(v => v.id === m.vehicle_id)?.plate_number) || `Veh.ID ${m.vehicle_id}`,
+        parseFloat(m.maintenance_cost).toFixed(2),
+        m.receipt ? m.receipt.substring(0,20)+(m.receipt.length > 20 ? '...' : '') : 'N/A',
+        (allGaragesForDropdown.find(g => g.id === m.garage_id)?.nom_garage) || `Gar.ID ${m.garage_id}`,
+        new Date(m.maintenance_date).toLocaleDateString()
+    ]);
+    doc.autoTable({ head: headers, body: data, startY: 25, theme:'grid', headStyles:{fillColor:[59,130,246],textColor:255},
+                    columnStyles: {0:{cellWidth:10}, 3:{halign:'right', cellWidth:20}, 4:{cellWidth:35}} });
+    doc.save('maintenances_export.pdf');
+    openInfoStatusModal("Success", "Data exported to PDF.", "success");
+  }
+</script>
+</body>
+</html>

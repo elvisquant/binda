@@ -1,0 +1,109 @@
+<!-- content/dashboard-overview.html -->
+<header class="flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0 mb-6 md:mb-8">
+    <div class="flex items-center w-full sm:w-auto">
+        <!-- Mobile menu button is part of the shell, not content -->
+        <h1 id="page-title-display" class="text-2xl sm:text-3xl font-semibold text-gray-800 dark:text-white">Dashboard Overview</h1>
+    </div>
+    <div class="flex items-center space-x-3">
+        <div class="relative">
+             <button id="quickAddBtn" class="btn btn-primary flex items-center gap-2 shadow-sm">
+                <i data-lucide="plus-circle" class="w-5 h-5"></i> Quick Add
+            </button>
+            <div id="quickAddDropdown" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-xl z-10 hidden origin-top-right">
+                <a href="#vehicles_add" data-module-action="add" data-target-module="vehicles" class="quick-add-link block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">New Vehicle</a>
+                <a href="#fuel_add" data-module-action="add" data-target-module="fuel" class="quick-add-link block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">Log Fuel</a>
+                <a href="#pannes_add" data-module-action="add" data-target-module="pannes" class="quick-add-link block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">Report Panne</a>
+            </div>
+        </div>
+        <input type="date" id="dashboardDateFilter" class="form-input text-sm appearance-none">
+    </div>
+</header>
+
+<!-- KPI Cards Section -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+    <div class="kpi-card bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg flex items-start justify-between">
+        <div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Total Vehicles</p>
+            <p id="kpiTotalVehicles" class="kpi-value font-bold text-gray-800 dark:text-white mt-1">0</p>
+            <p id="kpiTotalVehiclesChange" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">-</p>
+        </div>
+        <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400"> {/* Using Tailwind standard colors */}
+            <i data-lucide="truck" class="w-6 h-6"></i>
+        </div>
+    </div>
+    <div class="kpi-card bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg flex items-start justify-between">
+        <div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Active Trips</p>
+            <p id="kpiActiveTrips" class="kpi-value font-bold text-gray-800 dark:text-white mt-1">0</p>
+            <p id="kpiActiveTripsChange" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">-</p>
+        </div>
+        <div class="p-3 rounded-full bg-green-100 dark:bg-green-600/20 text-green-600 dark:text-green-400">
+            <i data-lucide="route" class="w-6 h-6"></i>
+        </div>
+    </div>
+    <div class="kpi-card bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg flex items-start justify-between">
+         <div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Repairs (Month)</p>
+            <p id="kpiRepairsMonth" class="kpi-value font-bold text-gray-800 dark:text-white mt-1">0</p>
+            <p id="kpiRepairsMonthChange" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">-</p>
+        </div>
+        <div class="p-3 rounded-full bg-yellow-100 dark:bg-yellow-500/20 text-yellow-500 dark:text-yellow-400">
+            <i data-lucide="wrench" class="w-6 h-6"></i>
+        </div>
+    </div>
+    <div class="kpi-card bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg flex items-start justify-between">
+        <div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Fuel Cost (Today)</p>
+            <p id="kpiFuelCostToday" class="kpi-value font-bold text-gray-800 dark:text-white mt-1">$0</p>
+            <p id="kpiFuelCostTodayChange" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">-</p>
+        </div>
+        <div class="p-3 rounded-full bg-red-100 dark:bg-red-600/20 text-red-600 dark:text-red-400">
+            <i data-lucide="fuel" class="w-6 h-6"></i>
+        </div>
+    </div>
+</section>
+
+<!-- Charts Section -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+    <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+        <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Monthly Activity Summary</h3>
+        <div class="h-72 md:h-80"><canvas id="monthlyActivityChart"></canvas></div>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+        <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Vehicle Status</h3>
+        <div class="h-72 md:h-80 flex items-center justify-center"><canvas id="vehicleStatusChart"></canvas></div>
+    </div>
+</section>
+
+<!-- System Health & Top Performers, Recent Pannes, Upcoming Maintenance -->
+<!-- These sections can also be part of dashboard-overview.html -->
+<!-- For brevity, I'm omitting their full HTML, but you would move them here too -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+    <div class="md:col-span-1 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+        <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">System Health</h3>
+        <div class="space-y-3">
+            {/* System health items */}
+        </div>
+    </div>
+    <div class="md:col-span-2 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+         <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Top Performing Drivers</h3>
+         <ul class="space-y-3">
+            {/* Driver list items */}
+         </ul>
+    </div>
+</section>
+
+<section class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+        <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Recent Critical Pannes</h3>
+        <ul class="space-y-3 max-h-60 overflow-y-auto">
+           {/* Panne list items */}
+        </ul>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+        <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Upcoming Maintenance</h3>
+        <ul class="space-y-3 max-h-60 overflow-y-auto">
+            {/* Maintenance list items */}
+        </ul>
+    </div>
+</section>

@@ -1,0 +1,118 @@
+<!-- login.html (Minor adjustment to API URL and potentially error handling) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - FleetDash</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900">
+    <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-md">
+        <div class="text-center mb-8">
+            <i data-lucide="command" class="w-12 h-12 mx-auto text-blue-600 dark:text-blue-400"></i>
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-white mt-2">FleetDash Login</h1>
+        </div>
+        <form id="loginForm" class="space-y-6">
+            <div>
+                <label for="identifier" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username or Email</label>
+                <input type="text" id="identifier" name="identifier" required
+                       class="mt-1 block w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                       placeholder="you@example.com">
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+                <input type="password" id="password" name="password" required
+                       class="mt-1 block w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                       placeholder="••••••••">
+            </div>
+            <div>
+                <button type="submit" id="loginButton"
+                        class="w-full flex justify-center items-center px-4 py-2.5 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800">
+                    <span class="button-text">Sign In</span>
+                    <div class="loader-dots hidden">
+                        <span class="dot animate-pulse">.</span><span class="dot animate-pulse delay-75">.</span><span class="dot animate-pulse delay-150">.</span>
+                    </div>
+                </button>
+            </div>
+        </form>
+        <p id="loginError" class="mt-4 text-center text-sm text-red-500 dark:text-red-400 hidden"></p>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        const API_BASE_URL = 'http://localhost:8000'; // Your API base URL
+        const LOGIN_ENDPOINT = '/login/'; // Corrected based on your router prefix and route
+
+        const loginForm = document.getElementById('loginForm');
+        const loginButton = document.getElementById('loginButton');
+        const buttonText = loginButton.querySelector('.button-text');
+        const loaderDots = loginButton.querySelector('.loader-dots');
+        const loginError = document.getElementById('loginError');
+
+        loginForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            loginError.classList.add('hidden');
+            loginError.textContent = '';
+            buttonText.classList.add('hidden');
+            loaderDots.classList.remove('hidden');
+            loginButton.disabled = true;
+
+            const identifier = document.getElementById('identifier').value; // Use 'identifier' for the input field ID
+            const passwordValue = document.getElementById('password').value;
+
+            const formData = new URLSearchParams();
+            // OAuth2PasswordRequestForm expects 'username' field for the identifier
+            formData.append('username', identifier);
+            formData.append('password', passwordValue);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}${LOGIN_ENDPOINT}`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Your backend returns schemas.Token which includes user_id, username, status
+                    localStorage.setItem('accessToken', data.access_token);
+                    localStorage.setItem('tokenType', data.token_type);
+                    // Store additional user info if needed for display, e.g., in right sidebar
+                    const userInfo = {
+                        userId: data.user_id,
+                        username: data.username,
+                        status: data.status
+                        // You might want to add 'email' if your token or login response includes it
+                        // or fetch /users/me after login.
+                    };
+                    localStorage.setItem('userInfo', JSON.stringify(userInfo));
+
+                    window.location.href = '/dashboard';
+                 
+                } else {
+                    // Display the specific error message from the backend
+                    loginError.textContent = data.detail || 'Login failed. Please check your credentials.';
+                    loginError.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                loginError.textContent = 'An error occurred during login. Please try again.';
+                loginError.classList.remove('hidden');
+            } finally {
+                buttonText.classList.remove('hidden');
+                loaderDots.classList.add('hidden');
+                loginButton.disabled = false;
+            }
+        });
+    </script>
+    <style>.loader-dots .dot { animation-duration: 1s; } .delay-75 {animation-delay: 0.075s;} .delay-150 {animation-delay: 0.15s;}</style>
+</body>
+</html>

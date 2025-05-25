@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - User Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' }
+  </script>
+  <style>
+    .modal { transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out; }
+    .modal.hidden { visibility: hidden; opacity: 0; }
+    .modal:not(.hidden) { visibility: visible; opacity: 1; }
+    .dark .modal-content { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5), 0 10px 10px -5px rgba(0,0,0,0.2); }
+    .date-filter-btn.active { background-color: #3b82f6; color: white; }
+    .dark .date-filter-btn.active { background-color: #60a5fa; }
+    .view-detail-label { font-weight: 500; color: #4b5563; }
+    .dark .view-detail-label { color: #d1d5db; }
+    .view-detail-value { color: #1f2937; }
+    .dark .view-detail-value { color: #f9fafb; }
+    #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); color: white; display: flex; justify-content: center; align-items: center; z-index: 1000; font-size: 2em; visibility: hidden; }
+    .toast {
+      transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, visibility 0.3s ease-in-out;
+      visibility: hidden;
+      opacity: 0;
+      transform: translateX(100%); 
+    }
+    .toast.show {
+      visibility: visible;
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
+
+<!-- Toast Container -->
+<div id="toast-container" class="fixed top-5 right-5 z-[100] space-y-2 w-full max-w-xs sm:max-w-sm md:max-w-md">
+</div>
+
+<!-- Main application wrapper -->
+<div class="flex h-screen">
+
+    <!-- Sidebar (Left) - Modified for responsiveness -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg 
+                             transform -translate-x-full transition-transform duration-300 ease-in-out 
+                             md:relative md:translate-x-0 md:shadow-lg md:border-r dark:border-gray-700 
+                             flex flex-col flex-shrink-0">
+      <div class="flex justify-between items-center">
+        <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
+          <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
+        </div>
+        <!-- Close button for mobile sidebar -->
+        <button id="sidebar-close-button" class="md:hidden text-gray-700 dark:text-gray-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+      <nav class="flex-1 overflow-y-auto">
+        <ul class="space-y-2">
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="layout-dashboard" class="w-5 h-5"></i><a href="dashboard.html">Dashboard</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="pie-chart" class="w-5 h-5"></i><a href="analytics.html">Analytics</a>
+        </li>
+        <li class="flex items-center space-x-3 text-blue-600 dark:text-blue-400 font-semibold bg-blue-50 dark:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="users" class="w-5 h-5"></i><a href="users.html">User</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="user" class="w-5 h-5"></i><a href="driver.html">Driver</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="alert-triangle" class="w-5 h-5"></i><a href="panne.html">Pannes (Issues)</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="car" class="w-5 h-5"></i><a href="vehicle.html">Vehicles</a>
+        </li>
+         <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="wrench" class="w-5 h-5"></i><a href="reparation.html">Reparation</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="droplet" class="w-5 h-5"></i><a href="fuel.html">Fuel</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="settings" class="w-5 h-5"></i><a href="maintenance.html">Maintenance</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="route" class="w-5 h-5"></i><a href="trip.html">Trip</a>
+        </li>
+      </ul>
+      </nav>
+       <div class="pt-4 border-t border-gray-200 dark:border-gray-700/50 mt-auto">
+            <a href="#" id="global-logout-btn" class="flex items-center space-x-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/40 p-2.5 rounded-lg transition-colors">
+                <i data-lucide="log-out" class="w-5 h-5"></i><span>Logout</span>
+            </a>
+       </div>
+    </aside>
+
+    <!-- Overlay for mobile menu -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+    
+    <!-- Content Area Wrapper (Header + Main Content + Right Sidebar) -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      
+      <!-- Header (Mobile Hamburger, Desktop Title, Theme Toggle, User Info) -->
+      <header class="bg-white dark:bg-gray-800 shadow p-3 flex justify-between items-center flex-shrink-0 h-16">
+          <!-- Hamburger Menu Button - visible only on mobile -->
+          <button id="mobile-menu-button" class="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none p-2">
+              <i data-lucide="menu" class="w-6 h-6"></i>
+          </button>
+          
+          <!-- Mobile Title - visible only on mobile -->
+          <div class="text-lg font-bold text-primary dark:text-primary-light md:hidden">
+              FleetDash
+          </div>
+
+          <!-- Desktop Title/Context - hidden on mobile -->
+          <div class="hidden md:block text-xl font-semibold text-gray-700 dark:text-gray-200">
+              User Management
+          </div>
+          
+          <!-- Right side of header: Theme Toggle & User Info -->
+          <div class="flex items-center space-x-3">
+              <button id="theme-toggle-header" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                  <!-- Icon will be set by JS -->
+              </button>
+              <!-- User info for desktop header - hidden on mobile -->
+              <div class="hidden md:flex items-center space-x-2">
+                  <div class="text-sm font-semibold" id="userDisplayNameHeader">User</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400" id="currentUserRoleDisplayHeader">Role</div>
+              </div>
+          </div>
+      </header>
+
+      <!-- Main scrollable content area (Main Page Content + Right Sidebar) -->
+      <div class="flex-1 flex overflow-hidden">
+        <main class="flex-1 overflow-y-auto p-6">
+          <section id="user-section" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
+             <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
+              <div class="flex flex-wrap gap-2 items-center">
+                <button onclick="openAddUserModal()" class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 text-sm shadow-sm">
+                  <i data-lucide="user-plus" class="w-4 h-4"></i> Add User
+                </button>
+                <input type="text" id="userSearch" placeholder="Search users (email/username)..." class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
+              </div>
+              <div class="flex flex-wrap gap-2 items-center">
+                <button onclick="exportUsersExcel()" class="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 text-sm shadow-sm">📄 Excel</button>
+                <button onclick="exportUsersPDF()" class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 text-sm shadow-sm">🧾 PDF</button>
+              </div>
+            </div>
+             <div class="mb-4 flex flex-wrap items-center gap-2">
+              <span class="text-sm font-medium mr-2">Filter Users by Creation Date:</span>
+              <button id="user-filter-today" onclick="applyUserDateFilter('today')" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Today</button>
+              <button id="user-filter-last7" onclick="applyUserDateFilter('last7days')" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Last 7 Days</button>
+              <button id="user-filter-last30" onclick="applyUserDateFilter('last30days')" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Last 30 Days</button>
+              <button id="user-filter-all" onclick="applyUserDateFilter('all')" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 active">All Time</button>
+              <button id="user-filter-custom-btn" onclick="toggleUserCustomDateRange()" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Custom Range</button>
+            </div>
+            <div id="userCustomDateRange" class="mb-4 hidden items-center gap-2 p-3 border dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800/50">
+              <input type="date" id="userCustomStartDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
+              <span class="text-sm">to</span>
+              <input type="date" id="userCustomEndDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
+              <button onclick="applyUserCustomDateFilter()" class="bg-blue-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-blue-600">Apply</button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table id="usersTable" class="w-full text-left text-sm">
+                <thead>
+                  <tr class="border-b dark:border-gray-700">
+                    <th class="py-3 px-2 font-semibold">ID</th>
+                    <th class="px-2 font-semibold">Username</th>
+                    <th class="px-2 font-semibold">Email</th>
+                    <th class="px-2 font-semibold">Status</th>
+                    <th class="px-2 font-semibold">Created At</th>
+                    <th class="px-2 font-semibold text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="usersBody"></tbody>
+              </table>
+            </div>
+            <div class="mt-6 flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
+              <div class="text-sm text-gray-600 dark:text-gray-400" id="usersCount"></div>
+              <div class="flex items-center space-x-1" id="usersPagination"></div> 
+            </div>
+          </section>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="w-1/5 bg-white dark:bg-gray-800 p-4 space-y-6 shadow-md hidden lg:block flex-shrink-0 overflow-y-auto border-l dark:border-gray-700">
+            <div class="flex justify-end items-center">
+              <div>
+                  <div class="text-sm font-semibold text-right" id="currentUserDisplayUsernameRightSidebar">User</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400 text-right" id="currentUserRoleDisplayRightSidebar">Role</div>
+              </div>
+            </div>
+            <!-- Add user-specific right sidebar content here if needed -->
+        </aside>
+      </div>
+    </div>
+</div>
+
+<!-- MODALS -->
+<!-- Add/Edit User Modal -->
+<div id="addUserModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
+  <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h3 class="text-xl font-bold text-gray-800 dark:text-white" id="userModalTitle">Add New User</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Fill in the user details below</p>
+        </div>
+        <button onclick="closeAddUserModal()" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i data-lucide="x" class="w-5 h-5 text-gray-500 dark:text-gray-400"></i>
+        </button>
+      </div>
+      <form id="addUserForm" class="space-y-4">
+        <input type="hidden" id="userId_form"> 
+        <div>
+          <label for="user_username_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Username</label>
+          <input type="text" id="user_username_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="e.g., johndoe">
+        </div>
+        <div>
+          <label for="user_email_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+          <input type="email" id="user_email_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="user@example.com">
+        </div>
+        <div>
+          <label for="user_password_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+          <input type="password" id="user_password_form" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Enter new password">
+          <p id="passwordHint" class="text-xs text-gray-500 dark:text-gray-400 mt-1 hidden">Leave blank to keep current password.</p>
+        </div>
+         <div>
+          <label for="user_status_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+          <select id="user_status_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+          </select>
+        </div>
+        <div class="flex justify-end gap-3 pt-4">
+          <button type="button" onclick="closeAddUserModal()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
+          <button type="submit" id="userSubmitButton" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center gap-2">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i> Add User
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- View User Record Modal -->
+<div id="viewUserModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
+  <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-gray-800 dark:text-white">User Details</h3>
+        <button onclick="closeViewUserModal()" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i data-lucide="x" class="w-5 h-5 text-gray-500 dark:text-gray-400"></i>
+        </button>
+      </div>
+      <div id="viewUserDetails" class="space-y-3 text-sm">
+        <div class="grid grid-cols-3 gap-x-4"><span class="view-detail-label col-span-1">User ID:</span><span id="view-user-id" class="view-detail-value col-span-2"></span></div>
+        <div class="grid grid-cols-3 gap-x-4"><span class="view-detail-label col-span-1">Username:</span><span id="view-user-username" class="view-detail-value col-span-2"></span></div>
+        <div class="grid grid-cols-3 gap-x-4"><span class="view-detail-label col-span-1">Email:</span><span id="view-user-email" class="view-detail-value col-span-2"></span></div>
+        <div class="grid grid-cols-3 gap-x-4"><span class="view-detail-label col-span-1">Status:</span><span id="view-user-status" class="view-detail-value col-span-2"></span></div>
+        <div class="grid grid-cols-3 gap-x-4"><span class="view-detail-label col-span-1">Created At:</span><span id="view-user-created_at" class="view-detail-value col-span-2"></span></div>
+      </div>
+      <div class="flex justify-end pt-6">
+          <button type="button" onclick="closeViewUserModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Confirmation Modal for User Deletion -->
+<div id="confirmDeleteUserModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
+  <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-6">
+        <div><h3 class="text-xl font-bold text-gray-800 dark:text-white">Confirm Deletion</h3><p class="text-sm text-gray-500 dark:text-gray-400">Are you sure you want to delete this user?</p></div>
+        <button onclick="closeConfirmDeleteUserModal()" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"><i data-lucide="x" class="w-5 h-5 text-gray-500 dark:text-gray-400"></i></button>
+      </div>
+      <div class="flex justify-end gap-3 pt-4">
+        <button onclick="closeConfirmDeleteUserModal()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
+        <button id="confirmDeleteUserBtn" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center gap-2"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Generic Success/Confirmation Modal -->
+<div id="operationSuccessModal" class="modal fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black bg-opacity-60 hidden">
+  <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-sm text-center">
+    <div class="p-6 space-y-4">
+      <div id="successModalIconContainer" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 dark:bg-green-700/30">
+        <!-- Icon will be placed here by JS -->
+      </div>
+      <h3 id="successModalTitle" class="text-xl font-semibold text-gray-900 dark:text-white">Success!</h3>
+      <p id="successModalMessage" class="text-sm text-gray-600 dark:text-gray-400">Your operation was completed successfully.</p>
+      <button id="successModalOkButton" 
+              onclick="closeOperationSuccessModalAndRefresh()" 
+              class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2.5 px-4 rounded-lg transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+        OK
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<div id="loading-overlay">Loading...</div>
+
+<script>
+  // --- Global Variables for User ---
+  let allFetchedUsers = []; 
+  const usersPerPage = 10;
+  let currentUserPage = 1;
+  let userToEditId = null; 
+  let userToDeleteId = null; // This will be set when delete confirmation is opened
+  let activeUserDateFilter = 'all'; 
+  let customUserFilterStartDate = null; 
+  let customUserFilterEndDate = null;
+  const userStatuses = ["active", "inactive", "pending_approval", "suspended"]; 
+  const API_BASE_URL = 'http://34.201.67.218:8000';
+  const USER_API_ENDPOINT = '/user/'; // Corrected: Specific endpoint for users
+  const LOGIN_PAGE_URL = "login.html"; 
+
+  // --- Sidebar Toggle Functionality ---
+  const sidebar = document.getElementById('sidebar');
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const sidebarCloseButton = document.getElementById('sidebar-close-button'); 
+  const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+  function openMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('translate-x-0');
+        sidebarOverlay.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden', 'md:overflow-auto');
+    }
+  }
+
+  function closeMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.add('-translate-x-full');
+        sidebar.classList.remove('translate-x-0');
+        sidebarOverlay.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+  }
+  
+  // --- Theme Toggle ---
+  const themeToggleButtonHeader = document.getElementById('theme-toggle-header'); 
+  function setInitialThemeIcon() {
+    if (themeToggleButtonHeader) { 
+        if (document.documentElement.classList.contains('dark')) {
+            themeToggleButtonHeader.innerHTML = '<i data-lucide="sun" class="w-5 h-5"></i>';
+        } else {
+            themeToggleButtonHeader.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>';
+        }
+        lucide.createIcons();
+    }
+  }
+
+  // --- Toast Notification System ---
+  const toastContainer = document.getElementById('toast-container');
+  function showToast(message, type = 'info', duration = 4000) {
+      if (!toastContainer) { alert(message); return; }
+      const toast = document.createElement('div');
+      toast.className = `toast p-4 rounded-lg shadow-lg flex items-center space-x-3 min-w-[250px] max-w-md break-words`; 
+      let iconHtml = ''; let bgColor = 'bg-blue-500 dark:bg-blue-700'; let textColor = 'text-white'; let iconColor = 'text-white';
+      switch (type) {
+          case 'success': bgColor = 'bg-green-500 dark:bg-green-600'; iconHtml = `<i data-lucide="check-circle" class="w-6 h-6 ${iconColor} flex-shrink-0"></i>`; break;
+          case 'error': bgColor = 'bg-red-500 dark:bg-red-600'; iconHtml = `<i data-lucide="x-circle" class="w-6 h-6 ${iconColor} flex-shrink-0"></i>`; break;
+          case 'warning': bgColor = 'bg-yellow-400 dark:bg-yellow-500'; textColor = 'text-gray-800 dark:text-gray-900'; iconColor = 'text-gray-800 dark:text-gray-900'; iconHtml = `<i data-lucide="alert-triangle" class="w-6 h-6 ${iconColor} flex-shrink-0"></i>`; break;
+          default: iconHtml = `<i data-lucide="info" class="w-6 h-6 ${iconColor} flex-shrink-0"></i>`; break;
+      }
+      toast.classList.add(bgColor, textColor);
+      const messageSpan = document.createElement('span'); messageSpan.className = 'flex-grow text-sm'; messageSpan.textContent = message;
+      const closeButton = document.createElement('button'); closeButton.innerHTML = `<i data-lucide="x" class="w-5 h-5 ${iconColor} opacity-70 hover:opacity-100"></i>`; closeButton.className = 'ml-auto p-1 -mr-1 -my-1 rounded-full hover:bg-black/10 focus:outline-none focus:ring-2 focus:ring-white/50 flex-shrink-0'; closeButton.setAttribute('aria-label', 'Close toast');
+      closeButton.onclick = () => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 350); };
+      if (iconHtml) { const iconContainerEl = document.createElement('div'); iconContainerEl.innerHTML = iconHtml; toast.appendChild(iconContainerEl); }
+      toast.appendChild(messageSpan); toast.appendChild(closeButton);
+      toastContainer.appendChild(toast); lucide.createIcons(); 
+      setTimeout(() => { toast.classList.add('show'); }, 10); 
+      if (duration > 0) { setTimeout(() => { if (toast.parentElement) { toast.classList.remove('show'); setTimeout(() => { if (toast.parentElement) toast.remove(); }, 350); }}, duration); }
+  }
+  // --- End Toast Notification System ---
+
+  // --- Generic Success/Confirmation Modal ---
+  const operationSuccessModal = document.getElementById('operationSuccessModal');
+  const successModalTitle = document.getElementById('successModalTitle');
+  const successModalMessage = document.getElementById('successModalMessage');
+  const successModalIconContainer = document.getElementById('successModalIconContainer');
+
+  function showOperationSuccessModal(title, message, iconName = 'check-circle', iconColorClass = 'text-green-600 dark:text-green-400') {
+      if (!operationSuccessModal || !successModalTitle || !successModalMessage || !successModalIconContainer) {
+          showToast(message, 'success'); fetchUsers(); return;
+      }
+      successModalTitle.textContent = title; successModalMessage.textContent = message;
+      successModalIconContainer.innerHTML = `<i data-lucide="${iconName}" class="w-8 h-8 ${iconColorClass}"></i>`;
+      lucide.createIcons(); 
+      closeAddUserModal(); 
+      operationSuccessModal.classList.remove('hidden'); document.body.style.overflow = 'hidden';
+  }
+  function closeOperationSuccessModalAndRefresh() {
+      if (operationSuccessModal) { operationSuccessModal.classList.add('hidden'); }
+      document.body.style.overflow = ''; fetchUsers(); 
+  }
+  // --- End Generic Success/Confirmation Modal ---
+
+  // --- Authentication: Token Retrieval ---
+  function getAuthToken() {
+    const token = localStorage.getItem('authToken'); 
+    if (!token) {
+      showToast("Authentication token not found. Please log in.", "error", 5000);
+      setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 1500); 
+      throw new Error("Auth token not found, redirecting to login."); 
+    }
+    return token;
+  }
+
+  // --- API Request Helper ---
+  async function makeApiRequest(url, method = 'GET', body = null) {
+    const loadingOverlay = document.getElementById('loading-overlay');
+    if (loadingOverlay) loadingOverlay.style.visibility = 'visible';
+    const headers = { 'Content-Type': 'application/json' }; let token;
+    try { token = getAuthToken(); } catch (error) { if (loadingOverlay) loadingOverlay.style.visibility = 'hidden'; throw error; }
+    headers['Authorization'] = `Bearer ${token}`;
+    const requestConfig = { method: method, headers: headers };
+    if (body && (method === 'POST' || method === 'PUT' || method === 'DELETE')) { 
+      requestConfig.body = JSON.stringify(body);
+    }
+    try {
+      const response = await fetch(url, requestConfig);
+      const responseText = await response.clone().text();
+      console.log(`USERS PAGE: Raw response for ${method} ${url} (status ${response.status}):\n${responseText.substring(0, 500)}${responseText.length > 500 ? '...' : ''}`);
+      if (loadingOverlay) loadingOverlay.style.visibility = 'hidden';
+      if (response.status === 204) { return null; } 
+      let data;
+      try { data = await response.json(); } 
+      catch (e) { 
+          if (!response.ok) { throw new Error(responseText || `Server error: ${response.status}`); }
+          throw new Error("Invalid JSON response from server, but status was OK.");
+      }
+      if (!response.ok) {
+        const errorDetail = data.detail || (typeof data === 'string' ? data : JSON.stringify(data)); 
+        console.error(`USERS PAGE: API Error (${response.status}) for ${method} ${url}:`, errorDetail, data);
+        if (response.status === 401) { showToast(`Auth Error: ${errorDetail}. Redirecting...`, 'error', 5000); localStorage.removeItem('authToken'); localStorage.removeItem('username'); setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 1500); }
+        else { showToast(`API Error (${response.status}): ${errorDetail}`, 'error'); }
+        throw new Error(`API Error: ${errorDetail}`);
+      }
+      return data;
+    } catch (error) { 
+      if (loadingOverlay) loadingOverlay.style.visibility = 'hidden';
+      console.error(`USERS PAGE: General error in makeApiRequest for ${method} ${url}:`, error);
+      if (!error.message.startsWith('API Error:')) {
+          if (error instanceof SyntaxError && error.message.includes("JSON.parse")) { showToast('Server Error: Invalid response format.', 'error'); } 
+          else if (error.name !== 'AbortError') { showToast(`Request failed: ${error.message}`, 'error'); }
+      }
+      throw error; 
+    }
+  }
+  
+  // --- User Info Display (Corrected for this page) ---
+  function updateUserInfoDisplay() {
+    const token = getAuthToken(); // Ensure token is fetched first
+    const username = localStorage.getItem('username') || 'User'; 
+    const role = localStorage.getItem('userRole') || 'Role'; 
+
+    const userDisplayElements = [
+        document.getElementById('userDisplayNameHeader'),
+        document.getElementById('currentUserDisplayUsernameRightSidebar') 
+    ];
+    const roleDisplayElements = [
+        document.getElementById('currentUserRoleDisplayHeader'),
+        document.getElementById('currentUserRoleDisplayRightSidebar') 
+    ];
+
+    userDisplayElements.forEach(el => { if (el) el.textContent = username; });
+    roleDisplayElements.forEach(el => { if (el) el.textContent = role.charAt(0).toUpperCase() + role.slice(1); });
+  }
+
+  // --- DOMContentLoaded ---
+  document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons(); 
+      updateUserInfoDisplay(); 
+      
+      themeToggleButtonHeader?.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        setInitialThemeIcon(); 
+      });
+      setInitialThemeIcon();
+
+      mobileMenuButton?.addEventListener('click', openMobileMenu);
+      sidebarCloseButton?.addEventListener('click', closeMobileMenu);
+      sidebarOverlay?.addEventListener('click', closeMobileMenu);
+      document.querySelectorAll('#sidebar nav a').forEach(link => {
+          link.addEventListener('click', () => {
+              if (window.innerWidth < 768) { 
+                  closeMobileMenu();
+              }
+          });
+      });
+
+      try { getAuthToken(); initializeUserSection(); } catch (error) { return; }
+      
+      document.getElementById('addUserModal')?.addEventListener('click', e => { if (e.target === e.currentTarget) closeAddUserModal(); });
+      document.getElementById('viewUserModal')?.addEventListener('click', e => { if (e.target === e.currentTarget) closeViewUserModal(); });
+      document.getElementById('confirmDeleteUserModal')?.addEventListener('click', e => { if (e.target === e.currentTarget) closeConfirmDeleteUserModal(); });
+      
+      document.getElementById('global-logout-btn')?.addEventListener('click', (e) => {
+          e.preventDefault(); localStorage.removeItem('authToken'); localStorage.removeItem('username'); 
+          localStorage.removeItem('userId'); localStorage.removeItem('userStatus');
+          showToast("You have been logged out.", "info");
+          setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 1500);
+      });
+
+      document.getElementById('user-filter-today')?.addEventListener('click', () => applyUserDateFilter('today'));
+      document.getElementById('user-filter-last7')?.addEventListener('click', () => applyUserDateFilter('last7days'));
+      document.getElementById('user-filter-last30')?.addEventListener('click', () => applyUserDateFilter('last30days'));
+      document.getElementById('user-filter-all')?.addEventListener('click', () => applyUserDateFilter('all'));
+      document.getElementById('user-filter-custom-btn')?.addEventListener('click', toggleUserCustomDateRange);
+      document.getElementById('applyCustomDateFilterButton')?.addEventListener('click', applyUserCustomDateFilter);
+  });
+
+  function getISODateString(date) { 
+    if (!(date instanceof Date) || isNaN(date.getTime())) return null;
+    return date.toISOString().split('T')[0]; 
+  }
+
+  function getDateRange(filterType) {
+    const today = new Date(); today.setHours(0,0,0,0); 
+    let startDate = new Date(today); let endDate = new Date(today); 
+    endDate.setHours(23,59,59,999);
+    switch(filterType){ 
+      case 'today': break; 
+      case 'last7days': startDate.setDate(today.getDate() - 6); break; 
+      case 'last30days': startDate.setDate(today.getDate() - 29); break; 
+      case 'all': return { startDate: null, endDate: null };
+      default: return { startDate: null, endDate: null };
+    }
+    const isoStartDate = getISODateString(startDate); const isoEndDate = getISODateString(endDate);
+    return (isoStartDate && isoEndDate) ? { startDate: isoStartDate, endDate: isoEndDate } : { startDate: null, endDate: null };
+  }
+
+  function initializeUserSection() {
+    fetchUsers(); 
+    populateUserStatusDropdown();
+    document.getElementById('userSearch')?.addEventListener('input', () => { currentUserPage = 1; fetchUsers(); });
+    document.getElementById('addUserForm')?.addEventListener('submit', handleUserFormSubmit);
+    document.getElementById('confirmDeleteUserBtn')?.addEventListener('click', confirmDeleteUser);
+    setActiveUserDateFilterButton('all'); 
+  }
+
+  async function fetchUsers() {
+    const searchTerm = document.getElementById('userSearch')?.value || "";
+    let url = `${API_BASE_URL}${USER_API_ENDPOINT}?limit=1000`; 
+    if (searchTerm) url += `&search=${encodeURIComponent(searchTerm)}`;
+    try {
+        const responseData = await makeApiRequest(url); 
+        if (responseData && Array.isArray(responseData)) {
+            allFetchedUsers = responseData.map(user => ({ ...user }))
+                .sort((a, b) => {
+                    const dateA = a.created_at ? new Date(a.created_at) : new Date(0); 
+                    const dateB = b.created_at ? new Date(b.created_at) : new Date(0);
+                    if (isNaN(dateA.getTime())) return 1; if (isNaN(dateB.getTime())) return -1;
+                    return dateB - dateA; 
+                });
+        } else { allFetchedUsers = []; }
+        currentUserPage = 1; renderUsersTable();
+    } catch (error) { allFetchedUsers = []; renderUsersTable(); }
+  }
+
+  function applyUserDateFilter(filterType) {
+    activeUserDateFilter = filterType; customUserFilterStartDate = null; customUserFilterEndDate = null;
+    document.getElementById('userCustomDateRange')?.classList.add('hidden');
+    setActiveUserDateFilterButton(filterType); currentUserPage = 1; renderUsersTable();
+  }
+
+  function toggleUserCustomDateRange() {
+    const el = document.getElementById('userCustomDateRange');
+    el?.classList.toggle('hidden');
+    if (!el?.classList.contains('hidden')) setActiveUserDateFilterButton('user-filter-custom-btn');
+    else if (activeUserDateFilter === 'custom') applyUserDateFilter('all'); 
+  }
+
+  function applyUserCustomDateFilter() {
+    const sDVal = document.getElementById('userCustomStartDate')?.value;
+    const eDVal = document.getElementById('userCustomEndDate')?.value;
+    if (!sDVal || !eDVal) { showToast("Please select both start and end dates.", 'warning'); return; }
+    const sDate = new Date(sDVal), eDate = new Date(eDVal);
+    if (isNaN(sDate.getTime()) || isNaN(eDate.getTime())) { showToast("Invalid date format.", 'warning'); return; }
+    if (sDate > eDate) { showToast("Start date cannot be after end date.", 'warning'); return; }
+    activeUserDateFilter = 'custom'; 
+    customUserFilterStartDate = getISODateString(sDate); customUserFilterEndDate = getISODateString(eDate);
+    if (!customUserFilterStartDate || !customUserFilterEndDate) { showToast("Error processing dates.", 'error'); return; }
+    setActiveUserDateFilterButton('user-filter-custom-btn'); currentUserPage = 1; renderUsersTable();
+  }
+
+  function setActiveUserDateFilterButton(id) {
+    document.querySelectorAll('#user-section .date-filter-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id.startsWith('user-filter-') ? id : `user-filter-${id}`)?.classList.add('active');
+  }
+
+  function populateUserStatusDropdown() {
+    const sel = document.getElementById('user_status_form');
+    if (!sel) return;
+    sel.innerHTML = ''; 
+    userStatuses.forEach(s => { 
+        const o = document.createElement('option'); o.value = s; 
+        o.textContent = s.charAt(0).toUpperCase() + s.slice(1).replace(/_/g, ' '); sel.appendChild(o); 
+    });
+  }
+
+  function renderUsersTable() {
+    if (!Array.isArray(allFetchedUsers)) allFetchedUsers = []; 
+    let records = [...allFetchedUsers];
+    if (activeUserDateFilter !== 'all') {
+      const range = (activeUserDateFilter === 'custom' && customUserFilterStartDate && customUserFilterEndDate) ? 
+                  { startDate: customUserFilterStartDate, endDate: customUserFilterEndDate } : getDateRange(activeUserDateFilter);
+      if (range && range.startDate && range.endDate) { 
+        records = records.filter(r => {
+          if (!r || !r.created_at) return false; 
+          try { const d = new Date(r.created_at); if (isNaN(d.getTime())) return false; const iso = getISODateString(d); return iso && iso >= range.startDate && iso <= range.endDate; } 
+          catch { return false; }
+        });
+      }
+    }
+    const start = (currentUserPage - 1) * usersPerPage, paginated = records.slice(start, start + usersPerPage);
+    const tbody = document.getElementById('usersBody');
+    if (!tbody) return;
+    tbody.innerHTML = paginated.length > 0 ? paginated.map(u => {
+      if (!u || typeof u !== 'object') return `<tr><td colspan="6">Invalid data</td></tr>`;
+      const sD = u.status ? String(u.status).replace(/_/g, ' ') : 'N/A';
+      const sCMap = { "active": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200", "inactive": "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200", "pending_approval": "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200", "suspended": "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200" };
+      const sC = sCMap[u.status] || "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200";
+      let cAD = 'N/A'; if (u.created_at) { try { const dO = new Date(u.created_at); cAD = isNaN(dO.getTime()) ? String(u.created_at) : dO.toLocaleString(); } catch { cAD = String(u.created_at); }}
+      return `<tr class="border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50" data-id="${u.id||''}"><td class="py-3 px-2">${u.id||'N/A'}</td><td class="px-2">${u.username||'N/A'}</td><td class="px-2">${u.email||'N/A'}</td><td class="px-2"><span class="px-2 py-1 text-xs rounded-full ${sC}">${sD}</span></td><td class="px-2">${cAD}</td><td class="px-2 text-center"><button onclick="openViewUserModal(${u.id||null})" class="text-green-600 p-1"><i data-lucide="eye" class="w-4 h-4"></i></button><button onclick="openEditUserModal(${u.id||null})" class="text-blue-600 p-1 ml-1"><i data-lucide="edit-2" class="w-4 h-4"></i></button><button onclick="openConfirmDeleteUserModal(${u.id||null})" class="text-red-600 p-1 ml-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`;
+    }).join('') : `<tr><td colspan="6" class="text-center py-8">No users.</td></tr>`;
+    lucide.createIcons(); 
+    const countEl = document.getElementById('usersCount');
+    if(countEl) countEl.textContent = `Showing ${paginated.length>0?start+1:0} to ${Math.min(start+paginated.length,records.length)} of ${records.length}`;
+    renderUserPagination(records.length);
+  }
+
+  function renderUserPagination(totalRecords) {
+    const totalPages = Math.ceil(totalRecords / usersPerPage);
+    const paginationContainer = document.getElementById('usersPagination');
+    if (!paginationContainer) { return; }
+    paginationContainer.innerHTML = ''; if (totalPages <= 1) { return; }
+    const btnBaseClasses = "flex items-center justify-center px-3 h-8 text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-900 focus:ring-blue-500 transition-colors duration-150";
+    const btnPageClasses = `${btnBaseClasses} leading-tight`; const btnArrowClasses = `${btnBaseClasses}`;
+    const inactiveClasses = "text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white";
+    const activeClasses = "text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white";
+    const disabledClasses = "text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed dark:bg-gray-700/50 dark:border-gray-600 dark:text-gray-500";
+    const createButton = (content, pageToGo, isEnabled, isCurrentPage = false, isArrow = false) => {
+        const button = document.createElement('button');
+        if (typeof content === 'string' && content.startsWith('<')) { button.innerHTML = content; } else { button.textContent = content; }
+        let specificClasses = isCurrentPage ? activeClasses : (isEnabled ? inactiveClasses : disabledClasses);
+        button.className = `${isArrow ? btnArrowClasses : btnPageClasses} ${specificClasses}`;
+        if (isEnabled && !isCurrentPage) { button.onclick = () => { currentUserPage = pageToGo; renderUsersTable(); }; } 
+        else if (!isEnabled) { button.disabled = true; button.setAttribute('aria-disabled', 'true'); }
+        if(isCurrentPage) button.setAttribute('aria-current', 'page'); return button;
+    };
+    const createEllipsis = () => { const ellipsisSpan = document.createElement('span'); ellipsisSpan.textContent = '...'; ellipsisSpan.className = "flex items-center justify-center px-3 h-8 leading-tight text-gray-500 dark:text-gray-400"; return ellipsisSpan; };
+    paginationContainer.appendChild(createButton(`<span class="sr-only">Previous</span><i data-lucide="chevron-left" class="w-4 h-4"></i>`, currentUserPage - 1, currentUserPage > 1, false, true));
+    const SIBLING_COUNT = 1; 
+    if (totalPages > 1) { 
+        if (currentUserPage !== 1) paginationContainer.appendChild(createButton("1", 1, true, false)); else paginationContainer.appendChild(createButton("1", 1, true, true));
+        if (currentUserPage > SIBLING_COUNT + 2 && totalPages > SIBLING_COUNT * 2 + 3) { paginationContainer.appendChild(createEllipsis()); }
+        const startPageLoop = Math.max(2, currentUserPage - SIBLING_COUNT); const endPageLoop = Math.min(totalPages - 1, currentUserPage + SIBLING_COUNT);
+        for (let i = startPageLoop; i <= endPageLoop; i++) { if (i !== 1 && i !== totalPages) { paginationContainer.appendChild(createButton(String(i), i, true, currentUserPage === i)); }}
+        if (currentUserPage < totalPages - (SIBLING_COUNT + 1) && totalPages > SIBLING_COUNT * 2 + 3 ) { if (endPageLoop < totalPages -1 ) paginationContainer.appendChild(createEllipsis()); }
+        if (totalPages > 1 && currentUserPage !== totalPages) { paginationContainer.appendChild(createButton(String(totalPages), totalPages, true, false)); }
+    }
+    paginationContainer.appendChild(createButton(`<span class="sr-only">Next</span><i data-lucide="chevron-right" class="w-4 h-4"></i>`, currentUserPage + 1, currentUserPage < totalPages, false, true));
+    lucide.createIcons();
+  }
+  
+  function openAddUserModal() {
+    userToEditId = null; document.getElementById('addUserForm')?.reset();
+    document.getElementById('userModalTitle').textContent = "Add New User";
+    document.getElementById('userSubmitButton').innerHTML = `<i data-lucide="user-plus" class="w-4 h-4"></i> Add User`;
+    document.getElementById('user_password_form').required = true; 
+    document.getElementById('passwordHint').classList.add('hidden');
+    populateUserStatusDropdown(); lucide.createIcons(); 
+    document.getElementById('addUserModal')?.classList.remove('hidden'); document.body.style.overflow='hidden';
+  }
+
+  async function openEditUserModal(id) {
+    if (id==null) return; const u=allFetchedUsers.find(r=>r.id===id); if(!u){showToast("User not found.","warning");return;}
+    userToEditId=id; document.getElementById('addUserForm')?.reset();
+    document.getElementById('userModalTitle').textContent = "Edit User";
+    document.getElementById('userSubmitButton').innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> Save Changes`;
+    await populateUserStatusDropdown(); 
+    document.getElementById('userId_form').value = u.id; 
+    document.getElementById('user_username_form').value = u.username||'';
+    document.getElementById('user_email_form').value = u.email||'';
+    document.getElementById('user_password_form').value = ""; 
+    document.getElementById('user_password_form').required = false;
+    document.getElementById('passwordHint').classList.remove('hidden');
+    document.getElementById('user_status_form').value = u.status||userStatuses[0]; 
+    lucide.createIcons(); document.getElementById('addUserModal')?.classList.remove('hidden'); document.body.style.overflow='hidden';
+  }
+
+  function closeAddUserModal() { 
+    document.getElementById('addUserModal')?.classList.add('hidden'); document.body.style.overflow=''; 
+    userToEditId=null; document.getElementById('user_password_form').required=true; 
+  }
+
+  function openViewUserModal(id) {
+    if(id==null)return; const u=allFetchedUsers.find(r=>r.id===id); if(!u){showToast("User not found.","warning");return;}
+    document.getElementById('view-user-id').textContent=u.id||'N/A'; document.getElementById('view-user-username').textContent=u.username||'N/A';
+    document.getElementById('view-user-email').textContent=u.email||'N/A'; document.getElementById('view-user-status').textContent=u.status?String(u.status).replace(/_/g,' '):'N/A';
+    let cAT='N/A'; if(u.created_at){try{const dO=new Date(u.created_at);cAT=isNaN(dO.getTime())?String(u.created_at):dO.toLocaleString();}catch{cAT=String(u.created_at);}} document.getElementById('view-user-created_at').textContent=cAT;
+    document.getElementById('viewUserModal')?.classList.remove('hidden'); document.body.style.overflow='hidden'; lucide.createIcons(); 
+  }
+  function closeViewUserModal() { document.getElementById('viewUserModal')?.classList.add('hidden'); document.body.style.overflow='';}
+
+  async function handleUserFormSubmit(ev) {
+    ev.preventDefault(); const pI=document.getElementById('user_password_form'), p=pI?pI.value:"";
+    const uD={username:document.getElementById('user_username_form').value,email:document.getElementById('user_email_form').value,status:document.getElementById('user_status_form').value};
+    if(!userToEditId){if(!p){showToast("Password is required for new users.","warning");return;} uD.password=p;}else if(p)uD.password=p;
+    if(!uD.username||!uD.email||!uD.status){showToast("Please fill all required fields.","warning");return;}
+    try{
+        let successTitle = ''; let successMessage = '';
+        if(userToEditId){ 
+            if (!uD.password) delete uD.password; // Don't send empty password for update
+            await makeApiRequest(`${API_BASE_URL}${USER_API_ENDPOINT}${userToEditId}`,'PUT',uD); 
+            successTitle='User Updated!'; successMessage='User record updated successfully.'; 
+        } else{ 
+            await makeApiRequest(`${API_BASE_URL}${USER_API_ENDPOINT}`,'POST',uD); 
+            successTitle='User Added!'; successMessage='New user added successfully.'; 
+        }
+        closeAddUserModal(); showOperationSuccessModal(successTitle, successMessage); 
+    }catch(err){ /* Error handled by makeApiRequest */ }
+  }
+
+  function openConfirmDeleteUserModal(id) { if(id==null)return; userToDeleteId=id; document.getElementById('confirmDeleteUserModal')?.classList.remove('hidden'); document.body.style.overflow='hidden';}
+  function closeConfirmDeleteUserModal() { userToDeleteId=null; document.getElementById('confirmDeleteUserModal')?.classList.add('hidden'); document.body.style.overflow='';}
+  
+  async function confirmDeleteUser() {
+    if(userToDeleteId==null)return;
+    try{
+        await makeApiRequest(`${API_BASE_URL}${USER_API_ENDPOINT}${userToDeleteId}`,'DELETE'); 
+        closeConfirmDeleteUserModal(); 
+        showOperationSuccessModal('User Deleted!', 'User record deleted successfully.', 'trash-2', 'text-red-600 dark:text-red-400');
+        allFetchedUsers=allFetchedUsers.filter(u=>u.id!==userToDeleteId); 
+        const tP=Math.ceil(allFetchedUsers.length/usersPerPage);
+        if(currentUserPage>tP&&tP>0)currentUserPage=tP; else if(allFetchedUsers.length===0)currentUserPage=1;
+        userToDeleteId=null;
+        renderUsersTable(); // Refresh table after deletion
+    }catch(err){ /* Error handled by makeApiRequest */ }
+  }
+  
+  function getFilteredUsersForExport() {
+    let recs=[...allFetchedUsers]; if(activeUserDateFilter!=='all'){const rng=(activeUserDateFilter==='custom'&&customUserFilterStartDate&&customUserFilterEndDate)?{startDate:customUserFilterStartDate,endDate:customUserFilterEndDate}:getDateRange(activeUserDateFilter); if(rng&&rng.startDate&&rng.endDate){recs=recs.filter(r=>{if(!r||!r.created_at)return false;try{const d=new Date(r.created_at);if(isNaN(d.getTime()))return false;const iso=getISODateString(d);return iso&&iso>=rng.startDate&&iso<=rng.endDate;}catch{return false;}});}} return recs;
+  }
+
+  function exportUsersExcel() {
+    const recs=getFilteredUsersForExport(); if(recs.length===0){showToast("No data to export.","info");return;}
+    const wsD=recs.map(r=>{let cAD='N/A';if(r.created_at){try{const dO=new Date(r.created_at);cAD=isNaN(dO.getTime())?String(r.created_at):dO.toLocaleString();}catch{cAD=String(r.created_at);}} return{ID:r.id,Username:r.username||'N/A',Email:r.email||'N/A',Status:r.status?String(r.status).replace(/_/g,' '):'N/A','Created At':cAD};});
+    const ws=XLSX.utils.json_to_sheet(wsD); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"Users"); XLSX.writeFile(wb,"users_export.xlsx");
+  }
+
+  function exportUsersPDF() {
+    if(typeof jspdf==='undefined'||typeof jspdf.jsPDF==='undefined'){showToast("PDF library not loaded.","error");return;}
+    const{jsPDF}=jspdf; const doc=new jsPDF(); doc.setFontSize(18); doc.text('User Records',14,15);
+    const recs=getFilteredUsersForExport(); if(recs.length===0){showToast("No data to export.","info");return;}
+    const h=[['ID','Username','Email','Status','Created At']];
+    const d=recs.map(r=>{let cAD='N/A';if(r.created_at){try{const dO=new Date(r.created_at);cAD=isNaN(dO.getTime())?String(r.created_at):dO.toLocaleString();}catch{cAD=String(r.created_at);}} return[r.id,r.username||'N/A',r.email||'N/A',r.status?String(r.status).replace(/_/g,' '):'N/A',cAD];});
+    if(typeof doc.autoTable==='function'){doc.autoTable({head:h,body:d,startY:25,theme:'grid',headStyles:{fillColor:[59,130,246],textColor:255}});}else{showToast("PDF autoTable not available.","error");}
+    doc.save('users_export.pdf');
+  }
+</script>
+</body>
+</html>

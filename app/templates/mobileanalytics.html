@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - Statistics & Reports</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class', 
+      theme: {
+        extend: {
+          colors: {
+            primary: { DEFAULT: '#3b82f6', hover: '#2563eb', dark: '#60a5fa', 'dark-hover': '#3b82f6', light: '#dbeafe' },
+            secondary: { DEFAULT: '#10b981', hover: '#059669', dark: '#34d399', 'dark-hover': '#10b981', light: '#d1fae5' },
+            warning: { DEFAULT: '#f59e0b', hover: '#d97706', dark: '#fbbf24', 'dark-hover': '#f59e0b', light: '#fef3c7' },
+            danger: { DEFAULT: '#ef4444', hover: '#dc2626', dark: '#f87171', 'dark-hover': '#ef4444', light: '#fee2e2' },
+            info: { DEFAULT: '#6366f1', hover: '#4f46e5', dark: '#818cf8', 'dark-hover': '#6366f1', light: '#e0e7ff' }, 
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a3a3a3; }
+    .dark ::-webkit-scrollbar-track { background: #2d3748; }
+    .dark ::-webkit-scrollbar-thumb { background: #4a5568; }
+    .dark ::-webkit-scrollbar-thumb:hover { background: #718096; }
+    .chart-container { position: relative; height: 320px; }
+    @media (min-width: 768px) { .chart-container { height: 384px; } }
+    .kpi-value { font-size: 1.75rem; line-height: 2.25rem; word-break: break-all; }
+    @media (min-width: 1024px) { .kpi-value { font-size: 1.875rem; line-height: 2.25rem; } }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
+  </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white antialiased">
+
+<!-- Main application wrapper -->
+<div class="flex h-screen">
+
+    <!-- Sidebar (Left) - Modified for responsiveness -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg 
+                             transform -translate-x-full transition-transform duration-300 ease-in-out 
+                             md:relative md:translate-x-0 md:shadow-lg md:border-r dark:border-gray-700 
+                             flex flex-col flex-shrink-0">
+      <div class="flex items-center justify-between">
+          <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
+            <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
+          </div>
+          <button id="sidebar-close-button" class="md:hidden p-1 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
+              <span class="sr-only">Close menu</span>
+              <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+      </div>
+      <nav class="flex-1 overflow-y-auto">
+        <ul class="space-y-2">
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="layout-dashboard" class="w-5 h-5"></i><a href="dashboard">Dashboard</a>
+        </li>
+        <li class="flex items-center space-x-3 text-blue-600 dark:text-blue-400 font-semibold bg-blue-50 dark:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="pie-chart" class="w-5 h-5"></i><a href="analytics">Analytics</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="users" class="w-5 h-5"></i><a href="users">User</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="user" class="w-5 h-5"></i><a href="driver">Driver</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="alert-triangle" class="w-5 h-5"></i><a href="panne">Pannes (Issues)</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="car" class="w-5 h-5"></i><a href="vehicle">Vehicles</a>
+        </li>
+         <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="wrench" class="w-5 h-5"></i><a href="reparation">Reparation</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="droplet" class="w-5 h-5"></i><a href="fuel">Fuel</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="settings" class="w-5 h-5"></i><a href="maintenance">Maintenance</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="route" class="w-5 h-5"></i><a href="trip">Trip</a>
+        </li>
+      </ul>
+      </nav>
+       <div class="pt-4 border-t border-gray-200 dark:border-gray-700/50 mt-auto">
+            <a href="#" id="global-logout-btn" class="flex items-center space-x-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/40 p-2.5 rounded-lg transition-colors">
+                <i data-lucide="log-out" class="w-5 h-5"></i><span>Logout</span>
+            </a>
+       </div>
+    </aside>
+
+    <!-- Sidebar Overlay -->
+    <div id="sidebar-overlay" class="fixed inset-0 z-30 bg-black bg-opacity-50 hidden md:hidden transition-opacity duration-300 ease-in-out"></div>
+    
+    <!-- Content Area Wrapper (Header + Main Content + Right Sidebar) -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      
+      <!-- Header (Mobile Hamburger, Desktop Title, Theme Toggle, User Info) -->
+      <header class="bg-white dark:bg-gray-800 shadow p-3 flex justify-between items-center flex-shrink-0 h-16">
+          <!-- Hamburger Menu Button - visible only on mobile -->
+          <button id="mobile-menu-button" class="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none p-2">
+              <i data-lucide="menu" class="w-6 h-6"></i>
+          </button>
+          
+          <!-- Mobile Title - visible only on mobile -->
+          <div class="text-lg font-bold text-primary dark:text-primary-light md:hidden">
+              FleetDash
+          </div>
+
+          <!-- Desktop Title/Context - hidden on mobile -->
+          <div class="hidden md:block text-xl font-semibold text-gray-700 dark:text-gray-200">
+              Statistics & Reports
+          </div>
+          
+          <!-- Right side of header: Theme Toggle & User Info -->
+          <div class="flex items-center space-x-3">
+              <button id="theme-toggle-header" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                  <!-- Icon will be set by JS -->
+              </button>
+              <!-- User info for desktop header - hidden on mobile -->
+              <div class="hidden md:flex items-center space-x-2">
+                  <div class="text-sm font-semibold" id="userDisplayNameHeader">User</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">Fleet Analyst</div> <!-- Example Role -->
+              </div>
+          </div>
+      </header>
+
+      <!-- Main scrollable content area (Main Page Content + Right Sidebar) -->
+      <div class="flex-1 flex overflow-hidden">
+        <main class="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 md:space-y-8">
+          <header class="flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
+              <div class="flex items-center w-full sm:w-auto">
+                  <!-- Title is now in the main header -->
+              </div>
+              <div class="flex items-center space-x-3">
+                  <label for="reportPeriod" class="text-sm font-medium text-gray-600 dark:text-gray-300 shrink-0">Period:</label>
+                  <select id="reportPeriod" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent appearance-none">
+                      <option value="last30days">Last 30 Days</option>
+                      <option value="last90days">Last 90 Days</option>
+                      <option value="last6months">Last 6 Months</option>
+                      <option value="last12months" selected>Last 12 Months</option>
+                      <option value="currentYear">This Year</option>
+                      <option value="custom">Custom Range</option>
+                  </select>
+                  <div id="customReportDateContainer" class="hidden items-center gap-2">
+                      <input type="date" id="reportCustomStart" class="border dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs text-black dark:bg-gray-700 dark:text-white">
+                      <span class="text-xs">to</span>
+                      <input type="date" id="reportCustomEnd" class="border dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs text-black dark:bg-gray-700 dark:text-white">
+                      <button id="applyCustomDateBtn" class="bg-primary text-white px-3 py-1.5 text-xs rounded-md hover:bg-primary-hover">Apply</button>
+                  </div>
+              </div>
+          </header>
+
+          <!-- KPI Cards Section -->
+          <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+                  <div class="flex items-center justify-between mb-2">
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Total Fuel Costs</p>
+                      <div class="p-2 rounded-full bg-danger-light dark:bg-danger/20 text-danger dark:text-danger-light">
+                          <i data-lucide="fuel" class="w-5 h-5"></i></div>
+                  </div>
+                  <p id="kpiFuelTotal" class="kpi-value font-bold text-gray-800 dark:text-white">$0.00</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">For selected period</p>
+              </div>
+              <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+                  <div class="flex items-center justify-between mb-2">
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Total Reparation Costs</p>
+                      <div class="p-2 rounded-full bg-warning-light dark:bg-warning/20 text-warning dark:text-warning-light">
+                          <i data-lucide="wrench" class="w-5 h-5"></i></div>
+                  </div>
+                  <p id="kpiReparationTotal" class="kpi-value font-bold text-gray-800 dark:text-white">$0.00</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">For selected period</p>
+              </div>
+              <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+                  <div class="flex items-center justify-between mb-2">
+                       <p class="text-sm text-gray-500 dark:text-gray-400">Total Maintenance Costs</p>
+                       <div class="p-2 rounded-full bg-info-light dark:bg-info/20 text-info dark:text-info-light">
+                          <i data-lucide="settings-2" class="w-5 h-5"></i></div>
+                  </div>
+                  <p id="kpiMaintenanceTotal" class="kpi-value font-bold text-gray-800 dark:text-white">$0.00</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">For selected period</p>
+              </div>
+              <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+                  <div class="flex items-center justify-between mb-2">
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Vehicle Purchases</p>
+                      <div class="p-2 rounded-full bg-secondary-light dark:bg-secondary/20 text-secondary dark:text-secondary-light">
+                           <i data-lucide="shopping-cart" class="w-5 h-5"></i></div>
+                  </div>
+                  <p id="kpiVehiclePurchaseTotal" class="kpi-value font-bold text-gray-800 dark:text-white">$0.00</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">For selected period</p>
+              </div>
+          </section>
+
+          <section class="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6">
+              <div class="lg:col-span-3 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+                  <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Monthly Expense Trend</h3>
+                  <div class="chart-container"><canvas id="monthlyExpenseChart"></canvas></div>
+              </div>
+              <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+                  <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Expense Distribution</h3>
+                  <div class="chart-container"><canvas id="expenseDistributionChart"></canvas></div>
+              </div>
+          </section>
+          
+          <section class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+              <h3 class="text-xl font-semibold mb-6 text-gray-700 dark:text-gray-200">Generate Custom Report</h3>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                  <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Expense Categories</label>
+                      <div class="space-y-2 mt-2">
+                          <div><label class="inline-flex items-center"><input type="checkbox" id="reportCatFuel" value="fuel" class="rounded border-gray-300 dark:border-gray-600 text-primary dark:bg-gray-700 focus:ring-primary" checked> <span class="ml-2 text-sm text-gray-600 dark:text-gray-300">Fuel</span></label></div>
+                          <div><label class="inline-flex items-center"><input type="checkbox" id="reportCatReparation" value="reparation" class="rounded border-gray-300 dark:border-gray-600 text-primary dark:bg-gray-700 focus:ring-primary" checked> <span class="ml-2 text-sm text-gray-600 dark:text-gray-300">Reparations</span></label></div>
+                          <div><label class="inline-flex items-center"><input type="checkbox" id="reportCatMaintenance" value="maintenance" class="rounded border-gray-300 dark:border-gray-600 text-primary dark:bg-gray-700 focus:ring-primary" checked> <span class="ml-2 text-sm text-gray-600 dark:text-gray-300">Maintenance</span></label></div>
+                          <div><label class="inline-flex items-center"><input type="checkbox" id="reportCatPurchases" value="purchases" class="rounded border-gray-300 dark:border-gray-600 text-primary dark:bg-gray-700 focus:ring-primary" checked> <span class="ml-2 text-sm text-gray-600 dark:text-gray-300">Vehicle Purchases</span></label></div>
+                      </div>
+                  </div>
+                  <div>
+                      <label for="reportFormat" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Report Format</label>
+                      <select id="reportFormat" class="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm text-black dark:text-white">
+                          <option value="pdf">PDF Document</option>
+                          <option value="excel">Excel Spreadsheet</option>
+                      </select>
+                  </div>
+                  <div>
+                      <button onclick="generateReport()" class="w-full bg-secondary text-white px-6 py-3 rounded-lg hover:bg-secondary-hover dark:bg-secondary-dark dark:hover:bg-secondary-dark-hover flex items-center justify-center gap-2 text-sm font-medium shadow-sm transition-colors">
+                          <i data-lucide="download" class="w-5 h-5"></i> Generate Report
+                      </button>
+                  </div>
+              </div>
+          </section>
+        </main>
+
+        <aside class="w-1/5 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden lg:block flex-shrink-0 border-l dark:border-gray-700 overflow-y-auto">
+            <div class="flex justify-end items-center">
+                <div class="text-right">
+                    <div class="text-sm font-semibold text-gray-800 dark:text-white" id="userDisplayNameRightSidebar">Jane Doe</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">Fleet Analyst</div>
+                </div>
+                <img src="https://i.pravatar.cc/40?u=analyst_jane_doe" alt="Analyst" class="w-10 h-10 rounded-full ml-2 object-cover">
+            </div>
+            <hr class="dark:border-gray-700/50">
+            <div>
+                <h4 class="font-semibold mb-3 text-gray-700 dark:text-gray-200">Key Performance Insights</h4>
+                <ul class="text-xs space-y-2.5 text-gray-600 dark:text-gray-300">
+                    <li class="flex items-start space-x-2"><i data-lucide="trending-up" class="w-4 h-4 text-green-500 mt-0.5 shrink-0"></i><span>Fuel Efficiency: <span class="font-medium">Up 3.2%</span> vs. last period.</span></li>
+                    <li class="flex items-start space-x-2"><i data-lucide="trending-down" class="w-4 h-4 text-red-500 mt-0.5 shrink-0"></i><span>Idle Time: <span class="font-medium">Up 7%</span>, investigate causes.</span></li>
+                    <li class="flex items-start space-x-2"><i data-lucide="check-circle" class="w-4 h-4 text-blue-500 mt-0.5 shrink-0"></i><span>Maintenance Compliance: <span class="font-medium">96%</span>.</span></li>
+                    <li class="flex items-start space-x-2"><i data-lucide="dollar-sign" class="w-4 h-4 text-gray-500 mt-0.5 shrink-0"></i><span>Cost per Mile: <span class="font-medium" id="quickStatCostPerMile">$0.65</span> (avg).</span></li>
+                </ul>
+            </div>
+            <hr class="dark:border-gray-700/50">
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <h4 class="font-semibold text-gray-700 dark:text-gray-200">Alerts & Notifications</h4>
+                    <a href="#" class="text-xs text-primary dark:text-primary-light hover:underline">View All (<span id="notificationCount">3</span>)</a>
+                </div>
+                <div class="space-y-3 max-h-40 overflow-y-auto pr-1">
+                    <div class="flex items-start space-x-2 p-2.5 bg-danger-light dark:bg-danger/20 rounded-lg"><i data-lucide="alert-octagon" class="w-5 h-5 text-danger dark:text-danger-light mt-0.5 flex-shrink-0"></i><p class="text-xs text-gray-700 dark:text-gray-300">Critical: Vehicle <span class="font-medium">XYZ-123</span> engine issue.</p></div>
+                    <div class="flex items-start space-x-2 p-2.5 bg-warning-light dark:bg-warning/20 rounded-lg"><i data-lucide="clock" class="w-5 h-5 text-warning dark:text-warning-light mt-0.5 flex-shrink-0"></i><p class="text-xs text-gray-700 dark:text-gray-300">Maint. for <span class="font-medium">CAR-001</span> overdue.</p></div>
+                    <div class="flex items-start space-x-2 p-2.5 bg-info-light dark:bg-info/20 rounded-lg"><i data-lucide="check-circle-2" class="w-5 h-5 text-info dark:text-info-light mt-0.5 flex-shrink-0"></i><p class="text-xs text-gray-700 dark:text-gray-300">Trip #1023 completed successfully.</p></div>
+                </div>
+            </div>
+        </aside>
+      </div>
+    </div>
+</div>
+
+<script>
+  // --- Sidebar Toggle Functionality ---
+  const sidebar = document.getElementById('sidebar');
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const sidebarCloseButton = document.getElementById('sidebar-close-button'); 
+  const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+  function openMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('translate-x-0');
+        sidebarOverlay.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden', 'md:overflow-auto');
+    }
+  }
+
+  function closeMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.add('-translate-x-full');
+        sidebar.classList.remove('translate-x-0');
+        sidebarOverlay.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+  }
+  
+  // --- Theme Toggle ---
+  const themeToggleButtonHeader = document.getElementById('theme-toggle-header'); 
+  function setInitialThemeIcon() {
+    if (themeToggleButtonHeader) { 
+        if (document.documentElement.classList.contains('dark')) {
+            themeToggleButtonHeader.innerHTML = '<i data-lucide="sun" class="w-5 h-5"></i>';
+        } else {
+            themeToggleButtonHeader.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>';
+        }
+        lucide.createIcons();
+    }
+  }
+
+  // --- User Info Display ---
+  function updateUserInfoDisplay() {
+    const userNameHeader = document.getElementById('userDisplayNameHeader');
+    const userNameSidebar = document.getElementById('userDisplayNameRightSidebar');
+    // Example: const storedUsername = localStorage.getItem('username');
+    // if (userNameHeader && storedUsername) userNameHeader.textContent = storedUsername;
+    // if (userNameSidebar && storedUsername) userNameSidebar.textContent = storedUsername;
+    // For now, using static values from HTML or placeholder "User"
+    if (userNameHeader) userNameHeader.textContent = userNameHeader.textContent || "User";
+    if (userNameSidebar) userNameSidebar.textContent = userNameSidebar.textContent || "User";
+  }
+
+  // --- Mock Data ---
+  function generateMonthlyLabels(count, refEndDate = new Date()) {
+      const labels = [];
+      let currentDate = new Date(refEndDate.getFullYear(), refEndDate.getMonth(), 1);
+      for (let i = 0; i < count; i++) {
+          labels.unshift(currentDate.toLocaleString('default', { month: 'short', year: '2-digit' }));
+          currentDate.setMonth(currentDate.getMonth() - 1);
+      }
+      return labels;
+  }
+
+  const mockExpenseDataSets = {
+      last30days: { fuel: { total: 12340.50, trend: Array.from({length: 12}, (_,i) => i < 1 ? Math.floor(Math.random()*12000)+500 : 0) }, reparation: { total: 8750.00, trend: Array.from({length: 12}, (_,i) => i < 1 ? Math.floor(Math.random()*8000)+500 : 0) }, maintenance: { total: 5120.75, trend: Array.from({length: 12}, (_,i) => i < 1 ? Math.floor(Math.random()*5000)+500 : 0) }, purchases: { total: 0, trend: Array(12).fill(0) } },
+      last90days: { fuel: { total: 38000.20, trend: Array.from({length: 12}, (_,i) => i < 3 ? Math.floor(Math.random()*3500)+2500 : 0) }, reparation: { total: 25000.00, trend: Array.from({length: 12}, (_,i) => i < 3 ? Math.floor(Math.random()*2500)+1500 : 0) }, maintenance: { total: 15000.50, trend: Array.from({length: 12}, (_,i) => i < 3 ? Math.floor(Math.random()*1500)+1000 : 0) }, purchases: { total: 75000.00, trend: [0,0,0,0,0,0,75000,0,0,0,0,0].slice(-3).concat(Array(9).fill(0)) } },
+      last6months: { fuel: { total: 75000.80, trend: Array.from({length: 12}, (_,i) => i < 6 ? Math.floor(Math.random()*6500)+5500 : 0) }, reparation: { total: 48000.00, trend: Array.from({length: 12}, (_,i) => i < 6 ? Math.floor(Math.random()*4500)+3500 : 0) }, maintenance: { total: 28000.00, trend: Array.from({length: 12}, (_,i) => i < 6 ? Math.floor(Math.random()*2500)+2000 : 0) }, purchases: { total: 75000.00, trend: [0,0,0,0,0,75000,0,0,0,0,0,0].slice(-6).concat(Array(6).fill(0)) } },
+      last12months: { fuel: { total: 150000.00, trend: Array.from({length: 12}, () => Math.floor(Math.random() * 13000) + 10000) }, reparation: { total: 95000.00, trend: Array.from({length: 12}, () => Math.floor(Math.random() * 8000) + 7000) }, maintenance: { total: 58000.00, trend: Array.from({length: 12}, () => Math.floor(Math.random() * 5000) + 4000) }, purchases: { total: 150000.00, trend: [0,0,0,0,0,75000,0,0,0,0,0,75000] }  },
+      currentYear: { fuel: { total: 70000.00, trend: [12000,11500,12300,11800,12500,9900].concat(Array(6).fill(0)) }, reparation: { total: 45000.00, trend: [7000,7500,7200,7800,7300,8200].concat(Array(6).fill(0)) }, maintenance: { total: 27000.00, trend: [4000,4200,4100,4300,4400,6000].concat(Array(6).fill(0)) }, purchases: { total: 75000.00, trend: [0,0,0,0,0,75000].concat(Array(6).fill(0)) } }
+  };
+  let currentExpenseData = JSON.parse(JSON.stringify(mockExpenseDataSets.last12months));
+
+  // --- DOMContentLoaded ---
+  document.addEventListener('DOMContentLoaded', () => { 
+      lucide.createIcons(); 
+      updateUserInfoDisplay();
+      initializeStatisticsPage(); // Call this after other initializations
+      
+      themeToggleButtonHeader?.addEventListener('click', () => { // Corrected variable name
+        document.documentElement.classList.toggle('dark');
+        setInitialThemeIcon();
+        initializeStatisticsCharts(currentExpenseData, generateDynamicMonthLabels(currentExpenseData.fuel.trend.length)); 
+      });
+      setInitialThemeIcon(); // Set initial icon for header toggle
+      
+      mobileMenuButton?.addEventListener('click', openMobileMenu);
+      sidebarCloseButton?.addEventListener('click', closeMobileMenu);
+      sidebarOverlay?.addEventListener('click', closeMobileMenu);
+      document.querySelectorAll('#sidebar nav a').forEach(link => {
+          link.addEventListener('click', () => { if (window.innerWidth < 768) { closeMobileMenu(); } });
+      });
+
+      const reportPeriodSelect = document.getElementById('reportPeriod');
+      if(reportPeriodSelect) {
+          reportPeriodSelect.addEventListener('change', handleReportPeriodChange);
+          const today = new Date(); const firstDayOfYear = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0];
+          document.getElementById('reportCustomStart').value = firstDayOfYear;
+          document.getElementById('reportCustomEnd').value = today.toISOString().split('T')[0];
+          fetchAndDisplayDataForPeriod(reportPeriodSelect.value); 
+      }
+      const applyCustomDateBtn = document.getElementById('applyCustomDateBtn');
+      if(applyCustomDateBtn) applyCustomDateBtn.addEventListener('click', () => fetchAndDisplayDataForPeriod('custom'));
+      
+      window.addEventListener('resize', () => {
+          if (window.innerWidth >= 768) { document.body.classList.remove('overflow-hidden'); if (sidebarOverlay && !sidebarOverlay.classList.contains('hidden')) { sidebarOverlay.classList.add('hidden'); } } 
+          else { if (sidebar && sidebar.classList.contains('translate-x-0') && !sidebar.classList.contains('-translate-x-full')) { if (!document.body.classList.contains('overflow-hidden')) { document.body.classList.add('overflow-hidden'); }}}
+      });
+
+      document.getElementById('global-logout-btn')?.addEventListener('click', (e) => {
+          e.preventDefault(); console.log("Global logout clicked"); alert("Logout functionality to be implemented.");
+      });
+  }); // End DOMContentLoaded
+
+  let monthlyExpenseChartInstance = null;
+  let expenseDistributionChartInstance = null;
+
+  function initializeStatisticsPage() {
+      updateExpenseKPIs(currentExpenseData);
+      initializeStatisticsCharts(currentExpenseData, generateDynamicMonthLabels(12)); 
+      updateQuickStats();
+  }
+  
+  function handleReportPeriodChange(event) {
+      const period = event.target.value;
+      const customRangeContainer = document.getElementById('customReportDateContainer');
+      if (period === 'custom') { customRangeContainer.classList.remove('hidden'); customRangeContainer.classList.add('flex'); } 
+      else { customRangeContainer.classList.add('hidden'); customRangeContainer.classList.remove('flex'); fetchAndDisplayDataForPeriod(period); }
+  }
+  
+  function getPeriodDateRange(period) {
+      const today = new Date(); let startDate = new Date(); let endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
+      switch (period) {
+          case 'last30days': startDate.setDate(today.getDate() - 29); break;
+          case 'last90days': startDate.setDate(today.getDate() - 89); break;
+          case 'last6months': startDate = new Date(today.getFullYear(), today.getMonth() - 5, 1); break;
+          case 'last12months': startDate = new Date(today.getFullYear() - 1, today.getMonth() + 1, 1); break;
+          case 'currentYear': startDate = new Date(today.getFullYear(), 0, 1); break;
+          case 'custom': const cS = document.getElementById('reportCustomStart').value, cE = document.getElementById('reportCustomEnd').value; if (!cS || !cE) { alert("Please select custom start and end dates."); return null; } startDate = new Date(cS); endDate = new Date(cE); endDate.setHours(23,59,59,999); if (startDate > endDate) { alert("Start date cannot be after end date."); return null; } break;
+          default: startDate.setDate(today.getDate() - 29);
+      }
+      startDate.setHours(0,0,0,0); return { startDate, endDate };
+  }
+
+  function generateDynamicMonthLabels(count, refEndDate = new Date()) {
+      const labels = []; let currentDate = new Date(refEndDate.getFullYear(), refEndDate.getMonth(), 1); 
+      for (let i = 0; i < count; i++) { labels.unshift(currentDate.toLocaleString('default', { month: 'short', year: '2-digit' })); currentDate.setMonth(currentDate.getMonth() - 1); } return labels;
+  }
+
+  function fetchAndDisplayDataForPeriod(period) {
+      const range = getPeriodDateRange(period); if (!range && period === 'custom') return;
+      let dataToDisplay; let labelsForChart;
+      if (period === 'custom') {
+          let startMonth = range.startDate.getFullYear() * 12 + range.startDate.getMonth(); let endMonth = range.endDate.getFullYear() * 12 + range.endDate.getMonth(); const numMonths = Math.max(1, endMonth - startMonth + 1);
+          labelsForChart = generateDynamicMonthLabels(numMonths, range.endDate); dataToDisplay = { fuel:{total:0,trend:[]}, reparation:{total:0,trend:[]}, maintenance:{total:0,trend:[]}, purchases:{total:0,trend:[]} };
+          dataToDisplay.fuel.trend = labelsForChart.map(() => {const val = Math.floor(Math.random()*2500)+500; dataToDisplay.fuel.total+=val; return val;}); dataToDisplay.reparation.trend = labelsForChart.map(() => {const val = Math.floor(Math.random()*1500)+200; dataToDisplay.reparation.total+=val; return val;}); dataToDisplay.maintenance.trend = labelsForChart.map(() => {const val = Math.floor(Math.random()*1000)+100; dataToDisplay.maintenance.total+=val; return val;}); dataToDisplay.purchases.trend = labelsForChart.map((_,idx) => {const val = (idx % Math.max(1, Math.floor(numMonths/3)) === 0 && Math.random() > 0.6) ? Math.floor(Math.random() * 25000) + 10000 : 0; dataToDisplay.purchases.total += val; return val;});
+      } else {
+          dataToDisplay = JSON.parse(JSON.stringify(mockExpenseDataSets[period] || mockExpenseDataSets.last12months)); 
+          labelsForChart = generateDynamicMonthLabels(dataToDisplay.fuel.trend.length); // Use actual trend length
+          Object.keys(dataToDisplay).forEach(cat => { // Ensure trend arrays match label length
+              if (dataToDisplay[cat].trend.length < labelsForChart.length) { dataToDisplay[cat].trend = [...Array(labelsForChart.length - dataToDisplay[cat].trend.length).fill(0), ...dataToDisplay[cat].trend]; } 
+              else if (dataToDisplay[cat].trend.length > labelsForChart.length) { dataToDisplay[cat].trend = dataToDisplay[cat].trend.slice(-labelsForChart.length); }
+          });
+      }
+      currentExpenseData = dataToDisplay; updateExpenseKPIs(currentExpenseData); initializeStatisticsCharts(currentExpenseData, labelsForChart); updateQuickStats(currentExpenseData);
+  }
+
+  function updateExpenseKPIs(data) {
+    document.getElementById('kpiFuelTotal').textContent = `$${data.fuel.total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    document.getElementById('kpiReparationTotal').textContent = `$${data.reparation.total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    document.getElementById('kpiMaintenanceTotal').textContent = `$${data.maintenance.total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    document.getElementById('kpiVehiclePurchaseTotal').textContent = `$${data.purchases.total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  }
+  
+  function updateQuickStats(data = currentExpenseData) {
+    const totalFuelTrendSum = data.fuel.trend.reduce((s,v)=>s+v,0); const numFuelMonthsWithData = data.fuel.trend.filter(v=>v>0).length || 1;
+    document.getElementById('quickStatCostPerMile').textContent = `$${(totalFuelTrendSum / numFuelMonthsWithData / (1000 + Math.random()*2000) ).toFixed(2)}`; 
+    lucide.createIcons(); 
+  }
+
+  function initializeStatisticsCharts(data = currentExpenseData, labels = generateDynamicMonthLabels(12)) {
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    const gridColor = isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+    const labelColor = isDarkMode ? 'rgba(209,213,219,0.8)' : 'rgba(55,65,81,0.8)';
+    const fuelColor = tailwind.config.theme.extend.colors.danger.DEFAULT;
+    const reparationColor = tailwind.config.theme.extend.colors.warning.DEFAULT;
+    const maintenanceColor = tailwind.config.theme.extend.colors.info.DEFAULT;
+    const purchaseColor = tailwind.config.theme.extend.colors.secondary.DEFAULT;
+
+    const monthlyCtx = document.getElementById('monthlyExpenseChart')?.getContext('2d');
+    if (monthlyCtx) {
+        if (monthlyExpenseChartInstance) monthlyExpenseChartInstance.destroy();
+        monthlyExpenseChartInstance = new Chart(monthlyCtx, {
+            type: 'bar', data: { labels: labels, datasets: [ { label: 'Fuel', data: data.fuel.trend.slice(-labels.length), backgroundColor: fuelColor, stack: 'Stack 0', borderRadius: 4 }, { label: 'Reparations', data: data.reparation.trend.slice(-labels.length), backgroundColor: reparationColor, stack: 'Stack 0', borderRadius: 4 }, { label: 'Maintenance', data: data.maintenance.trend.slice(-labels.length), backgroundColor: maintenanceColor, stack: 'Stack 0', borderRadius: 4 }, { label: 'Purchases', data: data.purchases.trend.slice(-labels.length), backgroundColor: purchaseColor, stack: 'Stack 1', borderRadius: 4 } ] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, stacked: true, grid: { color: gridColor }, ticks: { color: labelColor, callback: value => `$${value/1000}k` } }, x: { stacked: true, grid: { display: false }, ticks: { color: labelColor } } }, plugins: { legend: { position: 'top', labels: { color: labelColor, boxWidth: 12, padding: 15 } }, tooltip: { mode: 'index', intersect: false, backgroundColor: isDarkMode ? '#374151' : '#fff', titleColor: isDarkMode ? '#f3f4f6' : '#1f2937', bodyColor: isDarkMode ? '#d1d5db' : '#4b5563', callbacks: { label: ctx => `${ctx.dataset.label}: $${ctx.raw.toLocaleString()}` }} } }
+        });
+    }
+    const distributionCtx = document.getElementById('expenseDistributionChart')?.getContext('2d');
+    if (distributionCtx) {
+        if (expenseDistributionChartInstance) expenseDistributionChartInstance.destroy();
+        const totalExpenses = data.fuel.total + data.reparation.total + data.maintenance.total + data.purchases.total;
+        const hasData = totalExpenses > 0;
+        expenseDistributionChartInstance = new Chart(distributionCtx, {
+            type: 'doughnut', data: { labels: hasData ? ['Fuel','Reparations','Maintenance','Purchases'] : ['No Data'], datasets: [{ label: 'Expense Distribution', data: hasData ? [data.fuel.total, data.reparation.total, data.maintenance.total, data.purchases.total] : [1], backgroundColor: hasData ? [fuelColor, reparationColor, maintenanceColor, purchaseColor] : [isDarkMode?'#4b5563':'#e5e7eb'], borderColor: isDarkMode?'#1f2937':'#fff', borderWidth: 3, hoverOffset: 8 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { display: hasData, position: 'bottom', labels: { color: labelColor, boxWidth: 12, padding: 15 } }, tooltip: { enabled: hasData, backgroundColor: isDarkMode ? '#374151' : '#fff', titleColor: isDarkMode ? '#f3f4f6' : '#1f2937', bodyColor: isDarkMode ? '#d1d5db' : '#4b5563', callbacks: { label: ctx => `${ctx.label}: $${ctx.raw.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})} (${totalExpenses > 0 ? ((ctx.raw/totalExpenses)*100).toFixed(1) : 0}%)` }} } }
+        });
+    }
+  }
+
+  function generateReport() { 
+      const period = document.getElementById('reportPeriod').value;
+      const range = getPeriodDateRange(period); if (!range) return;
+      const categories = [];
+      if (document.getElementById('reportCatFuel').checked) categories.push('Fuel');
+      if (document.getElementById('reportCatReparation').checked) categories.push('Reparations');
+      if (document.getElementById('reportCatMaintenance').checked) categories.push('Maintenance');
+      if (document.getElementById('reportCatPurchases').checked) categories.push('Vehicle Purchases');
+      if (categories.length === 0) { alert("Please select at least one expense category."); return; }
+      const format = document.getElementById('reportFormat').value;
+      const reportData = []; let grandTotal = 0;
+      if (categories.includes('Fuel')) { reportData.push({ Category: 'Fuel', Total: currentExpenseData.fuel.total, Details: `${currentExpenseData.fuel.trend.filter(t=>t>0).length} months data` }); grandTotal += currentExpenseData.fuel.total; }
+      if (categories.includes('Reparations')) { reportData.push({ Category: 'Reparations', Total: currentExpenseData.reparation.total, Details: `${currentExpenseData.reparation.trend.filter(t=>t>0).length} months data` }); grandTotal += currentExpenseData.reparation.total; }
+      if (categories.includes('Maintenance')) { reportData.push({ Category: 'Maintenance', Total: currentExpenseData.maintenance.total, Details: `${currentExpenseData.maintenance.trend.filter(t=>t>0).length} months data` }); grandTotal += currentExpenseData.maintenance.total; }
+      if (categories.includes('Vehicle Purchases')) { reportData.push({ Category: 'Vehicle Purchases', Total: currentExpenseData.purchases.total, Details: `${currentExpenseData.purchases.trend.filter(t=>t>0).length} months data` }); grandTotal += currentExpenseData.purchases.total; }
+      if (reportData.length > 0) { reportData.push({ Category: 'GRAND TOTAL', Total: grandTotal, Details: '' }); }
+      const periodString = period === 'custom' ? `${range.startDate.toLocaleDateString().replace(/\//g,'-')}_to_${range.endDate.toLocaleDateString().replace(/\//g,'-')}` : period;
+      if (format === 'excel') {
+          const ws = XLSX.utils.json_to_sheet(reportData); const wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, "Expense Report"); XLSX.writeFile(wb, `Expense_Report_${periodString}.xlsx`);
+      } else { 
+          const { jsPDF } = window.jspdf; const doc = new jsPDF();
+          doc.setFontSize(18); doc.text(`Expense Report (${period === 'custom' ? `${range.startDate.toLocaleDateString()} to ${range.endDate.toLocaleDateString()}` : period})`, 14, 20);
+          doc.setFontSize(12); doc.text(`Categories: ${categories.join(', ')}`, 14, 30);
+          doc.autoTable({ 
+              startY: 40, head: [['Category', 'Total ($)', 'Details']], 
+              body: reportData.map(item => [item.Category, item.Total.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), item.Details]),
+              foot: reportData.length > 1 ? [['GRAND TOTAL', grandTotal.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), '']] : undefined, 
+              footStyles: { fontStyle: 'bold', fillColor: [230,230,230], textColor: 20 }, theme: 'grid', headStyles: { fillColor: [59,130,246], textColor: 255 } 
+          });
+          doc.save(`Expense_Report_${periodString}.pdf`);
+      }
+      alert(format === 'excel' ? "Excel report generated (mock)!" : "PDF report generated (mock)!");
+  }
+</script>
+<!-- The global_logout.js is not standard, assuming its functionality is handled within this page or it's not critical for this example -->
+<!-- <script src="/static/js/global_logout.js" defer></script> --> 
+</body>
+</html>

@@ -1,0 +1,87 @@
+/* src/input.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Your Custom Base Styles (Optional) */
+body {
+    /* @apply antialiased; /* Tailwind handles this in preflight if needed */
+}
+
+/* Your Custom Components using @apply */
+.btn {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 whitespace-nowrap;
+}
+.btn-sm {
+    @apply px-3 py-1.5 text-xs;
+}
+.btn-primary {
+    /* Using your custom primary color defined in tailwind.config.js */
+    @apply bg-primary text-white hover:bg-primary-dark focus:ring-primary;
+}
+.btn-secondary {
+    @apply bg-gray-200 text-gray-700 hover:bg-gray-300 focus:ring-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600;
+}
+.btn-danger {
+    @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+}
+
+.form-input {
+    @apply block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:placeholder-gray-400;
+}
+.form-select {
+    @apply block w-full pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white dark:border-gray-600;
+}
+.form-input-sm { @apply !py-1.5 !text-xs; }
+.form-select-sm { @apply !py-1.5 !text-xs !pl-2.5 !pr-8; }
+
+/* Active Sidebar Link Styling using theme() */
+#sidebar nav ul li.active-link a,
+#sidebar nav ul li.active-link i {
+    color: theme('colors.primary.DEFAULT');
+    @apply font-semibold;
+}
+#sidebar nav ul li.active-link {
+    background-color: theme('colors.blue.50');
+}
+.dark #sidebar nav ul li.active-link a,
+.dark #sidebar nav ul li.active-link i {
+    color: theme('colors.primary.light');
+}
+.dark #sidebar nav ul li.active-link {
+    background-color: theme('colors.gray.700');
+}
+
+/* Date Filter Buttons */
+.date-filter-btn {
+    @apply px-3 py-1.5 text-xs border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 first:rounded-l-md last:rounded-r-md;
+}
+.date-filter-btn.active {
+    @apply bg-primary text-white border-primary hover:bg-primary-dark z-10;
+}
+
+.view-detail-label { @apply font-medium text-gray-500 dark:text-gray-400; }
+.view-detail-value { @apply text-gray-900 dark:text-white; }
+
+/* Modal transition can stay in HTML or move here */
+.modal { transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out; }
+.modal.hidden { visibility: hidden; opacity: 0; }
+.modal:not(.hidden) { visibility: visible; opacity: 1; }
+
+/* Loader Styling */
+.loader-container {
+    @apply absolute inset-0 flex items-center justify-center z-50;
+    background-color: rgba(255,255,255,0.6);
+}
+.dark .loader-container { background-color: rgba(17, 24, 39, 0.6); }
+.loader {
+    border: 5px solid theme('colors.gray.200');
+    border-top: 5px solid theme('colors.primary.DEFAULT');
+    @apply rounded-full w-[50px] h-[50px];
+    animation: spin 1s linear infinite;
+}
+.dark .loader {
+    border-color: theme('colors.gray.600');
+    border-top-color: theme('colors.primary.light');
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }

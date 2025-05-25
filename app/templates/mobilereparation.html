@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - Reparation Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' }
+  </script>
+  <style>
+    .modal { transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out; }
+    .modal.hidden { visibility: hidden; opacity: 0; }
+    .modal:not(.hidden) { visibility: visible; opacity: 1; }
+    .dark .modal-content { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5), 0 10px 10px -5px rgba(0,0,0,0.2); }
+    .date-filter-btn.active, .status-filter-btn.active { background-color: #3b82f6; color: white; }
+    .dark .date-filter-btn.active, .dark .status-filter-btn.active { background-color: #60a5fa; }
+    .view-detail-label { font-weight: 500; color: #4b5563; }
+    .dark .view-detail-label { color: #d1d5db; }
+    .view-detail-value { color: #1f2937; }
+    .dark .view-detail-value { color: #f9fafb; }
+  </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
+
+<!-- Main application wrapper -->
+<div class="flex h-screen">
+
+    <!-- Sidebar (Left) - Modified for responsiveness -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg 
+                             transform -translate-x-full transition-transform duration-300 ease-in-out 
+                             md:relative md:translate-x-0 md:shadow-lg md:border-r dark:border-gray-700 
+                             flex flex-col flex-shrink-0">
+      <div class="flex justify-between items-center">
+        <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
+          <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
+        </div>
+        <!-- Close button for mobile sidebar -->
+        <button id="sidebar-close-button" class="md:hidden text-gray-700 dark:text-gray-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+      <nav class="flex-1 overflow-y-auto">
+        <ul class="space-y-2">
+            <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+              <i data-lucide="layout-dashboard" class="w-5 h-5"></i><a href="dashboard">Dashboard</a>
+            </li>
+            <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+              <i data-lucide="pie-chart" class="w-5 h-5"></i><a href="analytics">Analytics</a>
+            </li>
+            <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+              <i data-lucide="users" class="w-5 h-5"></i><a href="users">User</a>
+            </li>
+            <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+              <i data-lucide="user" class="w-5 h-5"></i><a href="driver">Driver</a>
+            </li>
+            <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+              <i data-lucide="alert-triangle" class="w-5 h-5"></i><a href="panne">Pannes (Issues)</a>
+            </li>
+            <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+              <i data-lucide="car" class="w-5 h-5"></i><a href="vehicle">Vehicles</a>
+            </li>
+            <li class="flex items-center space-x-3 text-blue-600 dark:text-blue-400 font-semibold bg-blue-50 dark:bg-gray-700 p-2 rounded-md transition-colors">
+              <i data-lucide="wrench" class="w-5 h-5"></i><a href="reparation">Reparation</a>
+            </li>
+            <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+              <i data-lucide="droplet" class="w-5 h-5"></i><a href="fuel">Fuel</a>
+            </li>
+            <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+              <i data-lucide="tool" class="w-5 h-5"></i><a href="maintenance">Maintenance</a>
+            </li>
+            <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+              <i data-lucide="route" class="w-5 h-5"></i><a href="trip">Trip</a>
+            </li>
+        </ul>
+      </nav>
+       <div class="pt-4 border-t border-gray-200 dark:border-gray-700/50 mt-auto">
+            <a href="#" id="global-logout-btn" class="flex items-center space-x-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/40 p-2.5 rounded-lg transition-colors">
+                <i data-lucide="log-out" class="w-5 h-5"></i><span>Logout</span>
+            </a>
+       </div>
+    </aside>
+
+    <!-- Overlay for mobile menu -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+    
+    <!-- Content Area Wrapper (Header + Main Content + Right Sidebar) -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      
+      <!-- Header (Mobile Hamburger, Desktop Title, Theme Toggle, User Info) -->
+      <header class="bg-white dark:bg-gray-800 shadow p-3 flex justify-between items-center flex-shrink-0 h-16">
+          <!-- Hamburger Menu Button - visible only on mobile -->
+          <button id="mobile-menu-button" class="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none p-2">
+              <i data-lucide="menu" class="w-6 h-6"></i>
+          </button>
+          
+          <!-- Mobile Title - visible only on mobile -->
+          <div class="text-lg font-bold text-primary dark:text-primary-light md:hidden">
+              FleetDash
+          </div>
+
+          <!-- Desktop Title/Context - hidden on mobile -->
+          <div class="hidden md:block text-xl font-semibold text-gray-700 dark:text-gray-200">
+              Reparation Management
+          </div>
+          
+          <!-- Right side of header: Theme Toggle & User Info -->
+          <div class="flex items-center space-x-3">
+              <button id="theme-toggle-header" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                  <!-- Icon will be set by JS -->
+              </button>
+              <!-- User info for desktop header - hidden on mobile -->
+              <div class="hidden md:flex items-center space-x-2">
+                  <div class="text-sm font-semibold" id="userDisplayNameHeader">User</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400" id="userRoleDisplayHeader">Role</div>
+              </div>
+          </div>
+      </header>
+
+      <!-- Main scrollable content area (Main Page Content + Right Sidebar) -->
+      <div class="flex-1 flex overflow-hidden">
+        <main class="flex-1 overflow-y-auto p-6">
+          <!-- Reparation Table Section -->
+          <section id="reparation-section" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
+              <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-2 sm:mb-0">Reparation Records</h2>
+              <div class="flex flex-wrap gap-2 items-center">
+                <button id="openAddReparationModalButton" class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 text-sm shadow-sm">
+                  <i data-lucide="plus" class="w-4 h-4"></i> Add Reparation
+                </button>
+                <input type="text" id="reparationSearch" placeholder="Search (receipt, status, cost, panne, garage...)" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
+              </div>
+              <div class="flex flex-wrap gap-2 items-center">
+                <button id="exportExcelButton" class="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 text-sm shadow-sm">📄 Excel</button>
+                <button id="exportPdfButton" class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 text-sm shadow-sm">🧾 PDF</button>
+              </div>
+            </div>
+
+            <div class="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+              <div>
+                <span class="text-sm font-medium mr-2">Filter by Repair Date:</span>
+                <div class="inline-flex rounded-md shadow-sm" role="group">
+                  <button id="repair-date-filter-today" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-l-md hover:bg-gray-100 dark:hover:bg-gray-700">Today</button>
+                  <button id="repair-date-filter-last7" class="date-filter-btn px-3 py-1.5 text-sm border-t border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Last 7 Days</button>
+                  <button id="repair-date-filter-last30" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Last 30 Days</button>
+                  <button id="repair-date-filter-all" class="date-filter-btn px-3 py-1.5 text-sm border-t border-b border-r dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 active">All Time</button>
+                  <button id="repair-date-filter-custom-btn" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-r-md hover:bg-gray-100 dark:hover:bg-gray-700">Custom</button>
+                </div>
+              </div>
+              <div>
+                <span class="text-sm font-medium mr-2">Filter by Status:</span>
+                <select id="reparationStatusFilter" class="status-filter-select px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="">All Statuses</option>
+                  <option value="Inprogress">In Progress</option>
+                  <option value="Completed">Completed</option>
+                </select>
+              </div>
+            </div>
+            <div id="reparationCustomDateRange" class="mb-4 hidden items-center gap-2 p-3 border dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800/50">
+              <input type="date" id="reparationCustomStartDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
+              <span class="text-sm">to</span>
+              <input type="date" id="reparationCustomEndDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
+              <button id="applyCustomDateFilterButton" class="bg-blue-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-blue-600">Apply</button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table id="reparationsTable" class="w-full text-left text-sm">
+                <thead>
+                  <tr class="border-b dark:border-gray-700">
+                    <th class="py-3 px-2 font-semibold">ID</th>
+                    <th class="px-2 font-semibold">Panne (Issue)</th>
+                    <th class="px-2 font-semibold">Garage</th>
+                    <th class="px-2 font-semibold">Repair Date</th>
+                    <th class="px-2 font-semibold">Cost</th>
+                    <th class="px-2 font-semibold">Receipt</th>
+                    <th class="px-2 font-semibold">Status</th>
+                    <th class="px-2 font-semibold text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="reparationsBody"></tbody>
+              </table>
+            </div>
+            <div class="mt-6 flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
+              <div class="text-sm text-gray-600 dark:text-gray-400" id="reparationsCount"></div>
+              <div class="flex items-center space-x-1" id="reparationsPagination"></div>
+            </div>
+          </section>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="w-1/5 bg-white dark:bg-gray-800 p-4 space-y-6 shadow-md hidden lg:block flex-shrink-0 overflow-y-auto border-l dark:border-gray-700">
+            <div class="flex justify-end items-center">
+              <div>
+                  <div class="text-sm font-semibold text-right" id="userDisplayNameRightSidebar">User</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400 text-right" id="userRoleDisplayRightSidebar">Role</div>
+              </div>
+            </div>
+            <div><h4 class="font-bold mb-4 text-lg">Recent Updates</h4><div class="flex flex-col space-y-6 relative"><div class="absolute left-5 top-0 bottom-0 w-0.5 bg-blue-500"></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">New reparation logged</p><p class="text-sm text-gray-500 dark:text-gray-400">5 minutes ago</p></div></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">Reparation status updated</p><p class="text-sm text-gray-500 dark:text-gray-400">1 hour ago</p></div></div></div></div>
+            <div class="mt-8"><h4 class="font-bold mb-4 text-lg">Quick Actions</h4><div class="grid grid-cols-2 gap-2">
+                <button onclick="document.getElementById('openAddReparationModalButton').click()" class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="plus-circle" class="w-5 h-5 mb-1"></i><span class="text-xs">Add Reparation</span></button>
+                <button onclick="document.getElementById('reparationSearch').focus()" class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="search" class="w-5 h-5 mb-1"></i><span class="text-xs">Find Reparation</span></button>
+            </div></div>
+        </aside>
+      </div>
+    </div>
+</div>
+
+
+<!-- Add/Edit Reparation Modal -->
+<div id="addReparationModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
+  <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h3 class="text-xl font-bold text-gray-800 dark:text-white" id="reparationModalTitle">Add New Reparation</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Fill in the reparation details below</p>
+        </div>
+        <button id="closeAddReparationModalButtonTop" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i data-lucide="x" class="w-5 h-5 text-gray-500 dark:text-gray-400"></i>
+        </button>
+      </div>
+      <form id="addReparationForm" class="space-y-4">
+        <input type="hidden" id="reparationId_form">
+        <div>
+          <label for="reparation_panne_id_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Panne (Issue) <span class="text-red-500">*</span></label>
+          <select id="reparation_panne_id_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+            <option value="">Loading Pannes...</option>
+          </select>
+        </div>
+        <div>
+          <label for="reparation_garage_id_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Garage <span class="text-red-500">*</span></label>
+          <select id="reparation_garage_id_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+            <option value="">Loading Garages...</option>
+          </select>
+        </div>
+        <div>
+          <label for="reparation_repair_date_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Repair Date <span class="text-red-500">*</span></label>
+          <input type="datetime-local" id="reparation_repair_date_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+        </div>
+        <div>
+          <label for="reparation_cost_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cost</label>
+          <input type="number" step="0.01" min="0" id="reparation_cost_form" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="0.00">
+        </div>
+        <div>
+          <label for="reparation_receipt_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Receipt <span class="text-red-500">*</span></label>
+          <input type="text" id="reparation_receipt_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Receipt number or details">
+        </div>
+        <div>
+          <label for="reparation_status_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status <span class="text-red-500">*</span></label>
+          <select id="reparation_status_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+            <option value="Inprogress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+        <div class="flex justify-end gap-3 pt-4">
+          <button type="button" id="cancelAddReparationModalButton" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
+          <button type="submit" id="reparationSubmitButton" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center gap-2">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Reparation
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- View Reparation Record Modal -->
+<div id="viewReparationModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
+  <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-gray-800 dark:text-white">Reparation Details</h3>
+        <button id="closeViewReparationModalButtonTop" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i data-lucide="x" class="w-5 h-5 text-gray-500 dark:text-gray-400"></i>
+        </button>
+      </div>
+      <div id="viewReparationDetails" class="space-y-3 text-sm">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-2">
+            <span class="view-detail-label sm:col-span-1">Reparation ID:</span><span id="view-reparation-id" class="view-detail-value sm:col-span-2"></span>
+            <span class="view-detail-label sm:col-span-1">Panne (Issue):</span><span id="view-reparation-panne" class="view-detail-value sm:col-span-2"></span>
+            <span class="view-detail-label sm:col-span-1">Garage:</span><span id="view-reparation-garage" class="view-detail-value sm:col-span-2"></span>
+            <span class="view-detail-label sm:col-span-1">Repair Date:</span><span id="view-reparation-repair_date" class="view-detail-value sm:col-span-2"></span>
+            <span class="view-detail-label sm:col-span-1">Cost:</span><span id="view-reparation-cost" class="view-detail-value sm:col-span-2"></span>
+            <span class="view-detail-label sm:col-span-1">Receipt:</span><span id="view-reparation-receipt" class="view-detail-value sm:col-span-2"></span>
+            <span class="view-detail-label sm:col-span-1">Status:</span><span id="view-reparation-status" class="view-detail-value sm:col-span-2"></span>
+        </div>
+      </div>
+      <div class="flex justify-end pt-6">
+          <button type="button" id="closeViewReparationModalButtonBottom" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Generic Confirmation Modal -->
+<div id="genericConfirmModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
+  <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 id="genericConfirmModalTitle" class="text-xl font-bold text-gray-800 dark:text-white">Confirm Action</h3>
+        <button id="closeGenericConfirmModalButtonX" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i data-lucide="x" class="w-5 h-5 text-gray-500 dark:text-gray-400"></i>
+        </button>
+      </div>
+      <p id="genericConfirmModalMessage" class="text-sm text-gray-600 dark:text-gray-400 mb-6">Are you sure?</p>
+      <div class="flex justify-end gap-3 pt-4">
+        <button id="cancelGenericConfirmModalButton" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
+        <button id="genericConfirmModalConfirmBtn" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center gap-2">
+           Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Information/Status Modal -->
+<div id="infoStatusModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
+  <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md">
+    <div class="p-6 text-center">
+      <div id="infoStatusModalIconContainer" class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+        {/* Icon set by JS */}
+      </div>
+      <h3 id="infoStatusModalTitle" class="text-lg font-medium text-gray-900 dark:text-white mb-2">Status</h3>
+      <div class="mt-2">
+        <p id="infoStatusModalMessage" class="text-sm text-gray-500 dark:text-gray-400">Message.</p>
+      </div>
+      <div class="mt-5 sm:mt-6">
+        <button type="button" id="infoStatusModalOkButton" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  // --- Configuration ---
+  const API_ROOT_URL = 'http://34.201.67.218:8000'; 
+  const REPARATION_API_ENDPOINT = '/reparation/'; 
+  const PANNES_API_ENDPOINT = '/panne/';       
+  const GARAGES_API_ENDPOINT = '/garage/';     
+  const LOGIN_PAGE_URL = 'login.html';         
+
+  // --- Authentication Helper ---
+  function getAuthToken() { return localStorage.getItem('accessToken'); }
+  function parseJwt(token) { try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { console.error("JWT Parse Error:", e); return null; }}
+
+  function updateUserInfoDisplay() {
+    const token = getAuthToken();
+    const userDisplayElements = [
+        { el: document.getElementById('userDisplayNameHeader'), roleEl: document.getElementById('userRoleDisplayHeader') },
+        { el: document.getElementById('userDisplayNameRightSidebar'), roleEl: document.getElementById('userRoleDisplayRightSidebar') }
+    ];
+
+    userDisplayElements.forEach(item => {
+        if (!item.el) return;
+        if (token) {
+            const decoded = parseJwt(token);
+            item.el.textContent = (decoded && decoded.sub) ? decoded.sub : 'User';
+            if (item.roleEl) {
+                 item.roleEl.textContent = (decoded && decoded.role) ? decoded.role.charAt(0).toUpperCase() + decoded.role.slice(1) : 'Member';
+            }
+        } else {
+            item.el.textContent = 'Guest';
+            if (item.roleEl) item.roleEl.textContent = '';
+        }
+    });
+  }
+
+  async function apiRequest(endpoint, method = 'GET', body = null) {
+    const token = getAuthToken();
+    const headers = { 'Content-Type': 'application/json' };
+    const publicGetEndpoints = []; 
+
+    const isAuthRequiredForThisRequest = !(publicGetEndpoints.some(publicEp => endpoint.startsWith(publicEp) && method === 'GET'));
+
+    if (token && isAuthRequiredForThisRequest) {
+         headers['Authorization'] = `Bearer ${token}`;
+    } else if (!token && isAuthRequiredForThisRequest && !endpoint.startsWith('/login')) {
+        console.warn(`WARN: Protected endpoint ${API_ROOT_URL}${endpoint} called without token.`);
+    }
+
+    const config = { method, headers };
+    if (body) config.body = JSON.stringify(body);
+
+    try {
+      const response = await fetch(`${API_ROOT_URL}${endpoint}`, config);
+      if (response.status === 401 && isAuthRequiredForThisRequest && !endpoint.endsWith('/login/')) {
+        openInfoStatusModal("Authentication Error", "Session expired or unauthorized. Please log in again.", "error", 5000);
+        return null;
+      }
+      if (response.status === 204) return true; 
+
+      const responseData = await response.json().catch(async () => {
+          const text = await response.text();
+          console.error(`JSON Parse Error for ${API_ROOT_URL}${endpoint}. Status: ${response.status}. Response Text (first 100 chars): ${text.substring(0,100)}...`);
+          if (!response.ok) {
+              return Promise.reject({ detail: text || `Server error ${response.status}` });
+          }
+          throw new Error(`Invalid JSON response from server (status ${response.status}). Check console for raw response.`);
+      });
+
+      if (!response.ok) {
+        const errorDetail = responseData.detail || (typeof responseData === 'object' ? JSON.stringify(responseData) : responseData) || 'Unknown server error.';
+        console.error(`API Error for ${API_ROOT_URL}${endpoint}: ${response.status}`, errorDetail);
+         if (!(response.status === 401 && endpoint.endsWith('/login/'))) {
+            openInfoStatusModal(`API Error: ${response.status}`, Array.isArray(errorDetail) ? errorDetail.map(e => e.msg || e.detail).join(', ') : errorDetail, "error");
+        }
+        return null;
+      }
+      return responseData;
+    } catch (error) {
+      console.error(`Network/Catch Error during API request to ${API_ROOT_URL}${endpoint}:`, error);
+      const errorMessage = error.detail || error.message || "A network or request error occurred.";
+      openInfoStatusModal("Request Error", errorMessage, "error");
+      return null;
+    }
+  }
+
+  // --- Global Variables for Reparations ---
+  let allReparations = [];
+  const reparationsPerPage = 10;
+  let currentReparationPage = 1;
+  let reparationToEditId = null;
+  let activeRepairDateFilter = 'all'; 
+  let customRepairFilterStartDate = null;
+  let customRepairFilterEndDate = null;
+  let activeReparationStatusFilter = '';
+  let allPannesForDropdown = [];
+  let allGaragesForDropdown = [];
+  let currentConfirmAction = null;
+  let currentActionData = null;
+  let infoStatusModalTimeout = null;
+
+  // --- Sidebar Toggle Functionality ---
+  const sidebar = document.getElementById('sidebar');
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const sidebarCloseButton = document.getElementById('sidebar-close-button');
+  const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+  function openMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('translate-x-0');
+        sidebarOverlay.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden', 'md:overflow-auto');
+    }
+  }
+
+  function closeMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.add('-translate-x-full');
+        sidebar.classList.remove('translate-x-0');
+        sidebarOverlay.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+  }
+  
+  // --- Theme Toggle ---
+  const themeToggleButton = document.getElementById('theme-toggle-header');
+  function setInitialThemeIcon() {
+    if (themeToggleButton) {
+        if (document.documentElement.classList.contains('dark')) {
+            themeToggleButton.innerHTML = '<i data-lucide="sun" class="w-5 h-5"></i>';
+        } else {
+            themeToggleButton.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>';
+        }
+        lucide.createIcons();
+    }
+  }
+
+
+  // --- MODAL CONTROL (largely reusable, ensure IDs are correct) ---
+  function closeModal(modalId) {
+    document.getElementById(modalId)?.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+  function openModal(modalId) {
+    document.getElementById(modalId)?.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeAddReparationModal() {
+    closeModal('addReparationModal');
+    reparationToEditId = null;
+    document.getElementById('addReparationForm')?.reset();
+    const submitButton = document.getElementById('reparationSubmitButton');
+    if (submitButton) submitButton.disabled = false;
+  }
+  function closeViewReparationModal() { closeModal('viewReparationModal'); }
+  function closeGenericConfirmModal() {
+    closeModal('genericConfirmModal');
+    currentConfirmAction = null; currentActionData = null;
+  }
+  function closeInfoStatusModal() {
+    if (infoStatusModalTimeout) { clearTimeout(infoStatusModalTimeout); infoStatusModalTimeout = null; }
+    closeModal('infoStatusModal');
+  }
+
+  function openGenericConfirmModal(title, message, confirmButtonText, confirmButtonIcon, onConfirmCallback, actionData = null) {
+    document.getElementById('genericConfirmModalTitle').textContent = title;
+    document.getElementById('genericConfirmModalMessage').textContent = message;
+    const confirmBtn = document.getElementById('genericConfirmModalConfirmBtn');
+    confirmBtn.innerHTML = `<i data-lucide="${confirmButtonIcon || 'check-circle'}" class="w-4 h-4 mr-1"></i> ${confirmButtonText || 'Confirm'}`;
+    confirmBtn.className = `px-4 py-2 text-white rounded-lg flex items-center gap-2 ${
+        confirmButtonIcon === 'trash-2' ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'
+    }`;
+    lucide.createIcons();
+    currentConfirmAction = onConfirmCallback; currentActionData = actionData;
+    openModal('genericConfirmModal');
+  }
+
+  function openInfoStatusModal(title, message, type = 'success', autoCloseDelay = 4000) {
+    const titleEl = document.getElementById('infoStatusModalTitle');
+    const messageEl = document.getElementById('infoStatusModalMessage');
+    const iconContainer = document.getElementById('infoStatusModalIconContainer');
+    const okButton = document.getElementById('infoStatusModalOkButton');
+
+    titleEl.textContent = title; messageEl.textContent = message;
+    if (infoStatusModalTimeout) clearTimeout(infoStatusModalTimeout);
+
+    let iconName = 'info', iconColorClass = 'text-blue-600', bgColorClass = 'bg-blue-100', btnClass = 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500';
+    if (type === 'success') {
+        iconName = 'check-circle-2'; iconColorClass = 'text-green-600'; bgColorClass = 'bg-green-100'; btnClass = 'bg-green-600 hover:bg-green-700 focus:ring-green-500';
+    } else if (type === 'error') {
+        iconName = 'alert-triangle'; iconColorClass = 'text-red-600'; bgColorClass = 'bg-red-100'; btnClass = 'bg-red-600 hover:bg-red-700 focus:ring-red-500';
+    } else if (type === 'warning') {
+        iconName = 'alert-octagon'; iconColorClass = 'text-yellow-500'; bgColorClass = 'bg-yellow-100'; btnClass = 'bg-yellow-500 hover:bg-yellow-600 focus:ring-yellow-400';
+    }
+    iconContainer.className = `mx-auto flex items-center justify-center h-12 w-12 rounded-full ${bgColorClass} mb-4`;
+    iconContainer.innerHTML = `<i data-lucide="${iconName}" class="h-6 w-6 ${iconColorClass}"></i>`;
+    okButton.className = `inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white ${btnClass} focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm`;
+    lucide.createIcons();
+    openModal('infoStatusModal');
+    if (autoCloseDelay > 0 && type !== 'error') { 
+        infoStatusModalTimeout = setTimeout(closeInfoStatusModal, autoCloseDelay);
+    }
+  }
+
+  // --- DOMContentLoaded & Event Listeners ---
+  document.addEventListener('DOMContentLoaded', async () => {
+      lucide.createIcons();
+      updateUserInfoDisplay();
+      
+      themeToggleButton?.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        setInitialThemeIcon(); 
+      });
+      setInitialThemeIcon(); 
+
+      mobileMenuButton?.addEventListener('click', openMobileMenu);
+      sidebarCloseButton?.addEventListener('click', closeMobileMenu);
+      sidebarOverlay?.addEventListener('click', closeMobileMenu);
+      document.querySelectorAll('#sidebar nav a').forEach(link => {
+          link.addEventListener('click', () => {
+              if (window.innerWidth < 768) { // md breakpoint
+                  closeMobileMenu();
+              }
+          });
+      });
+
+      ['addReparationModal', 'viewReparationModal', 'genericConfirmModal'].forEach(modalId => {
+        document.getElementById(modalId)?.addEventListener('click', e => { if (e.target.id === modalId) closeModal(modalId); });
+      });
+      document.getElementById('infoStatusModal')?.addEventListener('click', e => { if (e.target.id === 'infoStatusModal' || e.target.closest('#infoStatusModalOkButton')) closeInfoStatusModal(); });
+
+      document.getElementById('closeAddReparationModalButtonTop')?.addEventListener('click', closeAddReparationModal);
+      document.getElementById('cancelAddReparationModalButton')?.addEventListener('click', closeAddReparationModal);
+      document.getElementById('closeViewReparationModalButtonTop')?.addEventListener('click', closeViewReparationModal);
+      document.getElementById('closeViewReparationModalButtonBottom')?.addEventListener('click', closeViewReparationModal);
+      document.getElementById('closeGenericConfirmModalButtonX')?.addEventListener('click', closeGenericConfirmModal);
+      document.getElementById('cancelGenericConfirmModalButton')?.addEventListener('click', () => {
+          closeGenericConfirmModal();
+          const reparationSubmitButton = document.getElementById('reparationSubmitButton');
+          if (reparationSubmitButton && !document.getElementById('addReparationModal')?.classList.contains('hidden')) {
+               reparationSubmitButton.disabled = false;
+          }
+      });
+
+      document.getElementById('genericConfirmModalConfirmBtn')?.addEventListener('click', async () => {
+        if (typeof currentConfirmAction === 'function') {
+             try { await currentConfirmAction(currentActionData); }
+             catch (error) {
+                console.error("Error in currentConfirmAction:", error);
+                const reparationSubmitButton = document.getElementById('reparationSubmitButton');
+                if (reparationSubmitButton && !document.getElementById('addReparationModal')?.classList.contains('hidden')) {
+                     reparationSubmitButton.disabled = false;
+                }
+             }
+        }
+        closeGenericConfirmModal();
+      });
+
+      document.getElementById('global-logout-btn')?.addEventListener('click', (e) => {
+          e.preventDefault();
+          localStorage.removeItem('accessToken');
+          openInfoStatusModal('Logged Out', 'You have been successfully logged out.', 'success', 2500);
+          setTimeout(() => window.location.href = LOGIN_PAGE_URL, 1500); 
+          updateUserInfoDisplay(); allReparations = [];
+          fetchAndRenderReparations();
+      });
+
+      document.getElementById('openAddReparationModalButton')?.addEventListener('click', openAddReparationModal);
+      document.getElementById('exportExcelButton')?.addEventListener('click', exportReparationsExcel);
+      document.getElementById('exportPdfButton')?.addEventListener('click', exportReparationsPDF);
+      document.getElementById('reparationSearch')?.addEventListener('input', () => { currentReparationPage = 1; fetchAndRenderReparations(); });
+      document.getElementById('reparationStatusFilter')?.addEventListener('change', (event) => applyReparationStatusFilter(event.target.value));
+
+      document.getElementById('repair-date-filter-today')?.addEventListener('click', () => applyRepairDateFilter('today'));
+      document.getElementById('repair-date-filter-last7')?.addEventListener('click', () => applyRepairDateFilter('last7days'));
+      document.getElementById('repair-date-filter-last30')?.addEventListener('click', () => applyRepairDateFilter('last30days'));
+      document.getElementById('repair-date-filter-all')?.addEventListener('click', () => applyRepairDateFilter('all'));
+      document.getElementById('repair-date-filter-custom-btn')?.addEventListener('click', toggleReparationCustomDateRange);
+      document.getElementById('applyCustomDateFilterButton')?.addEventListener('click', applyReparationCustomDateFilter);
+
+      document.getElementById('addReparationForm')?.addEventListener('submit', handleReparationFormSubmit);
+
+      await initializeReparationSection();
+  });
+
+  function getISODateString(date) {
+      if (!date) return null;
+      const d = new Date(date);
+      return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  }
+  function getISODateTimeString(date) { 
+      if (!date) return '';
+      const d = new Date(date);
+      const tzoffset = d.getTimezoneOffset() * 60000;
+      const localISOTime = new Date(d.getTime() - tzoffset).toISOString().slice(0, 16);
+      return localISOTime;
+  }
+  function getDateRange(filterType) {
+    const today = new Date(); today.setHours(0,0,0,0);
+    let sD = new Date(today), eD = new Date(today); eD.setHours(23,59,59,999);
+    if (filterType === 'last7days') sD.setDate(today.getDate()-6);
+    else if (filterType === 'last30days') sD.setDate(today.getDate()-29);
+    else if (filterType === 'all') return {startDate:null,endDate:null};
+    return {startDate:getISODateString(sD),endDate:getISODateString(eD)};
+  }
+
+  async function initializeReparationSection() {
+    await populateReparationLookupData();
+    await fetchAndRenderReparations({isInitialLoadForGuest: !getAuthToken()});
+    setActiveRepairDateFilterButton('all');
+    document.getElementById('reparationStatusFilter').value = '';
+  }
+
+  async function populateReparationLookupData() {
+    allPannesForDropdown = await apiRequest(PANNES_API_ENDPOINT + '?limit=1000') || [];
+    allGaragesForDropdown = await apiRequest(GARAGES_API_ENDPOINT + '?limit=1000') || [];
+    populateReparationDropdowns();
+  }
+
+  function populateReparationDropdowns() {
+    const panneSelect = document.getElementById('reparation_panne_id_form');
+    if (panneSelect) {
+        panneSelect.innerHTML = '<option value="">Select Panne (Issue)</option>';
+        (allPannesForDropdown || []).forEach(panne => {
+            let panneDisplayText = `Panne ID: ${panne.id}`;
+            if (panne.description) {
+                panneDisplayText += ` - ${panne.description.substring(0, 50)}${panne.description.length > 50 ? '...' : ''}`;
+            }
+            if (panne.vehicle && panne.vehicle.plate_number) { 
+                panneDisplayText += ` (Vehicle: ${panne.vehicle.plate_number})`;
+            }
+            panneSelect.add(new Option(panneDisplayText, panne.id));
+        });
+    }
+
+    const garageSelect = document.getElementById('reparation_garage_id_form');
+    if (garageSelect) {
+        garageSelect.innerHTML = '<option value="">Select Garage</option>';
+        (allGaragesForDropdown || []).forEach(garage => {
+            const displayText = garage.nom_garage ? `${garage.nom_garage} (ID: ${garage.id})` : `Garage ID: ${garage.id}`;
+            garageSelect.add(new Option(displayText, garage.id));
+        });
+    }
+
+    const statusSelectForm = document.getElementById('reparation_status_form');
+    if (statusSelectForm) {
+        statusSelectForm.innerHTML = '';
+        const statuses = [ {value: "Inprogress", text: "In Progress"}, {value: "Completed", text: "Completed"} ];
+        statuses.forEach(s => statusSelectForm.add(new Option(s.text, s.value)));
+    }
+  }
+
+  function applyRepairDateFilter(filterType) {
+    activeRepairDateFilter = filterType; customRepairFilterStartDate = null; customRepairFilterEndDate = null;
+    document.getElementById('reparationCustomDateRange').classList.add('hidden');
+    setActiveRepairDateFilterButton(filterType); currentReparationPage = 1;
+    fetchAndRenderReparations();
+  }
+  function toggleReparationCustomDateRange() {
+    document.getElementById('reparationCustomDateRange').classList.toggle('hidden');
+    if (!document.getElementById('reparationCustomDateRange').classList.contains('hidden')) setActiveRepairDateFilterButton('repair-date-filter-custom-btn');
+    else if (activeRepairDateFilter === 'custom') applyRepairDateFilter('all'); 
+  }
+  function applyReparationCustomDateFilter() {
+    const startDate = document.getElementById('reparationCustomStartDate').value;
+    const endDate = document.getElementById('reparationCustomEndDate').value;
+    if (!startDate || !endDate) { openInfoStatusModal("Input Error","Please select both start and end dates.", "error"); return; }
+    if (new Date(startDate) > new Date(endDate)) { openInfoStatusModal("Input Error", "Start date cannot be after end date.", "error"); return; }
+    activeRepairDateFilter = 'custom'; customRepairFilterStartDate = startDate; customRepairFilterEndDate = endDate;
+    setActiveRepairDateFilterButton('repair-date-filter-custom-btn'); currentReparationPage = 1;
+    fetchAndRenderReparations();
+  }
+  function applyReparationStatusFilter(statusValue) {
+      activeReparationStatusFilter = statusValue; currentReparationPage = 1; fetchAndRenderReparations();
+  }
+  function setActiveRepairDateFilterButton(filterId) {
+    document.querySelectorAll('#reparation-section .date-filter-btn').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById(filterId.startsWith('repair-date-filter-') ? filterId : `repair-date-filter-${filterId}`);
+    if (activeBtn) activeBtn.classList.add('active');
+  }
+
+  async function fetchAndRenderReparations(options = {}) {
+    if (!getAuthToken() && !options.isInitialLoadForGuest) {
+        allReparations = []; renderReparationsTable(); return;
+    }
+    let queryParams = `skip=${(currentReparationPage - 1) * reparationsPerPage}&limit=${reparationsPerPage}`;
+    const searchTerm = document.getElementById('reparationSearch').value;
+    if (searchTerm) queryParams += `&search=${encodeURIComponent(searchTerm)}`;
+    if (activeReparationStatusFilter) queryParams += `&status_filter=${encodeURIComponent(activeReparationStatusFilter)}`;
+
+    let range = getDateRange(activeRepairDateFilter);
+    if (activeRepairDateFilter === 'custom' && customRepairFilterStartDate && customRepairFilterEndDate) {
+        range = { startDate: customRepairFilterStartDate, endDate: customRepairFilterEndDate };
+    }
+    if (range?.startDate) queryParams += `&start_date=${encodeURIComponent(range.startDate)}`;
+    if (range?.endDate) queryParams += `&end_date=${encodeURIComponent(range.endDate)}`;
+
+    const data = await apiRequest(`${REPARATION_API_ENDPOINT}?${queryParams}`);
+    allReparations = Array.isArray(data) ? data : [];
+    renderReparationsTable();
+  }
+
+  function renderReparationsTable() {
+    const reparationsBody = document.getElementById('reparationsBody');
+    if (!getAuthToken() && allReparations.length === 0) {
+        reparationsBody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-red-500">Please log in to view reparation records.</td></tr>`;
+        document.getElementById('reparationsCount').textContent = '0 records';
+        document.getElementById('reparationsPagination').innerHTML = '';
+        return;
+    }
+    const recordsToDisplay = allReparations;
+    reparationsBody.innerHTML = recordsToDisplay.length > 0 ? recordsToDisplay.map(rep => {
+      const panneDisplay = rep.panne ? (rep.panne.description || `ID ${rep.panne.id || rep.panne_id}`) : `Panne ID ${rep.panne_id}`;
+      const garageDisplay = rep.garage ? (rep.garage.nom_garage || `ID ${rep.garage.id || rep.garage_id}`) : `Garage ID ${rep.garage_id}`;
+      const statusFormatted = rep.status.charAt(0).toUpperCase() + rep.status.slice(1).replace(/_/g, ' ');
+      const statusColor = rep.status === "Inprogress" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200" :
+                          rep.status === "Completed" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" :
+                          "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+      return `<tr class="border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50" data-id="${rep.id}">
+                <td class="py-3 px-2">${rep.id}</td>
+                <td class="px-2">${panneDisplay}</td>
+                <td class="px-2">${garageDisplay}</td>
+                <td class="px-2">${new Date(rep.repair_date).toLocaleString()}</td>
+                <td class="px-2 text-right">${rep.cost != null ? parseFloat(rep.cost).toFixed(2) : '0.00'}</td>
+                <td class="px-2 truncate max-w-[150px]" title="${rep.receipt}">${rep.receipt}</td>
+                <td class="px-2"><span class="px-2 py-1 text-xs font-medium rounded-full ${statusColor}">${statusFormatted}</span></td>
+                <td class="px-2 text-center whitespace-nowrap">
+                  <button onclick="openViewReparationModal(${rep.id})" class="text-green-600 dark:text-green-400 p-1" title="View"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                  <button onclick="openEditReparationModal(${rep.id})" class="text-blue-600 dark:text-blue-400 p-1 ml-1" title="Edit"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                  <button onclick="openConfirmDeleteReparationModal(${rep.id})" class="text-red-600 dark:text-red-400 p-1 ml-1" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </td></tr>`;
+    }).join('') : `<tr><td colspan="8" class="text-center py-8 text-gray-500">No reparation records found${document.getElementById('reparationSearch').value || activeRepairDateFilter !== 'all' || activeReparationStatusFilter ? ' matching criteria.' : (allReparations.length === 0 && getAuthToken() ? '. Try adding one!' : '')}</td></tr>`;
+    lucide.createIcons();
+    const startRecord = recordsToDisplay.length > 0 ? (currentReparationPage - 1) * reparationsPerPage + 1 : 0;
+    const endRecord = (currentReparationPage - 1) * reparationsPerPage + recordsToDisplay.length;
+    document.getElementById('reparationsCount').textContent = recordsToDisplay.length > 0 ? `Showing ${startRecord} to ${endRecord}` : '0 records';
+    renderReparationsPagination(recordsToDisplay.length === reparationsPerPage && recordsToDisplay.length > 0); 
+  }
+
+  function renderReparationsPagination(hasNextPage) {
+    const paginationContainer = document.getElementById('reparationsPagination');
+    paginationContainer.innerHTML = '';
+    if (currentReparationPage === 1 && !hasNextPage && allReparations.length === 0) return;
+
+    const btnClasses = "px-3 py-1.5 text-sm rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-900 focus:ring-blue-500";
+    const itemClasses = "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700";
+    const disabledClasses = "bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed";
+    const prevButton = Object.assign(document.createElement('button'), {
+        innerHTML: `<i data-lucide="chevron-left" class="w-4 h-4 inline-block mr-1"></i> Prev`,
+        className: `${btnClasses} ${currentReparationPage === 1 ? disabledClasses : itemClasses}`,
+        disabled: currentReparationPage === 1,
+        onclick: () => { if(currentReparationPage > 1) {currentReparationPage--; fetchAndRenderReparations();} }
+    });
+    const pageInfo = Object.assign(document.createElement('span'), {
+        className: "px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400", textContent: `Page ${currentReparationPage}`
+    });
+    const nextButton = Object.assign(document.createElement('button'), {
+        innerHTML: `Next <i data-lucide="chevron-right" class="w-4 h-4 inline-block ml-1"></i>`,
+        className: `${btnClasses} ${!hasNextPage ? disabledClasses : itemClasses}`,
+        disabled: !hasNextPage,
+        onclick: () => { if(hasNextPage) {currentReparationPage++; fetchAndRenderReparations();} }
+    });
+    paginationContainer.append(prevButton, pageInfo, nextButton);
+    lucide.createIcons();
+  }
+
+  function openAddReparationModal() {
+    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to add a reparation record.", "error", 0); return; }
+    reparationToEditId = null;
+    document.getElementById('addReparationForm')?.reset();
+    document.getElementById('reparationModalTitle').textContent = "Add New Reparation";
+    document.getElementById('reparationSubmitButton').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4 mr-1"></i> Add Reparation`;
+    document.getElementById('reparationSubmitButton').disabled = false;
+    document.getElementById('reparation_repair_date_form').value = getISODateTimeString(new Date());
+    lucide.createIcons();
+    openModal('addReparationModal');
+  }
+
+  async function openEditReparationModal(id) {
+    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to edit.", "error", 0); return; }
+    const reparation = await apiRequest(`${REPARATION_API_ENDPOINT}${id}`);
+    if (!reparation) { openInfoStatusModal("Error","Could not fetch reparation details.", "error", 0); return; }
+    reparationToEditId = id;
+    document.getElementById('reparationModalTitle').textContent = "Edit Reparation Record";
+    document.getElementById('reparationSubmitButton').innerHTML = `<i data-lucide="save" class="w-4 h-4 mr-1"></i> Save Changes`;
+    document.getElementById('reparationSubmitButton').disabled = false;
+    document.getElementById('reparationId_form').value = reparation.id;
+    document.getElementById('reparation_panne_id_form').value = reparation.panne_id;
+    document.getElementById('reparation_garage_id_form').value = reparation.garage_id;
+    document.getElementById('reparation_repair_date_form').value = getISODateTimeString(new Date(reparation.repair_date));
+    document.getElementById('reparation_cost_form').value = reparation.cost != null ? reparation.cost.toFixed(2) : '';
+    document.getElementById('reparation_receipt_form').value = reparation.receipt || '';
+    document.getElementById('reparation_status_form').value = reparation.status;
+    lucide.createIcons();
+    openModal('addReparationModal');
+  }
+
+  async function openViewReparationModal(id) {
+    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to view.", "error", 0); return; }
+    const reparation = await apiRequest(`${REPARATION_API_ENDPOINT}${id}`);
+    if (!reparation) { openInfoStatusModal("Error", "Could not fetch reparation details.", "error", 0); return; }
+    const panneDisplay = reparation.panne ? (reparation.panne.description || `ID ${reparation.panne.id || reparation.panne_id}`) : `Panne ID ${reparation.panne_id}`;
+    const garageDisplay = reparation.garage ? (reparation.garage.nom_garage || `ID ${reparation.garage.id || reparation.garage_id}`) : `Garage ID ${reparation.garage_id}`;
+    document.getElementById('view-reparation-id').textContent = reparation.id;
+    document.getElementById('view-reparation-panne').textContent = panneDisplay;
+    document.getElementById('view-reparation-garage').textContent = garageDisplay;
+    document.getElementById('view-reparation-repair_date').textContent = new Date(reparation.repair_date).toLocaleString();
+    document.getElementById('view-reparation-cost').textContent = reparation.cost != null ? parseFloat(reparation.cost).toFixed(2) : 'N/A';
+    document.getElementById('view-reparation-receipt').textContent = reparation.receipt || 'N/A';
+    document.getElementById('view-reparation-status').textContent = reparation.status.charAt(0).toUpperCase() + reparation.status.slice(1).replace(/_/g, ' ');
+    openModal('viewReparationModal');
+  }
+
+  async function handleReparationFormSubmit(event) {
+    event.preventDefault();
+    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in.", "error", 0); return; }
+    const submitButton = document.getElementById('reparationSubmitButton');
+    if (submitButton.disabled) return;
+    submitButton.disabled = true;
+
+    const repairDateValue = document.getElementById('reparation_repair_date_form').value;
+    if (!repairDateValue) { openInfoStatusModal("Validation Error", "Repair Date is required.", "error", 0); submitButton.disabled = false; return; }
+    const repairDateTime = new Date(repairDateValue);
+    if (isNaN(repairDateTime.getTime())) { openInfoStatusModal("Validation Error", "Invalid Repair Date.", "error", 0); submitButton.disabled = false; return; }
+
+    const formData = {
+      panne_id: parseInt(document.getElementById('reparation_panne_id_form').value),
+      garage_id: parseInt(document.getElementById('reparation_garage_id_form').value),
+      repair_date: repairDateTime.toISOString(),
+      cost: parseFloat(document.getElementById('reparation_cost_form').value) || 0.0,
+      receipt: document.getElementById('reparation_receipt_form').value.trim(),
+      status: document.getElementById('reparation_status_form').value
+    };
+
+    if (!formData.panne_id || !formData.garage_id || !formData.receipt || !formData.status) {
+      openInfoStatusModal("Validation Error", "Panne, Garage, Receipt, and Status are required.", "error", 0); submitButton.disabled = false; return;
+    }
+    if (formData.cost < 0) {
+        openInfoStatusModal("Validation Error", "Cost cannot be negative.", "error", 0); submitButton.disabled = false; return;
+    }
+
+    const actionType = reparationToEditId ? "update" : "add";
+    openGenericConfirmModal( reparationToEditId ? "Confirm Update" : "Confirm Add Reparation",
+        `Are you sure you want to ${actionType} this reparation record?`,
+        reparationToEditId ? "Update" : "Add", reparationToEditId ? "save" : "plus-circle",
+        async (data) => {
+            try {
+                const result = reparationToEditId
+                    ? await apiRequest(`${REPARATION_API_ENDPOINT}${reparationToEditId}`, 'PUT', data)
+                    : await apiRequest(REPARATION_API_ENDPOINT, 'POST', data);
+                if (result) {
+                    openInfoStatusModal("Success", `Reparation record ${actionType}ed successfully!`, "success");
+                    closeAddReparationModal();
+                    await fetchAndRenderReparations();
+                } else if (submitButton && !document.getElementById('addReparationModal')?.classList.contains('hidden')) {
+                    submitButton.disabled = false;
+                }
+            } catch (error) {
+                console.error(`Error during ${actionType} reparation record:`, error);
+                 if (submitButton && !document.getElementById('addReparationModal')?.classList.contains('hidden')) submitButton.disabled = false;
+            }
+        }, formData
+    );
+  }
+
+  function openConfirmDeleteReparationModal(id) {
+      if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to delete.", "error", 0); return; }
+      openGenericConfirmModal( "Confirm Deletion", `Are you sure you want to permanently delete reparation record ID: ${id}?`, "Delete", "trash-2",
+        async (recordIdToDelete) => {
+            const result = await apiRequest(`${REPARATION_API_ENDPOINT}${recordIdToDelete}`, 'DELETE');
+            if (result === true) {
+                openInfoStatusModal("Success", `Reparation record ID: ${recordIdToDelete} deleted.`, "success");
+                if(allReparations.length === 1 && currentReparationPage > 1) currentReparationPage--;
+                await fetchAndRenderReparations();
+            }
+        }, id
+      );
+  }
+
+  async function getReparationsForExport() {
+    let queryParams = `limit=10000`;
+    const searchTerm = document.getElementById('reparationSearch').value;
+    if (searchTerm) queryParams += `&search=${encodeURIComponent(searchTerm)}`;
+    if (activeReparationStatusFilter) queryParams += `&status_filter=${encodeURIComponent(activeReparationStatusFilter)}`;
+    let range = getDateRange(activeRepairDateFilter);
+     if (activeRepairDateFilter === 'custom' && customRepairFilterStartDate && customRepairFilterEndDate) {
+        range = { startDate: customRepairFilterStartDate, endDate: customRepairFilterEndDate };
+    }
+    if (range?.startDate) queryParams += `&start_date=${encodeURIComponent(range.startDate)}`;
+    if (range?.endDate) queryParams += `&end_date=${encodeURIComponent(range.endDate)}`;
+
+    const data = await apiRequest(`${REPARATION_API_ENDPOINT}?${queryParams}`);
+    return Array.isArray(data) ? data : [];
+  }
+
+  async function exportReparationsExcel() {
+    if (!getAuthToken()) { openInfoStatusModal("Export Error", "Please log in to export data.", "error", 0); return; }
+    if (typeof XLSX === 'undefined') { openInfoStatusModal("Error", "Excel library (XLSX) is not loaded.", "error", 0); return; }
+    try {
+        const recordsToExport = await getReparationsForExport();
+        if (!recordsToExport || recordsToExport.length === 0) {
+            openInfoStatusModal("Info", "No data to export based on current filters.", "info", 3000); return;
+        }
+        const data = recordsToExport.map(rep => ({
+            ID: rep.id,
+            'Panne Info': rep.panne ? (rep.panne.description || `ID ${rep.panne.id || rep.panne_id}`) : `Panne ID ${rep.panne_id}`,
+            'Garage Name': rep.garage ? (rep.garage.nom_garage || `ID ${rep.garage.id || rep.garage_id}`) : `Garage ID ${rep.garage_id}`,
+            'Repair Date': new Date(rep.repair_date).toLocaleString(),
+            Cost: rep.cost != null ? parseFloat(rep.cost).toFixed(2) : '0.00',
+            Receipt: rep.receipt,
+            Status: rep.status
+        }));
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Reparations");
+        XLSX.writeFile(wb, "reparations_export.xlsx");
+        openInfoStatusModal("Success", "Data exported to Excel successfully.", "success", 2500);
+    } catch (error) {
+        console.error("Error during Excel export:", error);
+        openInfoStatusModal("Export Error", `Failed to export to Excel: ${error.message || 'Unknown error'}.`, "error", 0);
+    }
+  }
+
+  async function exportReparationsPDF() {
+    if (!getAuthToken()) { openInfoStatusModal("Export Error", "Please log in to export data.", "error", 0); return; }
+    if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') { openInfoStatusModal("Error", "PDF library (jsPDF) is not loaded.", "error", 0); return; }
+    try {
+        const recordsToExport = await getReparationsForExport();
+        if (!recordsToExport || recordsToExport.length === 0) {
+            openInfoStatusModal("Info", "No data to export based on current filters.", "info", 3000); return;
+        }
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('l');
+        if (typeof doc.autoTable !== 'function') { openInfoStatusModal("Error", "PDF AutoTable plugin is not loaded.", "error", 0); return; }
+
+        doc.setFontSize(18); doc.text('Reparation Records', 14, 15);
+        const headers = [['ID', 'Panne', 'Garage', 'Repair Date', 'Cost', 'Receipt', 'Status']];
+        const data = recordsToExport.map(rep => [
+            rep.id,
+            rep.panne ? ((rep.panne.description || `ID ${rep.panne.id || rep.panne_id}`).substring(0,30) + ( (rep.panne.description || "").length > 30 ? "..." : "")) : `Panne ID ${rep.panne_id}`,
+            rep.garage ? ((rep.garage.nom_garage || `ID ${rep.garage.id || rep.garage_id}`).substring(0,30) + ( (rep.garage.nom_garage || "").length > 30 ? "..." : "")): `Garage ID ${rep.garage_id}`,
+            new Date(rep.repair_date).toLocaleDateString(),
+            rep.cost != null ? parseFloat(rep.cost).toFixed(2) : '0.00',
+            (rep.receipt || "").substring(0,30) + ( (rep.receipt || "").length > 30 ? "..." : ""),
+            rep.status
+        ]);
+        doc.autoTable({
+            head: headers, body: data, startY: 25, theme:'grid',
+            headStyles:{fillColor:[66, 135, 245], textColor:255},
+             columnStyles: {
+                0: { cellWidth: 15 }, 1: { cellWidth: 45 }, 2: { cellWidth: 45 },
+                3: { cellWidth: 30 }, 4: { cellWidth: 20 }, 5: { cellWidth: 40 },
+                6: { cellWidth: 25 }
+            }
+        });
+        doc.save('reparations_export.pdf');
+        openInfoStatusModal("Success", "Data exported to PDF successfully.", "success", 2500);
+    } catch (error) {
+        console.error("Error during PDF export:", error);
+        openInfoStatusModal("Export Error", `Failed to export to PDF: ${error.message || 'Unknown error'}.`, "error", 0);
+    }
+  }
+</script>
+</body>
+</html>

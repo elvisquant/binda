@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - FleetDash</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .error-message { 
+            color: #EF4444; /* red-500 */
+            background-color: #FEE2E2; /* red-100 */
+            border: 1px solid #FCA5A5; /* red-300 */
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem; /* rounded-md */
+            font-size: 0.875rem; 
+            margin-top: 1rem; 
+            text-align: left;
+        }
+        .dark .error-message {
+            color: #FCA5A5; /* red-300 */
+            background-color: #7F1D1D; /* red-900 */
+            border-color: #B91C1C; /* red-700 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900">
+
+    <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-md">
+        <div class="text-center mb-8">
+            <i data-lucide="log-in" class="w-16 h-16 mx-auto text-blue-500 mb-4"></i>
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Welcome Back</h1>
+            <p class="text-gray-500 dark:text-gray-400">Please login to your FleetDash account.</p>
+        </div>
+
+        <form id="loginForm" class="space-y-6">
+            <div>
+                <label for="username_identifier" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Username or Email</label>
+                <!-- Name attribute must be 'username' for OAuth2PasswordRequestForm -->
+                <input type="text" id="username_identifier" name="username" required
+                       class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       placeholder="yourname or user@example.com">
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+                <!-- Name attribute must be 'password' for OAuth2PasswordRequestForm -->
+                <input type="password" id="password" name="password" required
+                       class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                       placeholder="Enter your password">
+            </div>
+            <div id="errorMessageContainer" class="hidden">
+                 <div id="errorMessage" class="error-message"></div>
+            </div>
+            <div>
+                <button type="submit" id="loginButton"
+                        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 flex items-center justify-center">
+                    <span id="loginButtonText">Login</span>
+                    <i id="loginSpinner" data-lucide="loader-2" class="w-5 h-5 ml-2 animate-spin hidden"></i>
+                </button>
+            </div>
+        </form>
+        <!-- <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
+            Don't have an account? <a href="/register.html" class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">Sign up</a>
+        </p> -->
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const loginForm = document.getElementById('loginForm');
+        const errorMessageContainer = document.getElementById('errorMessageContainer');
+        const errorMessageDiv = document.getElementById('errorMessage');
+        const loginButton = document.getElementById('loginButton');
+        const loginButtonText = document.getElementById('loginButtonText');
+        const loginSpinner = document.getElementById('loginSpinner');
+
+        // IMPORTANT: Define your API base URL if it's different from the page's origin
+        // If login.html and your API are on the same domain (e.g., http://localhost:8000/login.html and http://localhost:8000/login/)
+        // then '/login/' is fine. If they are on different domains or ports, you need the full base URL.
+        // const API_BASE_URL = 'http://localhost:8000'; // Example: If API is elsewhere
+        // const API_LOGIN_URL = `${API_BASE_URL}/login/`; 
+        const API_LOGIN_URL = '/login/'; // Assumes API is at the same origin, path /login/
+
+        const VEHICLE_PAGE_URL = '/admin/admin'; // Path to your dashboard.html. Adjust if it's served from a different path like /admin/vehicle
+
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            errorMessageContainer.classList.add('hidden');
+            errorMessageDiv.textContent = '';
+            loginButton.disabled = true;
+            loginButtonText.classList.add('hidden');
+            loginSpinner.classList.remove('hidden');
+            lucide.createIcons(); // Re-render spinner icon if needed
+
+            const formData = new FormData(loginForm);
+
+            try {
+                console.log('LOGIN SCRIPT: Attempting login with form data...');
+                const response = await fetch(API_LOGIN_URL, {
+                    method: 'POST',
+                    body: formData, 
+                });
+
+                const responseTextForDebug = await response.clone().text(); // Clone to read text, original can still be .json()
+                console.log(`LOGIN SCRIPT: Login API Raw Response (Status ${response.status}):\n${responseTextForDebug.substring(0,500)}${responseTextForDebug.length > 500 ? '...' : ''}`);
+
+                if (!response.ok) {
+                    let errorDetail = `Login attempt failed with status: ${response.status}.`;
+                    try {
+                        // Try to parse error response as JSON, as FastAPI often returns { "detail": "..." }
+                        const errorData = await response.json(); 
+                        errorDetail = errorData.detail || JSON.stringify(errorData);
+                    } catch (e) {
+                        // If parsing error JSON fails, use the raw text if available, or a generic message
+                        errorDetail = responseTextForDebug || `Server error (status ${response.status}).`;
+                        console.warn("LOGIN SCRIPT: Could not parse error response as JSON for non-OK status. Raw error text:", responseTextForDebug);
+                    }
+                    console.error('LOGIN SCRIPT: Login failed:', response.status, errorDetail);
+                    errorMessageDiv.textContent = `Login Failed: ${errorDetail}`;
+                    errorMessageContainer.classList.remove('hidden');
+                    return; // Stop further processing
+                }
+
+                // If response.ok, proceed to parse as JSON
+                const data = await response.json();
+                console.log('LOGIN SCRIPT: Login successful, API response data:', data);
+                
+                if (data.access_token) {
+                    // --- ### CRITICAL FIX APPLIED HERE ### ---
+                    localStorage.setItem('accessToken', data.access_token); 
+                    // --- ############################## ---
+                    
+                    console.log("LOGIN SCRIPT: Token stored in localStorage. Verifying 'accessToken':", localStorage.getItem('accessToken') ? "EXISTS" : "STILL MISSING AFTER SETTING");
+
+                    // Storing other user info is optional but can be useful
+                    if(data.username) localStorage.setItem('username', data.username); 
+                    if(data.user_id) localStorage.setItem('userId', String(data.user_id));
+                    if(data.status) localStorage.setItem('userStatus', data.status);
+
+                    if (data.status && data.status !== 'active') {
+                         alert(`Login successful, but account status is '${data.status}'. You may have limited access.`);
+                    }
+                    
+                    console.log('LOGIN SCRIPT: Redirecting to:', VEHICLE_PAGE_URL);
+                    window.location.href = VEHICLE_PAGE_URL; 
+                } else {
+                    console.error('LOGIN SCRIPT: Login OK, but no access_token in response data:', data);
+                    errorMessageDiv.textContent = 'Login successful, but token was not provided by the server.';
+                    errorMessageContainer.classList.remove('hidden');
+                }
+
+            } catch (error) {
+                // This catch block handles network errors or errors from `await response.json()` if the body isn't valid JSON
+                // (even if status was 200 but content was not JSON - though our !response.ok check should catch most server errors)
+                console.error('LOGIN SCRIPT: Error during login fetch or JSON parsing:', error);
+                if (!errorMessageDiv.textContent) { // Only set if not already set by !response.ok block
+                    if (error instanceof SyntaxError && error.message.includes("JSON.parse")) {
+                        errorMessageDiv.textContent = 'Server returned an invalid response (not JSON). Please contact support.';
+                    } else {
+                        errorMessageDiv.textContent = 'An unexpected error occurred. Please try again.';
+                    }
+                }
+                 if(!errorMessageContainer.classList.contains('hidden')) {
+                    // errorMessageContainer might already be visible from the !response.ok block
+                 } else {
+                    errorMessageContainer.classList.remove('hidden');
+                 }
+            } finally {
+                loginButton.disabled = false;
+                loginButtonText.classList.remove('hidden');
+                loginSpinner.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

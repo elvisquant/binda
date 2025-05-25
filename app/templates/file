@@ -1,0 +1,56 @@
+    Hide the sidebar by default on small screens.
+
+    Add a "hamburger" button that's only visible on small screens to toggle the sidebar.
+
+    Style the sidebar to appear as an overlay or slide in from the side when opened on mobile.
+
+    Add a close button to the mobile sidebar and an overlay to close it by tapping outside.
+
+    Adjust the main content area to accommodate these changes.
+
+
+
+    Makes these key changes: 
+        HTML Structure:
+        The main layout is now a flex container <div class="flex h-screen">.
+
+        Left Sidebar (<aside id="sidebar">):
+            Changed classes to be fixed inset-y-0 left-0 z-40 ... transform -translate-x-full ... md:relative md:translate-x-0 .... This makes it fixed and off-screen on mobile, and part of the normal flow on medium screens and up.
+
+            Added a close button (#sidebar-close-button) visible only on mobile.
+            Added flex flex-col flex-shrink-0 for better internal layout and to prevent shrinking.
+            The nav inside is now overflow-y-auto.
+
+        Sidebar Overlay (#sidebar-overlay): A new div to cover the content when the mobile menu is open.
+        Content Area Wrapper: A new div <div class="flex-1 flex flex-col overflow-hidden"> wraps the header, main content, and right sidebar.
+
+        Header (<header>):
+            Contains the mobile hamburger button (#mobile-menu-button), a mobile title, a desktop title/context.
+            The theme toggle button (#theme-toggle-header) and desktop user info (#userDisplayNameHeader) are now here for better accessibility.
+
+        Main Scrollable Content (<div class="flex-1 flex overflow-hidden">): Wraps your main tag and the right-sidebar, allowing them to share space and scroll independently if needed.
+        Main Content (<main>): Is now flex-1 overflow-y-auto p-6.
+
+        Right Sidebar:
+            Theme toggle was removed (moved to header).
+            User display ID is now #userDisplayNameRightSidebar.
+            Added overflow-y-auto border-l dark:border-gray-700.
+
+    JavaScript:
+
+        Sidebar Toggle Logic:
+            sidebar, mobileMenuButton, sidebarCloseButton, sidebarOverlay DOM elements are selected.
+            openMobileMenu() and closeMobileMenu() functions to toggle sidebar visibility using transform classes and manage the overlay.
+
+            Event listeners added to the hamburger button, close button, and overlay.
+            Event listener added to navigation links within the sidebar to close it on mobile after a click.
+
+        Theme Toggle:
+            The theme-toggle button ID changed to theme-toggle-header. JS updated to reflect this.
+            setInitialThemeIcon() function created to set the correct sun/moon icon on load and after toggling.
+
+        User Info Display:
+            updateUserInfoDisplay() now updates both #userDisplayNameHeader (in the main header) and #userDisplayNameRightSidebar (in the right sidebar).
+
+        Body Scroll on Mobile Menu:
+            openMobileMenu() adds overflow-hidden to document.body to prevent scrolling the page behind the mobile menu and md:overflow-auto to ensure desktop scroll behavior is maintained. closeMobileMenu() removes it.

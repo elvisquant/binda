@@ -1,0 +1,22 @@
+your_project/
+├── app/
+│   ├── __init__.py
+│   ├── main.py             # Main FastAPI app, ties routers together
+│   ├── auth.py             # Your provided authentication logic (modified for status)
+│   ├── oauth2.py           # Your provided OAuth2 helpers (modified for status)
+│   ├── schemas.py          # Pydantic schemas (Token, User, TokenData, etc.)
+│   ├── models.py           # SQLAlchemy models (User model needs is_active)
+│   ├── utils.py            # Password hashing/verification
+│   ├── database.py         # Database session setup (get_db)
+│   ├── config.py           # Settings (SECRET_KEY, ALGORITHM, etc.)
+│   │
+│   ├── routers/            # Optional: to further organize routes
+│   │   ├── admin_views.py  # Serves HTML pages like /admin
+│   │   └── admin_api.py    # Serves protected API endpoints like /api/admin/data
+│   │
+│   ├── templates/
+│   │   ├── login.html      # Your existing login HTML page
+│   │   └── admin.html      # The admin dashboard HTML
+│   └── static/
+│       └── (css, js files if any)
+└── venv/

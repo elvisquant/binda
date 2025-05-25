@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FleetDash</title>
+
+    <link rel="stylesheet" href="css/style.css"> <!-- YOUR COMPILED CSS -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Minimal inline styles needed. Most are in src/input.css -> css/style.css */
+        .modal { transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out; }
+        .modal.hidden { visibility: hidden; opacity: 0; }
+        .modal:not(.hidden) { visibility: visible; opacity: 1; }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a3a3a3; }
+        .dark ::-webkit-scrollbar-track { background: #2d3748; }
+        .dark ::-webkit-scrollbar-thumb { background: #4a5568; }
+        .dark ::-webkit-scrollbar-thumb:hover { background: #718096; }
+
+        /* KPI Card styles (can be moved to src/input.css if specific to dashboard-overview.html) */
+        .kpi-card { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+        .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
+        .dark .kpi-card:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3), 0 4px 6px -2px rgba(0,0,0,0.25); }
+        .kpi-value { font-size: 1.625rem; line-height: 2.125rem; word-break: break-all; }
+        @media (min-width: 1024px) { .kpi-value { font-size: 1.75rem; line-height: 2.25rem; } }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white antialiased">
+
+<div class="flex flex-col h-screen">
+    <!-- Mobile Header -->
+    <div id="mobile-header" class="md:hidden flex justify-between items-center p-4 bg-white dark:bg-gray-800 border-b dark:border-gray-700 flex-shrink-0 h-16 sticky top-0 z-30">
+        <div class="text-xl font-bold flex items-center space-x-2 text-primary dark:text-primary-dark">
+            <i data-lucide="command" class="w-6 h-6"></i> <span>FleetDash</span>
+        </div>
+        <button id="mobile-menu-button" aria-label="Open menu" class="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+    </div>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar (Left) -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col space-y-4
+                                md:relative md:translate-x-0 md:h-full md:flex-shrink-0 md:shadow-none md:border-r dark:border-gray-700">
+            <div class="flex items-center justify-between md:pb-2">
+                <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-dark hidden md:flex">
+                    <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
+                </div>
+                <button id="close-sidebar-button" aria-label="Close menu" class="md:hidden p-1 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto space-y-1 pr-1 -mr-1">
+                <ul id="main-nav-list" class="space-y-1.5">
+                    <li class="nav-item">
+                        <a href="#dashboard_overview"
+                           data-content-url="content/dashboard-overview.html"
+                           data-module="dashboard_overview"
+                           data-title="Dashboard Overview"
+                           class="nav-link flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2.5 rounded-lg transition-colors">
+                           <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span class="flex-1">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#users"
+                            data-content-url="content/table-template.html"
+                            data-module="users"
+                            data-api-endpoint="/user/"
+                            data-title="User Management"
+                            data-columns='[{"header":"ID","key":"id","isId":true,"sortable":true},{"header":"Username","key":"username","sortable":true},{"header":"Email","key":"email","sortable":true},{"header":"Status","key":"status","render":"statusBadge"}]'
+                            data-form-fields='[{"id":"username","label":"Username","type":"text","required":true},{"id":"email","label":"Email","type":"email","required":true},{"id":"password","label":"Password","type":"password","required_on_add":true,"placeholder":"Leave blank to keep current"},{"id":"status","label":"Status","type":"select","options":[{"value":"active","text":"Active"},{"value":"inactive","text":"Inactive"},{"value":"pending_approval","text":"Pending Approval"}],"required":true}]'
+                            data-view-fields='[{"label":"User ID","key":"id"},{"label":"Username","key":"username"},{"label":"Email","key":"email"},{"label":"Status","key":"status","render":"formatStatus"},{"label":"Created At","key":"created_at","render":"formatDateTime"}]'
+                            class="nav-link flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2.5 rounded-lg transition-colors">
+                           <i data-lucide="users" class="w-5 h-5"></i><span class="flex-1">Users</span>
+                        </a>
+                    </li>
+                     <li class="nav-item">
+                        <a href="#drivers"
+                           data-content-url="content/table-template.html"
+                           data-module="drivers"
+                           data-api-endpoint="/driver/"
+                           data-title="Driver Records"
+                           data-columns='[{"header":"ID","key":"id","isId":true,"sortable":true},{"header":"Last Name","key":"last_name","sortable":true},{"header":"First Name","key":"first_name","sortable":true},{"header":"CNI","key":"cni_number"},{"header":"Email","key":"email"},{"header":"Matricule","key":"matricule","sortable":true}]'
+                           data-form-fields='[{"id":"last_name","label":"Last Name","type":"text","required":true},{"id":"first_name","label":"First Name","type":"text","required":true},{"id":"cni_number","label":"CNI Number","type":"text","required":true},{"id":"email","label":"Email","type":"email","required":true},{"id":"matricule","label":"Matricule","type":"text","required":true}]'
+                           data-view-fields='[{"label":"Driver ID","key":"id"},{"label":"Full Name","key":"","render":"driverFullNameView"},{"label":"CNI","key":"cni_number"},{"label":"Email","key":"email"},{"label":"Matricule","key":"matricule"},{"label":"Joined","key":"created_at","render":"formatDateTime"}]'
+                           class="nav-link flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2.5 rounded-lg transition-colors">
+                           <i data-lucide="user-cog" class="w-5 h-5"></i><span class="flex-1">Drivers</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                         <a href="#pannes"
+                           data-content-url="content/table-template.html"
+                           data-module="pannes"
+                           data-api-endpoint="/panne/"
+                           data-title="Panne Records"
+                           data-columns='[
+                                {"header": "ID", "key": "id", "isId": true, "sortable": true},
+                                {"header": "Vehicle", "key": "vehicle", "render": "vehicleFullName", "sortable": true, "sortKey": "vehicle.plate_number"},
+                                {"header": "Category", "key": "category_panne.panne_name", "fallback": "N/A", "sortable": true},
+                                {"header": "Status", "key": "status", "render": "statusBadge"},
+                                {"header": "Panne Date", "key": "panne_date", "render": "formatDateTime", "sortable": true}
+                           ]'
+                           data-form-fields='[
+                                {"id": "vehicle_id", "label": "Vehicle", "type": "select", "apiLookup": "/vehicle/?limit=1000&status=active", "valueField": "id", "displayFields": ["plate_number", "make", "model"], "required": true, "placeholder": "Select Vehicle"},
+                                {"id": "category_panne_id", "label": "Panne Category", "type": "select", "apiLookup": "/category_panne/?limit=200", "valueField": "id", "displayFields": ["panne_name"], "required": true, "placeholder": "Select Category"},
+                                {"id": "description", "label": "Description", "type": "textarea", "rows": 3, "placeholder": "Describe the issue..."},
+                                {"id": "status", "label": "Status", "type": "select", "options": [{"value":"active", "text":"Active"}, {"value":"in_progress", "text":"In Progress"}, {"value":"resolved", "text":"Resolved"}, {"value":"closed", "text":"Closed"}], "required": true, "defaultValue": "active"},
+                                {"id": "panne_date", "label": "Panne Date", "type": "datetime-local", "required": true, "defaultToNow": true}
+                           ]'
+                            data-view-fields='[
+                                {"label": "Panne ID", "key": "id"},
+                                {"label": "Vehicle", "key": "vehicle", "render": "vehicleFullName"},
+                                {"label": "Category", "key": "category_panne.panne_name"},
+                                {"label": "Description", "key": "description"},
+                                {"label": "Status", "key": "status", "render": "formatStatus"},
+                                {"label": "Panne Date", "key": "panne_date", "render": "formatDateTime"},
+                                {"label": "Reported At", "key": "created_at", "render": "formatDateTime"}
+                           ]'
+                           data-date-filters="true"
+                           data-status-filter-key="status"
+                           data-status-filter-options='[{"value":"", "text":"All Statuses"}, {"value":"active", "text":"Active"}, {"value":"in_progress", "text":"In Progress"}, {"value":"resolved", "text":"Resolved"}, {"value":"closed", "text":"Closed"}]'
+                           class="nav-link flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2.5 rounded-lg transition-colors">
+                           <i data-lucide="alert-triangle" class="w-5 h-5"></i><span class="flex-1">Pannes (Issues)</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                         <a href="#vehicles"
+                           data-content-url="content/table-template.html"
+                           data-module="vehicles"
+                           data-api-endpoint="/vehicle/"
+                           data-title="Vehicle Records"
+                           data-columns='[{"header":"ID","key":"id","isId":true,"sortable":true},{"header":"Plate No.","key":"plate_number","sortable":true},{"header":"Make","key":"vehicle_make.vehicle_make","sortable":true, "fallback":"N/A"},{"header":"Model","key":"vehicle_model.vehicle_model","sortable":true,"fallback":"N/A"},{"header":"Year","key":"year","sortable":true},{"header":"Status","key":"status","render":"statusBadge"}]'
+                           data-form-fields='[
+                                {"id":"plate_number","label":"Plate Number","type":"text","required":true},
+                                {"id":"make","label":"Make","type":"select","apiLookup":"/vehicle_make/","valueField":"id","displayFields":["vehicle_make"],"required":true,"placeholder":"Select Make"},
+                                {"id":"model","label":"Model","type":"select","apiLookup":"/vehicle_model/","valueField":"id","displayFields":["vehicle_model"],"required":true,"placeholder":"Select Model"},
+                                {"id":"year","label":"Year","type":"number","min":1900,"max":2099,"required":true},
+                                {"id":"mileage","label":"Mileage","type":"number","min":0,"step":"0.1"},
+                                {"id":"engine_size","label":"Engine Size (L)","type":"number","min":0,"step":"0.1"},
+                                {"id":"vehicle_type","label":"Type","type":"select","apiLookup":"/vehicle_type/","valueField":"id","displayFields":["vehicle_type"],"required":true,"placeholder":"Select Type"},
+                                {"id":"vehicle_transmission","label":"Transmission","type":"select","apiLookup":"/vehicle_transmission/","valueField":"id","displayFields":["vehicle_transmission"],"required":true,"placeholder":"Select Transmission"},
+                                {"id":"vehicle_fuel_type","label":"Fuel Type","type":"select","apiLookup":"/fuel_type/","valueField":"id","displayFields":["fuel_type"],"required":true,"placeholder":"Select Fuel Type"},
+                                {"id":"vin","label":"VIN","type":"text","required":true},
+                                {"id":"color","label":"Color","type":"text","required":true},
+                                {"id":"purchase_price","label":"Purchase Price","type":"number","min":0,"step":"0.01"},
+                                {"id":"purchase_date","label":"Purchase Date","type":"date"},
+                                {"id":"status","label":"Status","type":"select","options":[{"value":"available","text":"Available"},{"value":"in_use","text":"In Use"},{"value":"maintenance","text":"Maintenance"},{"value":"sold","text":"Sold"}],"required":true,"defaultValue":"available"}
+                            ]'
+                           data-view-fields='[
+                                {"label":"Plate No.","key":"plate_number"}, {"label":"Make","key":"vehicle_make.vehicle_make","fallback":"N/A"},
+                                {"label":"Model","key":"vehicle_model.vehicle_model","fallback":"N/A"}, {"label":"Year","key":"year"},
+                                {"label":"VIN","key":"vin"}, {"label":"Color","key":"color"},
+                                {"label":"Type","key":"vehicle_type_detail.vehicle_type","fallback":"N/A"},
+                                {"label":"Transmission","key":"vehicle_transmission_detail.vehicle_transmission","fallback":"N/A"},
+                                {"label":"Fuel Type","key":"vehicle_fuel_type_detail.fuel_type","fallback":"N/A"},
+                                {"label":"Mileage","key":"mileage"}, {"label":"Engine Size","key":"engine_size"},
+                                {"label":"Purchase Price","key":"purchase_price","render":"formatCurrency"}, {"label":"Purchase Date","key":"purchase_date","render":"formatDate"},
+                                {"label":"Status","key":"status","render":"formatStatus"}, {"label":"Registered","key":"registration_date","render":"formatDateTime"}
+                            ]'
+                           data-status-filter-key="status"
+                           data-status-filter-options='[{"value":"","text":"All Statuses"},{"value":"available","text":"Available"},{"value":"in_use","text":"In Use"},{"value":"maintenance","text":"Maintenance"},{"value":"sold","text":"Sold"}]'
+                           class="nav-link flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2.5 rounded-lg transition-colors">
+                           <i data-lucide="car" class="w-5 h-5"></i><span class="flex-1">Vehicles</span>
+                        </a>
+                    </li>
+                    {/* TODO: Add nav items for Reparation, Fuel, Maintenance, Trip with their respective data-* attributes */}
+                </ul>
+            </nav>
+
+            <div class="pt-4 border-t border-gray-200 dark:border-gray-700/50 mt-auto">
+                <a href="#" id="global-logout-btn" class="nav-link flex items-center space-x-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/40 p-2.5 rounded-lg transition-colors">
+                    <i data-lucide="log-out" class="w-5 h-5"></i><span>Logout</span>
+                </a>
+           </div>
+        </aside>
+
+        <!-- Sidebar Overlay -->
+        <div id="sidebar-overlay" class="fixed inset-0 z-20 bg-black bg-opacity-50 hidden md:hidden transition-opacity duration-300 ease-in-out"></div>
+
+        <!-- Main content Area (SPA content loads here) -->
+        <main id="main-content-area" class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 relative">
+            <div id="initial-loader" class="loader-container"><div class="loader"></div></div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside id="right-sidebar" class="w-full sm:w-72 lg:w-80 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-5 shadow-lg hidden lg:flex flex-col flex-shrink-0 border-l dark:border-gray-700 overflow-y-auto">
+             <div class="flex justify-between items-center">
+                <button id="theme-toggle" aria-label="Toggle theme" class="text-xl p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700/40 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary dark:focus:ring-offset-gray-900">
+                    {/* Icon set by JS: sun or moon */}
+                </button>
+                <div class="text-right flex items-center">
+                    <div class="mr-3">
+                        <div class="text-sm font-semibold text-gray-800 dark:text-white" id="userDisplayName">User</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400" id="userRole">Role</div>
+                    </div>
+                    <div id="user-avatar-placeholder" class="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-white font-semibold">
+                        <i data-lucide="user-round" class="w-6 h-6 text-gray-500 dark:text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+            <hr class="dark:border-gray-700/50">
+            {/* Other right sidebar content */}
+        </aside>
+    </div>
+</div>
+
+<!-- MODALS (Keep full structures from my previous refined example) -->
+<div id="genericAddEditModal" class="modal ..."> ... </div>
+<div id="genericViewModal" class="modal ..."> ... </div>
+<div id="genericConfirmModal" class="modal ..."> ... </div>
+<div id="infoStatusModal" class="modal ..."> ... </div>
+
+<!-- JavaScript Modules -->
+<script type="module" src="js/auth.js"></script>
+<script type="module" src="js/utils.js"></script>
+<script type="module" src="js/modal-manager.js"></script>
+<script type="module" src="js/table-manager.js"></script>
+<script type="module" src="js/dashboard-overview.js"></script> <!-- If it exists and is used -->
+<script type="module" src="js/spa.js"></script>
+
+</body>
+</html>
