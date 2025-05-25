@@ -26,14 +26,25 @@
   </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
-<div class="flex flex-col md:flex-row h-screen overflow-hidden">
-    
-    <!-- Sidebar (Left) -->
-    <aside class="w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden md:block flex-shrink-0 border-r dark:border-gray-700">
-      <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
-        <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
+
+<!-- Main application wrapper -->
+<div class="flex h-screen">
+
+    <!-- Sidebar (Left) - Modified for responsiveness -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg 
+                             transform -translate-x-full transition-transform duration-300 ease-in-out 
+                             md:relative md:translate-x-0 md:shadow-lg md:border-r dark:border-gray-700 
+                             flex flex-col flex-shrink-0">
+      <div class="flex justify-between items-center">
+        <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
+          <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
+        </div>
+        <!-- Close button for mobile sidebar -->
+        <button id="sidebar-close-button" class="md:hidden text-gray-700 dark:text-gray-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
       </div>
-      <nav class="flex-1">
+      <nav class="flex-1 overflow-y-auto"> <!-- Added overflow-y-auto for potentially long menus -->
         <ul class="space-y-2">
         <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
           <i data-lucide="layout-dashboard" class="w-5 h-5"></i><a href="dashboard">Dashboard</a>
@@ -73,73 +84,116 @@
             </a>
        </div>
     </aside>
+
+    <!-- Overlay for mobile menu -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
     
-  <!-- Main content -->
-  <main class="flex-1 overflow-auto p-6">
-    <!-- Vehicle Table Section -->
-    <section id="vehicle-section" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
-      <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
-        <div class="flex flex-wrap gap-2 items-center">
-          <button onclick="openAddVehicleModal()" class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 text-sm shadow-sm">
-            <i data-lucide="plus" class="w-4 h-4"></i> Add Vehicle
+    <!-- Content Area Wrapper (Header + Main Content + Right Sidebar) -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      
+      <!-- Header (Mobile Hamburger, Desktop Title, Theme Toggle, User Info) -->
+      <header class="bg-white dark:bg-gray-800 shadow p-3 flex justify-between items-center flex-shrink-0 h-16">
+          <!-- Hamburger Menu Button - visible only on mobile -->
+          <button id="mobile-menu-button" class="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none p-2">
+              <i data-lucide="menu" class="w-6 h-6"></i>
           </button>
-          <input type="text" id="vehicleSearch" placeholder="Search vehicles (plate, VIN, make...)" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
-        </div>
-        <div class="flex flex-wrap gap-2 items-center">
-          <button onclick="exportVehiclesExcel()" class="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 text-sm shadow-sm">📄 Excel</button>
-          <button onclick="exportVehiclesPDF()" class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 text-sm shadow-sm">🧾 PDF</button>
-        </div>
-      </div>
+          
+          <!-- Mobile Title - visible only on mobile -->
+          <div class="text-lg font-bold text-primary dark:text-primary-light md:hidden">
+              FleetDash
+          </div>
 
-      <div class="mb-4 flex flex-wrap items-center gap-2">
-        <span class="text-sm font-medium mr-2">Filter Vehicles by Registration Date:</span>
-        <button id="vehicle-filter-today" onclick="applyVehicleDateFilter('today')" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Today</button>
-        <button id="vehicle-filter-last7" onclick="applyVehicleDateFilter('last7days')" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Last 7 Days</button>
-        <button id="vehicle-filter-last30" onclick="applyVehicleDateFilter('last30days')" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Last 30 Days</button>
-        <button id="vehicle-filter-all" onclick="applyVehicleDateFilter('all')" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 active">All Time</button>
-        <button id="vehicle-filter-custom-btn" onclick="toggleVehicleCustomDateRange()" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Custom Range</button>
-      </div>
-      <div id="vehicleCustomDateRange" class="mb-4 hidden items-center gap-2 p-3 border dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800/50">
-        <input type="date" id="vehicleCustomStartDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
-        <span class="text-sm">to</span>
-        <input type="date" id="vehicleCustomEndDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
-        <button onclick="applyVehicleCustomDateFilter()" class="bg-blue-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-blue-600">Apply</button>
-      </div>
+          <!-- Desktop Title/Context - hidden on mobile -->
+          <div class="hidden md:block text-xl font-semibold text-gray-700 dark:text-gray-200">
+              Vehicle Management
+          </div>
+          
+          <!-- Right side of header: Theme Toggle & User Info -->
+          <div class="flex items-center space-x-3">
+              <button id="theme-toggle-header" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                  <!-- Icon will be set by JS -->
+              </button>
+              <!-- User info for desktop header - hidden on mobile -->
+              <div class="hidden md:flex items-center space-x-2">
+                  <div class="text-sm font-semibold" id="userDisplayNameHeader">User</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">Admin</div>
+              </div>
+          </div>
+      </header>
 
-      <div class="overflow-x-auto">
-        <table id="vehiclesTable" class="w-full text-left text-sm">
-          <thead>
-            <tr class="border-b dark:border-gray-700">
-              <th class="py-3 px-2 font-semibold">ID</th>
-              <th class="px-2 font-semibold">Make</th>
-              <th class="px-2 font-semibold">Model</th>
-              <th class="px-2 font-semibold">Year</th>
-              <th class="px-2 font-semibold">Plate #</th>
-              <th class="px-2 font-semibold">Mileage</th>
-              <th class="px-2 font-semibold">Status</th>
-              <th class="px-2 font-semibold">Registered</th>
-              <th class="px-2 font-semibold text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="vehiclesBody"></tbody>
-        </table>
-      </div>
-      <div class="mt-6 flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
-        <div class="text-sm text-gray-600 dark:text-gray-400" id="vehiclesCount"></div>
-        <div class="flex items-center space-x-1" id="vehiclesPagination"></div>
-      </div>
-    </section>
-  </main>
+      <!-- Main scrollable content area (Main Page Content + Right Sidebar) -->
+      <div class="flex-1 flex overflow-hidden">
+        <main class="flex-1 overflow-y-auto p-6">
+          <!-- Vehicle Table Section -->
+          <section id="vehicle-section" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
+              <div class="flex flex-wrap gap-2 items-center">
+                <button onclick="openAddVehicleModal()" class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 text-sm shadow-sm">
+                  <i data-lucide="plus" class="w-4 h-4"></i> Add Vehicle
+                </button>
+                <input type="text" id="vehicleSearch" placeholder="Search vehicles (plate, VIN, make...)" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
+              </div>
+              <div class="flex flex-wrap gap-2 items-center">
+                <button onclick="exportVehiclesExcel()" class="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 text-sm shadow-sm">📄 Excel</button>
+                <button onclick="exportVehiclesPDF()" class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 text-sm shadow-sm">🧾 PDF</button>
+              </div>
+            </div>
 
-    <!-- Right Sidebar -->
-    <aside class="w-1/5 bg-white dark:bg-gray-800 p-4 space-y-6 shadow-md hidden lg:block flex-shrink-0">
-        <div class="flex justify-between items-center">
-        <button id="theme-toggle" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">🌙</button>
-        <div><div class="text-sm font-semibold" id="userDisplayName">User</div><div class="text-xs text-gray-500 dark:text-gray-300">Admin</div></div>
-        </div>
-        <div><h4 class="font-bold mb-4 text-lg">Recent Updates</h4><div class="flex flex-col space-y-6 relative"><div class="absolute left-5 top-0 bottom-0 w-0.5 bg-blue-500"></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">New vehicle added</p><p class="text-sm text-gray-500 dark:text-gray-400">15 minutes ago</p></div></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">Vehicle maintenance due</p><p class="text-sm text-gray-500 dark:text-gray-400">2 hours ago</p></div></div></div></div>
-        <div class="mt-8"><h4 class="font-bold mb-4 text-lg">Quick Actions</h4><div class="grid grid-cols-2 gap-2"><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="car-front" class="w-5 h-5 mb-1"></i><span class="text-xs">View Fleet</span></button><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="search" class="w-5 h-5 mb-1"></i><span class="text-xs">Find Vehicle</span></button></div></div>
-    </aside>
+            <div class="mb-4 flex flex-wrap items-center gap-2">
+              <span class="text-sm font-medium mr-2">Filter Vehicles by Registration Date:</span>
+              <button id="vehicle-filter-today" onclick="applyVehicleDateFilter('today')" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Today</button>
+              <button id="vehicle-filter-last7" onclick="applyVehicleDateFilter('last7days')" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Last 7 Days</button>
+              <button id="vehicle-filter-last30" onclick="applyVehicleDateFilter('last30days')" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Last 30 Days</button>
+              <button id="vehicle-filter-all" onclick="applyVehicleDateFilter('all')" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 active">All Time</button>
+              <button id="vehicle-filter-custom-btn" onclick="toggleVehicleCustomDateRange()" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Custom Range</button>
+            </div>
+            <div id="vehicleCustomDateRange" class="mb-4 hidden items-center gap-2 p-3 border dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800/50">
+              <input type="date" id="vehicleCustomStartDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
+              <span class="text-sm">to</span>
+              <input type="date" id="vehicleCustomEndDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
+              <button onclick="applyVehicleCustomDateFilter()" class="bg-blue-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-blue-600">Apply</button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table id="vehiclesTable" class="w-full text-left text-sm">
+                <thead>
+                  <tr class="border-b dark:border-gray-700">
+                    <th class="py-3 px-2 font-semibold">ID</th>
+                    <th class="px-2 font-semibold">Make</th>
+                    <th class="px-2 font-semibold">Model</th>
+                    <th class="px-2 font-semibold">Year</th>
+                    <th class="px-2 font-semibold">Plate #</th>
+                    <th class="px-2 font-semibold">Mileage</th>
+                    <th class="px-2 font-semibold">Status</th>
+                    <th class="px-2 font-semibold">Registered</th>
+                    <th class="px-2 font-semibold text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="vehiclesBody"></tbody>
+              </table>
+            </div>
+            <div class="mt-6 flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
+              <div class="text-sm text-gray-600 dark:text-gray-400" id="vehiclesCount"></div>
+              <div class="flex items-center space-x-1" id="vehiclesPagination"></div>
+            </div>
+          </section>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="w-1/5 bg-white dark:bg-gray-800 p-4 space-y-6 shadow-md hidden lg:block flex-shrink-0 overflow-y-auto border-l dark:border-gray-700">
+            <!-- Theme toggle moved to main header, user info here is for desktop right sidebar -->
+            <div class="flex justify-between items-center">
+              <!-- User Info (visible in Right Sidebar on LG screens) -->
+              <div class="text-right w-full"> <!-- Adjusted for alignment -->
+                  <div class="text-sm font-semibold" id="userDisplayNameRightSidebar">User</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-300">Admin</div>
+              </div>
+            </div>
+            <div><h4 class="font-bold mb-4 text-lg">Recent Updates</h4><div class="flex flex-col space-y-6 relative"><div class="absolute left-5 top-0 bottom-0 w-0.5 bg-blue-500"></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">New vehicle added</p><p class="text-sm text-gray-500 dark:text-gray-400">15 minutes ago</p></div></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">Vehicle maintenance due</p><p class="text-sm text-gray-500 dark:text-gray-400">2 hours ago</p></div></div></div></div>
+            <div class="mt-8"><h4 class="font-bold mb-4 text-lg">Quick Actions</h4><div class="grid grid-cols-2 gap-2"><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="car-front" class="w-5 h-5 mb-1"></i><span class="text-xs">View Fleet</span></button><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="search" class="w-5 h-5 mb-1"></i><span class="text-xs">Find Vehicle</span></button></div></div>
+        </aside>
+      </div>
+    </div>
 </div>
 
 <!-- Add/Edit Vehicle Modal -->
@@ -331,20 +385,25 @@
 
   function updateUserInfoDisplay() {
     const token = getAuthToken();
-    const userDisplayElement = document.getElementById('userDisplayName');
-    if (!userDisplayElement) return;
-    if (token) {
-        const decoded = parseJwt(token);
-        userDisplayElement.textContent = (decoded && decoded.sub) ? decoded.sub : 'User (token issue)';
-    } else {
-        userDisplayElement.textContent = 'Guest';
-    }
+    // Update user display name in header and right sidebar if they exist
+    const userDisplayElements = [
+        document.getElementById('userDisplayNameHeader'),
+        document.getElementById('userDisplayNameRightSidebar')
+    ];
+
+    userDisplayElements.forEach(userDisplayElement => {
+        if (!userDisplayElement) return; // Skip if element doesn't exist
+        if (token) {
+            const decoded = parseJwt(token);
+            userDisplayElement.textContent = (decoded && decoded.sub) ? decoded.sub : 'User (token issue)';
+        } else {
+            userDisplayElement.textContent = 'Guest';
+        }
+    });
   }
 
   async function apiRequest(endpoint, method = 'GET', body = null) {
     const token = getAuthToken();
-    // console.log(`API REQ: ${method} ${API_BASE_URL}${endpoint}. Token: ${token ? 'Present' : 'Absent'}`);
-
     const headers = { 'Content-Type': 'application/json' };
     const publicEndpoints = ['/vehicle_make/', '/vehicle_model/', '/vehicle_type/', '/vehicle_transmission/', '/fuel_type/'];
     const isPublic = publicEndpoints.some(publicEp => endpoint.startsWith(publicEp));
@@ -357,7 +416,6 @@
 
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-      
       const responseForJson = response.clone();
       const responseForText = response.clone();
 
@@ -411,6 +469,44 @@
   let currentActionData = null;  
   let infoStatusModalTimeout = null; 
 
+  // --- Sidebar Toggle Functionality ---
+  const sidebar = document.getElementById('sidebar');
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const sidebarCloseButton = document.getElementById('sidebar-close-button');
+  const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+  function openMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('translate-x-0');
+        sidebarOverlay.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden', 'md:overflow-auto'); // Prevent body scroll on mobile, allow on md+
+    }
+  }
+
+  function closeMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.add('-translate-x-full');
+        sidebar.classList.remove('translate-x-0');
+        sidebarOverlay.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+  }
+  
+  // --- Theme Toggle ---
+  const themeToggleButton = document.getElementById('theme-toggle-header');
+  function setInitialThemeIcon() {
+    if (themeToggleButton) {
+        if (document.documentElement.classList.contains('dark')) {
+            themeToggleButton.innerHTML = '<i data-lucide="sun" class="w-5 h-5"></i>';
+        } else {
+            themeToggleButton.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>';
+        }
+        lucide.createIcons();
+    }
+  }
+
+
   function setActiveVehicleDateFilterButton(filterId) {
     document.querySelectorAll('#vehicle-section .date-filter-btn').forEach(btn => btn.classList.remove('active'));
     const activeBtn = document.getElementById(filterId.startsWith('vehicle-filter-') ? filterId : `vehicle-filter-${filterId}`);
@@ -422,7 +518,27 @@
   document.addEventListener('DOMContentLoaded', async () => {
       lucide.createIcons(); 
       updateUserInfoDisplay(); 
-      document.getElementById('theme-toggle')?.addEventListener('click', () => document.documentElement.classList.toggle('dark'));
+      
+      // Theme Toggle (now in header)
+      themeToggleButton?.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        setInitialThemeIcon(); // Update icon
+      });
+      setInitialThemeIcon(); // Set initial icon
+
+      // Sidebar Toggle Listeners
+      mobileMenuButton?.addEventListener('click', openMobileMenu);
+      sidebarCloseButton?.addEventListener('click', closeMobileMenu);
+      sidebarOverlay?.addEventListener('click', closeMobileMenu);
+
+      // Close mobile menu when a nav link is clicked
+      document.querySelectorAll('#sidebar nav a').forEach(link => {
+          link.addEventListener('click', () => {
+              if (window.innerWidth < 768) { // 768px is Tailwind's `md` breakpoint
+                  closeMobileMenu();
+              }
+          });
+      });
       
       document.getElementById('addVehicleModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeAddVehicleModal(); });
       document.getElementById('viewVehicleModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeViewVehicleModal(); });
@@ -520,7 +636,6 @@
   }
 
   async function fetchVehicles() { 
-    // console.log("Fetching main vehicle list for table display...");
     const searchTerm = document.getElementById('vehicleSearch').value;
     const data = await apiRequest(`/vehicle/?limit=${vehiclesPerPage}&skip=${(currentVehiclePage - 1) * vehiclesPerPage}&search=${encodeURIComponent(searchTerm)}`); 
     if (data) { allFetchedVehiclesFromServer = data;} else { allFetchedVehiclesFromServer = []; }
@@ -709,17 +824,16 @@
   }
   function closeViewVehicleModal() { document.getElementById('viewVehicleModal').classList.add('hidden'); document.body.style.overflow = ''; }
 
-  // --- Generic Confirmation Modal Functions ---
   function openGenericConfirmModal(title, message, confirmButtonText, confirmButtonIcon, onConfirmCallback, actionData = null) {
     document.getElementById('genericConfirmModalTitle').textContent = title;
     document.getElementById('genericConfirmModalMessage').textContent = message;
     
     const confirmBtn = document.getElementById('genericConfirmModalConfirmBtn');
     confirmBtn.innerHTML = `<i data-lucide="${confirmButtonIcon || 'check-circle'}" class="w-4 h-4"></i> ${confirmButtonText || 'Confirm'}`;
-    if(confirmButtonIcon === 'trash-2'){ // Make delete button red
+    if(confirmButtonIcon === 'trash-2'){ 
         confirmBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
         confirmBtn.classList.add('bg-red-500', 'hover:bg-red-600');
-    } else { // Default to blue
+    } else { 
         confirmBtn.classList.remove('bg-red-500', 'hover:bg-red-600');
         confirmBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
     }
@@ -739,7 +853,6 @@
     currentActionData = null;
   }
 
-  // --- Info/Status Modal Functions ---
   function openInfoStatusModal(title, message, type = 'success', autoCloseDelay = 3000) {
     const modal = document.getElementById('infoStatusModal');
     const titleEl = document.getElementById('infoStatusModalTitle');
@@ -842,7 +955,6 @@
               currentVehiclePage = vehicleToEditId ? currentVehiclePage : 1; 
               await fetchVehicles(); 
             }
-            // If result is null, apiRequest already showed an error modal
         },
         vehicleData 
     );

@@ -26,13 +26,25 @@
   </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
-<div class="flex flex-col md:flex-row h-screen overflow-hidden">
-    <!-- Sidebar (Left) -->
-    <aside class="w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden md:block flex-shrink-0 border-r dark:border-gray-700">
-      <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
-        <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
+
+<!-- Main application wrapper -->
+<div class="flex h-screen">
+
+    <!-- Sidebar (Left) - Modified for responsiveness -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg 
+                             transform -translate-x-full transition-transform duration-300 ease-in-out 
+                             md:relative md:translate-x-0 md:shadow-lg md:border-r dark:border-gray-700 
+                             flex flex-col flex-shrink-0">
+      <div class="flex justify-between items-center">
+        <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
+          <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
+        </div>
+        <!-- Close button for mobile sidebar -->
+        <button id="sidebar-close-button" class="md:hidden text-gray-700 dark:text-gray-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
       </div>
-      <nav class="flex-1">
+      <nav class="flex-1 overflow-y-auto">
         <ul class="space-y-2">
         <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
           <i data-lucide="layout-dashboard" class="w-5 h-5"></i><a href="dashboard">Dashboard</a>
@@ -73,72 +85,113 @@
        </div>
     </aside>
 
-  <!-- Main content -->
-  <main class="flex-1 overflow-auto p-6">
-    <!-- Maintenance Table Section -->
-    <section id="maintenance-section" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
-      <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
-        <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-2 sm:mb-0">Records</h2>
-        <div class="flex flex-wrap gap-2 items-center">
-          <button id="openAddMaintenanceModalButton" class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 text-sm shadow-sm">
-            <i data-lucide="plus" class="w-4 h-4"></i> Add Maintenance
+    <!-- Overlay for mobile menu -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+    
+    <!-- Content Area Wrapper (Header + Main Content + Right Sidebar) -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      
+      <!-- Header (Mobile Hamburger, Desktop Title, Theme Toggle, User Info) -->
+      <header class="bg-white dark:bg-gray-800 shadow p-3 flex justify-between items-center flex-shrink-0 h-16">
+          <!-- Hamburger Menu Button - visible only on mobile -->
+          <button id="mobile-menu-button" class="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none p-2">
+              <i data-lucide="menu" class="w-6 h-6"></i>
           </button>
-          <input type="text" id="maintenanceSearch" placeholder="Search (category, vehicle, receipt...)" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
-        </div>
-        <div class="flex flex-wrap gap-2 items-center">
-          <button id="exportExcelButton" class="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 text-sm shadow-sm">📄 Excel</button>
-          <button id="exportPdfButton" class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 text-sm shadow-sm">🧾 PDF</button>
-        </div>
-      </div>
+          
+          <!-- Mobile Title - visible only on mobile -->
+          <div class="text-lg font-bold text-primary dark:text-primary-light md:hidden">
+              FleetDash
+          </div>
 
-      <div class="mb-4 flex flex-wrap items-center gap-2">
-        <span class="text-sm font-medium mr-2">Filter Maintenance by Date:</span>
-        <button id="maintenance-filter-today" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Today</button>
-        <button id="maintenance-filter-last7" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Last 7 Days</button>
-        <button id="maintenance-filter-last30" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Last 30 Days</button>
-        <button id="maintenance-filter-all" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 active">All Time</button>
-        <button id="maintenance-filter-custom-btn" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Custom Range</button>
-      </div>
-      <div id="maintenanceCustomDateRange" class="mb-4 hidden items-center gap-2 p-3 border dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800/50">
-        <input type="date" id="maintenanceCustomStartDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
-        <span class="text-sm">to</span>
-        <input type="date" id="maintenanceCustomEndDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
-        <button id="applyCustomDateFilterButton" class="bg-blue-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-blue-600">Apply</button>
-      </div>
+          <!-- Desktop Title/Context - hidden on mobile -->
+          <div class="hidden md:block text-xl font-semibold text-gray-700 dark:text-gray-200">
+              Maintenance Management
+          </div>
+          
+          <!-- Right side of header: Theme Toggle & User Info -->
+          <div class="flex items-center space-x-3">
+              <button id="theme-toggle-header" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                  <!-- Icon will be set by JS -->
+              </button>
+              <!-- User info for desktop header - hidden on mobile -->
+              <div class="hidden md:flex items-center space-x-2">
+                  <div class="text-sm font-semibold" id="userDisplayNameHeader">User</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">Admin</div>
+              </div>
+          </div>
+      </header>
 
-      <div class="overflow-x-auto">
-        <table id="maintenancesTable" class="w-full text-left text-sm">
-          <thead>
-            <tr class="border-b dark:border-gray-700">
-              <th class="py-3 px-2 font-semibold">ID</th>
-              <th class="px-2 font-semibold">Category</th>
-              <th class="px-2 font-semibold">Vehicle</th>
-              <th class="px-2 font-semibold">Cost ($)</th>
-              <th class="px-2 font-semibold">Receipt</th>
-              <th class="px-2 font-semibold">Garage</th>
-              <th class="px-2 font-semibold">Maint. Date</th>
-              <th class="px-2 font-semibold text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="maintenancesBody"></tbody>
-        </table>
-      </div>
-      <div class="mt-6 flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
-        <div class="text-sm text-gray-600 dark:text-gray-400" id="maintenancesCount"></div>
-        <div class="flex items-center space-x-1" id="maintenancesPagination"></div>
-      </div>
-    </section>
-  </main>
+      <!-- Main scrollable content area (Main Page Content + Right Sidebar) -->
+      <div class="flex-1 flex overflow-hidden">
+        <main class="flex-1 overflow-y-auto p-6">
+          <!-- Maintenance Table Section -->
+          <section id="maintenance-section" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
+              <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-2 sm:mb-0">Records</h2>
+              <div class="flex flex-wrap gap-2 items-center">
+                <button id="openAddMaintenanceModalButton" class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 text-sm shadow-sm">
+                  <i data-lucide="plus" class="w-4 h-4"></i> Add Maintenance
+                </button>
+                <input type="text" id="maintenanceSearch" placeholder="Search (category, vehicle, receipt...)" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
+              </div>
+              <div class="flex flex-wrap gap-2 items-center">
+                <button id="exportExcelButton" class="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 text-sm shadow-sm">📄 Excel</button>
+                <button id="exportPdfButton" class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 text-sm shadow-sm">🧾 PDF</button>
+              </div>
+            </div>
 
-    <!-- Right Sidebar -->
-    <aside class="w-1/5 bg-white dark:bg-gray-800 p-4 space-y-6 shadow-md hidden lg:block flex-shrink-0">
-        <div class="flex justify-between items-center">
-        <button id="theme-toggle" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">🌙</button>
-        <div><div class="text-sm font-semibold" id="userDisplayName">User</div><div class="text-xs text-gray-500 dark:text-gray-300">Admin</div></div>
-        </div>
-        <div><h4 class="font-bold mb-4 text-lg">Recent Updates</h4><div class="flex flex-col space-y-6 relative"><div class="absolute left-5 top-0 bottom-0 w-0.5 bg-blue-500"></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">New maintenance logged</p><p class="text-sm text-gray-500 dark:text-gray-400">1 minute ago</p></div></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">Vehicle status updated</p><p class="text-sm text-gray-500 dark:text-gray-400">5 minutes ago</p></div></div></div></div>
-        <div class="mt-8"><h4 class="font-bold mb-4 text-lg">Quick Actions</h4><div class="grid grid-cols-2 gap-2"><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="file-plus-2" class="w-5 h-5 mb-1"></i><span class="text-xs">New Report</span></button><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="sliders-horizontal" class="w-5 h-5 mb-1"></i><span class="text-xs">Filters</span></button><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="help-circle" class="w-5 h-5 mb-1"></i><span class="text-xs">Help</span></button><button id="quick-logout-btn" class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="log-out" class="w-5 h-5 mb-1"></i><span class="text-xs">Logout</span></button></div></div>
-    </aside>
+            <div class="mb-4 flex flex-wrap items-center gap-2">
+              <span class="text-sm font-medium mr-2">Filter Maintenance by Date:</span>
+              <button id="maintenance-filter-today" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Today</button>
+              <button id="maintenance-filter-last7" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Last 7 Days</button>
+              <button id="maintenance-filter-last30" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Last 30 Days</button>
+              <button id="maintenance-filter-all" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 active">All Time</button>
+              <button id="maintenance-filter-custom-btn" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Custom Range</button>
+            </div>
+            <div id="maintenanceCustomDateRange" class="mb-4 hidden items-center gap-2 p-3 border dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800/50">
+              <input type="date" id="maintenanceCustomStartDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
+              <span class="text-sm">to</span>
+              <input type="date" id="maintenanceCustomEndDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
+              <button id="applyCustomDateFilterButton" class="bg-blue-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-blue-600">Apply</button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table id="maintenancesTable" class="w-full text-left text-sm">
+                <thead>
+                  <tr class="border-b dark:border-gray-700">
+                    <th class="py-3 px-2 font-semibold">ID</th>
+                    <th class="px-2 font-semibold">Category</th>
+                    <th class="px-2 font-semibold">Vehicle</th>
+                    <th class="px-2 font-semibold">Cost ($)</th>
+                    <th class="px-2 font-semibold">Receipt</th>
+                    <th class="px-2 font-semibold">Garage</th>
+                    <th class="px-2 font-semibold">Maint. Date</th>
+                    <th class="px-2 font-semibold text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="maintenancesBody"></tbody>
+              </table>
+            </div>
+            <div class="mt-6 flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
+              <div class="text-sm text-gray-600 dark:text-gray-400" id="maintenancesCount"></div>
+              <div class="flex items-center space-x-1" id="maintenancesPagination"></div>
+            </div>
+          </section>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="w-1/5 bg-white dark:bg-gray-800 p-4 space-y-6 shadow-md hidden lg:block flex-shrink-0 overflow-y-auto border-l dark:border-gray-700">
+            <div class="flex justify-end items-center">
+              <div>
+                  <div class="text-sm font-semibold text-right" id="userDisplayNameRightSidebar">User</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400 text-right">Admin</div>
+              </div>
+            </div>
+            <div><h4 class="font-bold mb-4 text-lg">Recent Updates</h4><div class="flex flex-col space-y-6 relative"><div class="absolute left-5 top-0 bottom-0 w-0.5 bg-blue-500"></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">New maintenance logged</p><p class="text-sm text-gray-500 dark:text-gray-400">1 minute ago</p></div></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">Vehicle status updated</p><p class="text-sm text-gray-500 dark:text-gray-400">5 minutes ago</p></div></div></div></div>
+            <div class="mt-8"><h4 class="font-bold mb-4 text-lg">Quick Actions</h4><div class="grid grid-cols-2 gap-2"><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="file-plus-2" class="w-5 h-5 mb-1"></i><span class="text-xs">New Report</span></button><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="sliders-horizontal" class="w-5 h-5 mb-1"></i><span class="text-xs">Filters</span></button><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="help-circle" class="w-5 h-5 mb-1"></i><span class="text-xs">Help</span></button><button id="quick-logout-btn" class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="log-out" class="w-5 h-5 mb-1"></i><span class="text-xs">Logout</span></button></div></div>
+        </aside>
+      </div>
+    </div>
 </div>
 
 
@@ -277,14 +330,23 @@
 
   function updateUserInfoDisplay() {
     const token = getAuthToken();
-    const userDisplayElement = document.getElementById('userDisplayName');
-    if (!userDisplayElement) return;
-    if (token) {
-        const decoded = parseJwt(token);
-        userDisplayElement.textContent = (decoded && decoded.sub) ? decoded.sub : 'User (token issue)';
-    } else {
-        userDisplayElement.textContent = 'Guest';
-    }
+     const userDisplayElements = [
+        document.getElementById('userDisplayNameHeader'),
+        document.getElementById('userDisplayNameRightSidebar')
+    ];
+
+    userDisplayElements.forEach(userDisplayElement => {
+        if (!userDisplayElement) return;
+        if (token) {
+            const decoded = parseJwt(token);
+            userDisplayElement.textContent = (decoded && decoded.sub) ? decoded.sub : 'User (Authenticated)';
+            // If you have role display elements in header/sidebar, update them here too
+            // e.g., document.getElementById('userRoleDisplayHeader').textContent = decoded.role || 'User';
+        } else {
+            userDisplayElement.textContent = 'Guest';
+            // e.g., document.getElementById('userRoleDisplayHeader').textContent = '';
+        }
+    });
   }
 
   async function apiRequest(endpoint, method = 'GET', body = null) {
@@ -354,6 +416,43 @@
   let currentActionData = null;
   let infoStatusModalTimeout = null;
 
+  // --- Sidebar Toggle Functionality ---
+  const sidebar = document.getElementById('sidebar');
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const sidebarCloseButton = document.getElementById('sidebar-close-button');
+  const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+  function openMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('translate-x-0');
+        sidebarOverlay.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden', 'md:overflow-auto');
+    }
+  }
+
+  function closeMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.add('-translate-x-full');
+        sidebar.classList.remove('translate-x-0');
+        sidebarOverlay.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+  }
+  
+  // --- Theme Toggle ---
+  const themeToggleButton = document.getElementById('theme-toggle-header');
+  function setInitialThemeIcon() {
+    if (themeToggleButton) {
+        if (document.documentElement.classList.contains('dark')) {
+            themeToggleButton.innerHTML = '<i data-lucide="sun" class="w-5 h-5"></i>';
+        } else {
+            themeToggleButton.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>';
+        }
+        lucide.createIcons();
+    }
+  }
+
   // --- MODAL CONTROL FUNCTIONS ---
   function closeAddMaintenanceModal() {
     document.getElementById('addMaintenanceModal').classList.add('hidden');
@@ -361,7 +460,7 @@
     maintenanceToEditId = null;
     document.getElementById('addMaintenanceForm').reset();
     const submitButton = document.getElementById('maintenanceSubmitButton');
-    if (submitButton) submitButton.disabled = false; // Re-enable submit button
+    if (submitButton) submitButton.disabled = false; 
   }
   function closeViewMaintenanceModal() {
     document.getElementById('viewMaintenanceModal').classList.add('hidden'); document.body.style.overflow = '';
@@ -424,7 +523,24 @@
   document.addEventListener('DOMContentLoaded', async () => {
       lucide.createIcons();
       updateUserInfoDisplay();
-      document.getElementById('theme-toggle')?.addEventListener('click', () => document.documentElement.classList.toggle('dark'));
+      
+      themeToggleButton?.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        setInitialThemeIcon(); 
+      });
+      setInitialThemeIcon();
+
+      mobileMenuButton?.addEventListener('click', openMobileMenu);
+      sidebarCloseButton?.addEventListener('click', closeMobileMenu);
+      sidebarOverlay?.addEventListener('click', closeMobileMenu);
+       document.querySelectorAll('#sidebar nav a').forEach(link => {
+          link.addEventListener('click', () => {
+              if (window.innerWidth < 768) { // md breakpoint
+                  closeMobileMenu();
+              }
+          });
+      });
+
 
       document.getElementById('addMaintenanceModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeAddMaintenanceModal(); });
       document.getElementById('viewMaintenanceModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeViewMaintenanceModal(); });
@@ -439,7 +555,6 @@
       
       document.getElementById('cancelGenericConfirmModalButton')?.addEventListener('click', () => {
           closeGenericConfirmModal();
-          // Re-enable the main form's submit button if it was part of an add/edit flow
           const maintenanceSubmitButton = document.getElementById('maintenanceSubmitButton');
           if (maintenanceSubmitButton) {
               maintenanceSubmitButton.disabled = false;
@@ -452,7 +567,6 @@
                 await currentConfirmAction(currentActionData);
              } catch (error) {
                 console.error("Error in currentConfirmAction:", error);
-                // Potentially re-enable submit button if error is from action and form is still open
                 const maintenanceSubmitButton = document.getElementById('maintenanceSubmitButton');
                 if (maintenanceSubmitButton && !document.getElementById('addMaintenanceModal').classList.contains('hidden')) {
                      maintenanceSubmitButton.disabled = false;
@@ -467,7 +581,7 @@
           localStorage.removeItem('accessToken');
           openInfoStatusModal('Logged Out', 'You have been successfully logged out.', 'success', 2500);
           updateUserInfoDisplay(); allMaintenances = [];
-          fetchAndRenderMaintenances(); // Will show empty table or login message
+          fetchAndRenderMaintenances(); 
       };
       document.getElementById('global-logout-btn')?.addEventListener('click', handleLogout);
       document.getElementById('quick-logout-btn')?.addEventListener('click', handleLogout);
@@ -504,8 +618,8 @@
 
   // --- Initialization & Dropdown Population ---
   async function initializeMaintenanceSection() {
-    await populateLookupData(); // Populates dropdowns
-    await fetchAndRenderMaintenances(); // Fetches data and renders table
+    await populateLookupData(); 
+    await fetchAndRenderMaintenances(); 
     setActiveMaintenanceDateFilterButton('all');
   }
 
@@ -567,9 +681,9 @@
 
   // --- CRUD & Table Rendering ---
   async function fetchAndRenderMaintenances(options = {}) {
-    if (!getAuthToken() && !options.isInitialLoadForGuest) { // Avoid fetching if logged out, unless it's an initial display for guests.
-        allMaintenances = []; // Clear data
-        renderMaintenancesTable(); // This will show "Please log in"
+    if (!getAuthToken() && !options.isInitialLoadForGuest) { 
+        allMaintenances = []; 
+        renderMaintenancesTable(); 
         return;
     }
 
@@ -594,7 +708,7 @@
 
   function renderMaintenancesTable() {
     let recordsToDisplay = [...allMaintenances];
-    if (!getAuthToken()) { // If not logged in, show message and clear table.
+    if (!getAuthToken()) { 
         document.getElementById('maintenancesBody').innerHTML = `<tr><td colspan="8" class="text-center py-8 text-red-500">Please log in to view maintenance records.</td></tr>`;
         document.getElementById('maintenancesCount').textContent = '0 records';
         document.getElementById('maintenancesPagination').innerHTML = '';
@@ -653,7 +767,7 @@
     renderMaintenancePagination(recordsToDisplay.length);
   }
 
-  function renderMaintenancePagination(totalRecordsInView) { // totalRecordsInView is after filtering
+  function renderMaintenancePagination(totalRecordsInView) { 
     const totalPages = Math.ceil(totalRecordsInView / maintenancesPerPage);
     const paginationContainer = document.getElementById('maintenancesPagination');
     paginationContainer.innerHTML = '';
@@ -669,7 +783,7 @@
         if (lucideIcon) button.innerHTML = `<i data-lucide="${lucideIcon}" class="w-4 h-4 inline-block mr-1"></i> `;
         button.appendChild(document.createTextNode(text));
         button.className = `${btnClasses} ${isDisabled ? disabledClasses : (isActive ? activeClasses : itemClasses)}`;
-        if (!isDisabled) button.onclick = () => { currentMaintenancePage = pageNum; renderMaintenancesTable(); }; // renderMaintenancesTable will use the new page
+        if (!isDisabled) button.onclick = () => { currentMaintenancePage = pageNum; renderMaintenancesTable(); }; 
         else button.disabled = true;
         return button;
     };
@@ -691,7 +805,7 @@
     document.getElementById('addMaintenanceForm').reset();
     document.getElementById('maintenanceModalTitle').textContent = "Add New Maintenance Record";
     document.getElementById('maintenanceSubmitButton').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4 mr-1"></i> Add Record`;
-    document.getElementById('maintenanceSubmitButton').disabled = false; // Ensure button is enabled
+    document.getElementById('maintenanceSubmitButton').disabled = false; 
     lucide.createIcons();
     document.getElementById('addMaintenanceModal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
@@ -704,7 +818,7 @@
     maintenanceToEditId = id;
     document.getElementById('maintenanceModalTitle').textContent = "Edit Maintenance Record";
     document.getElementById('maintenanceSubmitButton').innerHTML = `<i data-lucide="save" class="w-4 h-4 mr-1"></i> Save Changes`;
-    document.getElementById('maintenanceSubmitButton').disabled = false; // Ensure button is enabled
+    document.getElementById('maintenanceSubmitButton').disabled = false; 
     lucide.createIcons();
     document.getElementById('maintenanceId_form').value = m.id;
     document.getElementById('cat_maintenance_id_form').value = m.cat_maintenance_id;
@@ -743,8 +857,8 @@
     if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in.", "error"); return; }
 
     const submitButton = document.getElementById('maintenanceSubmitButton');
-    if (submitButton.disabled) return; // Already processing
-    submitButton.disabled = true; // Disable to prevent double clicks
+    if (submitButton.disabled) return; 
+    submitButton.disabled = true; 
 
     const formData = {
       cat_maintenance_id: parseInt(document.getElementById('cat_maintenance_id_form').value),
@@ -756,7 +870,7 @@
     };
     if (!formData.cat_maintenance_id || !formData.vehicle_id || isNaN(formData.maintenance_cost) || !formData.receipt || !formData.garage_id || !formData.maintenance_date) {
       openInfoStatusModal("Validation Error", "Please fill all required fields correctly.", "error");
-      submitButton.disabled = false; // Re-enable on validation error
+      submitButton.disabled = false; 
       return;
     }
     if (formData.maintenance_cost < 0) {
@@ -775,7 +889,7 @@
         maintenanceToEditId ? "Confirm Update" : "Confirm Add",
         `Are you sure you want to ${actionType} this maintenance record?`,
         maintenanceToEditId ? "Update" : "Add", maintenanceToEditId ? "save" : "plus-circle",
-        async (data) => { // This is currentConfirmAction
+        async (data) => { 
             let result;
             try {
                 if (maintenanceToEditId) {
@@ -786,24 +900,19 @@
 
                 if (result) {
                     openInfoStatusModal("Success", `Maintenance record ${actionType}d successfully!`, "success");
-                    closeAddMaintenanceModal(); // This will re-enable submitButton
+                    closeAddMaintenanceModal(); 
                     await fetchAndRenderMaintenances({ goToLastPage: actionType === 'add' });
                 } else {
-                    // API request failed (e.g. 4xx, 5xx, but not auth 401 which is handled in apiRequest)
-                    // openInfoStatusModal already shown by apiRequest for non-401 errors
-                    if (submitButton) submitButton.disabled = false; // Re-enable on failure
+                    if (submitButton) submitButton.disabled = false; 
                 }
             } catch (error) {
                 console.error("Error processing maintenance form action:", error);
                 openInfoStatusModal("Processing Error", `An error occurred: ${error.message || 'Unknown error'}.`, "error");
-                if (submitButton) submitButton.disabled = false; // Re-enable on catch
+                if (submitButton) submitButton.disabled = false; 
             }
         },
         formData
     );
-    // If user cancels generic confirm, the cancelGenericConfirmModalButton listener will re-enable submitButton.
-    // If openGenericConfirmModal itself is not shown due to some prior error (should not happen with current flow)
-    // then submitButton might remain disabled. But validation should catch issues before this.
   }
 
   function openConfirmDeleteMaintenanceModal(id) {
@@ -815,7 +924,7 @@
             const result = await apiRequest(`/maintenance/${recordIdToDelete}`, 'DELETE');
             if (result === true) {
                 openInfoStatusModal("Success", `Maintenance record ID: ${recordIdToDelete} deleted successfully.`, "success");
-                await fetchAndRenderMaintenances(); // Re-fetches and re-renders, adjusting page if needed
+                await fetchAndRenderMaintenances(); 
             }
         },
         id

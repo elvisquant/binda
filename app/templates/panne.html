@@ -26,13 +26,25 @@
   </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
-<div class="flex flex-col md:flex-row h-screen overflow-hidden">
-    <!-- Sidebar (Left) -->
-    <aside class="w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden md:block flex-shrink-0 border-r dark:border-gray-700">
-      <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
-        <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
+
+<!-- Main application wrapper -->
+<div class="flex h-screen">
+
+    <!-- Sidebar (Left) - Modified for responsiveness -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg 
+                             transform -translate-x-full transition-transform duration-300 ease-in-out 
+                             md:relative md:translate-x-0 md:shadow-lg md:border-r dark:border-gray-700 
+                             flex flex-col flex-shrink-0">
+      <div class="flex justify-between items-center">
+        <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
+          <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
+        </div>
+        <!-- Close button for mobile sidebar -->
+        <button id="sidebar-close-button" class="md:hidden text-gray-700 dark:text-gray-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
       </div>
-      <nav class="flex-1">
+      <nav class="flex-1 overflow-y-auto">
         <ul class="space-y-2">
         <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
           <i data-lucide="layout-dashboard" class="w-5 h-5"></i><a href="dashboard">Dashboard</a>
@@ -59,7 +71,7 @@
           <i data-lucide="droplet" class="w-5 h-5"></i><a href="fuel">Fuel</a>
         </li>
         <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-          <i data-lucide="tool" class="w-5 h-5"></i><a href="maintenance">Maintenance</a>
+          <i data-lucide="tool" class="w-5 h-5"></i><a href="maintenance">Maintenance</a> <!-- Changed icon from settings to tool to match original intent -->
         </li>
         <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
           <i data-lucide="route" class="w-5 h-5"></i><a href="trip">Trip</a>
@@ -73,84 +85,127 @@
        </div>
     </aside>
 
-  <!-- Main content -->
-  <main class="flex-1 overflow-auto p-6">
-    <!-- Panne Table Section -->
-    <section id="panne-section" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
-      <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
-        <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-2 sm:mb-0">Records</h2>
-        <div class="flex flex-wrap gap-2 items-center">
-          <button id="openAddPanneModalButton" class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 text-sm shadow-sm">
-            <i data-lucide="plus" class="w-4 h-4"></i> Add Panne
+    <!-- Overlay for mobile menu -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+    
+    <!-- Content Area Wrapper (Header + Main Content + Right Sidebar) -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      
+      <!-- Header (Mobile Hamburger, Desktop Title, Theme Toggle, User Info) -->
+      <header class="bg-white dark:bg-gray-800 shadow p-3 flex justify-between items-center flex-shrink-0 h-16">
+          <!-- Hamburger Menu Button - visible only on mobile -->
+          <button id="mobile-menu-button" class="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none p-2">
+              <i data-lucide="menu" class="w-6 h-6"></i>
           </button>
-          <input type="text" id="panneSearch" placeholder="Search (vehicle, category, status...)" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
-        </div>
-        <div class="flex flex-wrap gap-2 items-center">
-          <button id="exportExcelButton" class="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 text-sm shadow-sm">📄 Excel</button>
-          <button id="exportPdfButton" class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 text-sm shadow-sm">🧾 PDF</button>
-        </div>
-      </div>
-
-      <div class="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-        <div>
-          <span class="text-sm font-medium mr-2">Filter by Panne Date:</span>
-          <div class="inline-flex rounded-md shadow-sm" role="group">
-            <button id="panne-date-filter-today" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-l-md hover:bg-gray-100 dark:hover:bg-gray-700">Today</button>
-            <button id="panne-date-filter-last7" class="date-filter-btn px-3 py-1.5 text-sm border-t border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Last 7 Days</button>
-            <button id="panne-date-filter-last30" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Last 30 Days</button>
-            <button id="panne-date-filter-all" class="date-filter-btn px-3 py-1.5 text-sm border-t border-b border-r dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 active">All Time</button>
-            <button id="panne-date-filter-custom-btn" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-r-md hover:bg-gray-100 dark:hover:bg-gray-700">Custom</button>
+          
+          <!-- Mobile Title - visible only on mobile -->
+          <div class="text-lg font-bold text-primary dark:text-primary-light md:hidden">
+              FleetDash
           </div>
-        </div>
-        <div>
-          <span class="text-sm font-medium mr-2">Filter by Status:</span>
-          <select id="panneStatusFilter" class="status-filter-select px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            <option value="">All Statuses</option>
-            <option value="active">Active</option>
-            <option value="in_progress">In Progress</option>
-            <option value="resolved">Resolved</option>
-            <option value="closed">Closed</option>
-          </select>
-        </div>
-      </div>
-      <div id="panneCustomDateRange" class="mb-4 hidden items-center gap-2 p-3 border dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800/50">
-        <input type="date" id="panneCustomStartDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
-        <span class="text-sm">to</span>
-        <input type="date" id="panneCustomEndDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
-        <button id="applyCustomDateFilterButton" class="bg-blue-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-blue-600">Apply</button>
-      </div>
 
-      <div class="overflow-x-auto">
-        <table id="pannesTable" class="w-full text-left text-sm">
-          <thead>
-            <tr class="border-b dark:border-gray-700">
-              <th class="py-3 px-2 font-semibold">ID</th>
-              <th class="px-2 font-semibold">Vehicle</th>
-              <th class="px-2 font-semibold">Category</th>
-              <th class="px-2 font-semibold">Status</th>
-              <th class="px-2 font-semibold">Panne Date</th>
-              <th class="px-2 font-semibold text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="pannesBody"></tbody>
-        </table>
-      </div>
-      <div class="mt-6 flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
-        <div class="text-sm text-gray-600 dark:text-gray-400" id="pannesCount"></div>
-        <div class="flex items-center space-x-1" id="pannesPagination"></div>
-      </div>
-    </section>
-  </main>
+          <!-- Desktop Title/Context - hidden on mobile -->
+          <div class="hidden md:block text-xl font-semibold text-gray-700 dark:text-gray-200">
+              Panne (Issue) Management
+          </div>
+          
+          <!-- Right side of header: Theme Toggle & User Info -->
+          <div class="flex items-center space-x-3">
+              <button id="theme-toggle-header" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                  <!-- Icon will be set by JS -->
+              </button>
+              <!-- User info for desktop header - hidden on mobile -->
+              <div class="hidden md:flex items-center space-x-2">
+                  <div class="text-sm font-semibold" id="userDisplayNameHeader">User</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">Admin</div>
+              </div>
+          </div>
+      </header>
 
-    <!-- Right Sidebar -->
-    <aside class="w-1/5 bg-white dark:bg-gray-800 p-4 space-y-6 shadow-md hidden lg:block flex-shrink-0">
-        <div class="flex justify-between items-center">
-        <button id="theme-toggle" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">🌙</button>
-        <div><div class="text-sm font-semibold" id="userDisplayName">User</div><div class="text-xs text-gray-500 dark:text-gray-300">Admin</div></div>
-        </div>
-        <div><h4 class="font-bold mb-4 text-lg">Recent Updates</h4><div class="flex flex-col space-y-6 relative"><div class="absolute left-5 top-0 bottom-0 w-0.5 bg-blue-500"></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">New panne reported</p><p class="text-sm text-gray-500 dark:text-gray-400">5 minutes ago</p></div></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">Panne status updated</p><p class="text-sm text-gray-500 dark:text-gray-400">1 hour ago</p></div></div></div></div>
-        <div class="mt-8"><h4 class="font-bold mb-4 text-lg">Quick Actions</h4><div class="grid grid-cols-2 gap-2"><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="alert-octagon" class="w-5 h-5 mb-1"></i><span class="text-xs">Report Issue</span></button><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="search" class="w-5 h-5 mb-1"></i><span class="text-xs">Find Issue</span></button></div></div>
-    </aside>
+      <!-- Main scrollable content area (Main Page Content + Right Sidebar) -->
+      <div class="flex-1 flex overflow-hidden">
+        <main class="flex-1 overflow-y-auto p-6">
+          <!-- Panne Table Section -->
+          <section id="panne-section" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
+              <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-2 sm:mb-0">Records</h2>
+              <div class="flex flex-wrap gap-2 items-center">
+                <button id="openAddPanneModalButton" class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 text-sm shadow-sm">
+                  <i data-lucide="plus" class="w-4 h-4"></i> Add Panne
+                </button>
+                <input type="text" id="panneSearch" placeholder="Search (vehicle, category, status...)" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
+              </div>
+              <div class="flex flex-wrap gap-2 items-center">
+                <button id="exportExcelButton" class="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 text-sm shadow-sm">📄 Excel</button>
+                <button id="exportPdfButton" class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 text-sm shadow-sm">🧾 PDF</button>
+              </div>
+            </div>
+
+            <div class="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+              <div>
+                <span class="text-sm font-medium mr-2">Filter by Panne Date:</span>
+                <div class="inline-flex rounded-md shadow-sm" role="group">
+                  <button id="panne-date-filter-today" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-l-md hover:bg-gray-100 dark:hover:bg-gray-700">Today</button>
+                  <button id="panne-date-filter-last7" class="date-filter-btn px-3 py-1.5 text-sm border-t border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Last 7 Days</button>
+                  <button id="panne-date-filter-last30" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">Last 30 Days</button>
+                  <button id="panne-date-filter-all" class="date-filter-btn px-3 py-1.5 text-sm border-t border-b border-r dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 active">All Time</button>
+                  <button id="panne-date-filter-custom-btn" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-r-md hover:bg-gray-100 dark:hover:bg-gray-700">Custom</button>
+                </div>
+              </div>
+              <div>
+                <span class="text-sm font-medium mr-2">Filter by Status:</span>
+                <select id="panneStatusFilter" class="status-filter-select px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="">All Statuses</option>
+                  <option value="active">Active</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="resolved">Resolved</option>
+                  <option value="closed">Closed</option>
+                </select>
+              </div>
+            </div>
+            <div id="panneCustomDateRange" class="mb-4 hidden items-center gap-2 p-3 border dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800/50">
+              <input type="date" id="panneCustomStartDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
+              <span class="text-sm">to</span>
+              <input type="date" id="panneCustomEndDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
+              <button id="applyCustomDateFilterButton" class="bg-blue-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-blue-600">Apply</button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table id="pannesTable" class="w-full text-left text-sm">
+                <thead>
+                  <tr class="border-b dark:border-gray-700">
+                    <th class="py-3 px-2 font-semibold">ID</th>
+                    <th class="px-2 font-semibold">Vehicle</th>
+                    <th class="px-2 font-semibold">Category</th>
+                    <th class="px-2 font-semibold">Status</th>
+                    <th class="px-2 font-semibold">Panne Date</th>
+                    <th class="px-2 font-semibold text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="pannesBody"></tbody>
+              </table>
+            </div>
+            <div class="mt-6 flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
+              <div class="text-sm text-gray-600 dark:text-gray-400" id="pannesCount"></div>
+              <div class="flex items-center space-x-1" id="pannesPagination"></div>
+            </div>
+          </section>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="w-1/5 bg-white dark:bg-gray-800 p-4 space-y-6 shadow-md hidden lg:block flex-shrink-0 overflow-y-auto border-l dark:border-gray-700">
+            <!-- Theme toggle moved to main header, user info here is for desktop right sidebar -->
+            <div class="flex justify-end items-center"> <!-- Changed to justify-end for user info -->
+              <!-- User Info (visible in Right Sidebar on LG screens) -->
+              <div>
+                  <div class="text-sm font-semibold text-right" id="userDisplayNameRightSidebar">User</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400 text-right">Admin</div>
+              </div>
+            </div>
+            <div><h4 class="font-bold mb-4 text-lg">Recent Updates</h4><div class="flex flex-col space-y-6 relative"><div class="absolute left-5 top-0 bottom-0 w-0.5 bg-blue-500"></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">New panne reported</p><p class="text-sm text-gray-500 dark:text-gray-400">5 minutes ago</p></div></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">Panne status updated</p><p class="text-sm text-gray-500 dark:text-gray-400">1 hour ago</p></div></div></div></div>
+            <div class="mt-8"><h4 class="font-bold mb-4 text-lg">Quick Actions</h4><div class="grid grid-cols-2 gap-2"><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="alert-octagon" class="w-5 h-5 mb-1"></i><span class="text-xs">Report Issue</span></button><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="search" class="w-5 h-5 mb-1"></i><span class="text-xs">Find Issue</span></button></div></div>
+        </aside>
+      </div>
+    </div>
 </div>
 
 
@@ -287,14 +342,20 @@
 
   function updateUserInfoDisplay() {
     const token = getAuthToken();
-    const userDisplayElement = document.getElementById('userDisplayName');
-    if (!userDisplayElement) return;
-    if (token) {
-        const decoded = parseJwt(token);
-        userDisplayElement.textContent = (decoded && decoded.sub) ? decoded.sub : 'User (Authenticated)';
-    } else {
-        userDisplayElement.textContent = 'Guest';
-    }
+    const userDisplayElements = [
+        document.getElementById('userDisplayNameHeader'),
+        document.getElementById('userDisplayNameRightSidebar')
+    ];
+
+    userDisplayElements.forEach(userDisplayElement => {
+        if (!userDisplayElement) return;
+        if (token) {
+            const decoded = parseJwt(token);
+            userDisplayElement.textContent = (decoded && decoded.sub) ? decoded.sub : 'User (Authenticated)';
+        } else {
+            userDisplayElement.textContent = 'Guest';
+        }
+    });
   }
 
   async function apiRequest(endpoint, method = 'GET', body = null) {
@@ -318,28 +379,27 @@
         openInfoStatusModal("Authentication Error", "Session expired or unauthorized. Please log in again.", "error", 5000);
         return null;
       }
-      if (response.status === 204) return true; // For successful DELETE or no content
+      if (response.status === 204) return true; 
 
-      const responseData = await response.json().catch(async () => { // Simpler catch for JSON parse
-          const text = await response.text(); // Try to get text if JSON fails
+      const responseData = await response.json().catch(async () => { 
+          const text = await response.text(); 
           console.error(`JSON Parse Error for ${endpoint}. Status: ${response.status}. Response Text (first 100 chars): ${text.substring(0,100)}...`);
-          if (!response.ok) { // If response was not ok (e.g. 500) and JSON parsing failed
+          if (!response.ok) { 
               return Promise.reject({ detail: text || `Server error ${response.status}` });
           }
-          // If response was ok but JSON parsing failed (e.g. empty response for a GET that expects JSON)
           throw new Error(`Invalid JSON response from server (status ${response.status}). Check console for raw response.`);
       });
 
       if (!response.ok) {
         const errorDetail = responseData.detail || (typeof responseData === 'object' ? JSON.stringify(responseData) : responseData) || 'Unknown server error.';
         console.error(`API Error for ${endpoint}: ${response.status}`, errorDetail);
-         if (!(response.status === 401 && endpoint.endsWith('/login/'))) { // Don't show modal for failed login attempts
+         if (!(response.status === 401 && endpoint.endsWith('/login/'))) { 
             openInfoStatusModal(`API Error: ${response.status}`, errorDetail, "error");
         }
         return null;
       }
       return responseData;
-    } catch (error) { // Catches network errors and errors from the promise rejection
+    } catch (error) { 
       console.error(`Network/Catch Error during API request to ${endpoint}:`, error);
       const errorMessage = error.detail || error.message || "A network or request error occurred.";
       openInfoStatusModal("Request Error", errorMessage, "error");
@@ -361,6 +421,43 @@
   let currentConfirmAction = null;
   let currentActionData = null;
   let infoStatusModalTimeout = null;
+
+  // --- Sidebar Toggle Functionality ---
+  const sidebar = document.getElementById('sidebar');
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const sidebarCloseButton = document.getElementById('sidebar-close-button');
+  const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+  function openMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('translate-x-0');
+        sidebarOverlay.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden', 'md:overflow-auto');
+    }
+  }
+
+  function closeMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.add('-translate-x-full');
+        sidebar.classList.remove('translate-x-0');
+        sidebarOverlay.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden'); // Always remove this, md:overflow-auto is CSS based
+    }
+  }
+  
+  // --- Theme Toggle ---
+  const themeToggleButton = document.getElementById('theme-toggle-header');
+  function setInitialThemeIcon() {
+    if (themeToggleButton) {
+        if (document.documentElement.classList.contains('dark')) {
+            themeToggleButton.innerHTML = '<i data-lucide="sun" class="w-5 h-5"></i>';
+        } else {
+            themeToggleButton.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>';
+        }
+        lucide.createIcons();
+    }
+  }
 
   // --- MODAL CONTROL ---
   function closeModal(modalId) {
@@ -428,15 +525,33 @@
 
   // --- DOMContentLoaded & Event Listeners ---
   document.addEventListener('DOMContentLoaded', async () => {
-      console.log("DOM fully loaded and main script running."); // General script execution check
+      console.log("DOM fully loaded and main script running."); 
       lucide.createIcons();
       updateUserInfoDisplay();
-      document.getElementById('theme-toggle')?.addEventListener('click', () => document.documentElement.classList.toggle('dark'));
+      
+      // Theme Toggle (now in header)
+      themeToggleButton?.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        setInitialThemeIcon(); 
+      });
+      setInitialThemeIcon(); 
+
+      // Sidebar Toggle Listeners
+      mobileMenuButton?.addEventListener('click', openMobileMenu);
+      sidebarCloseButton?.addEventListener('click', closeMobileMenu);
+      sidebarOverlay?.addEventListener('click', closeMobileMenu);
+      document.querySelectorAll('#sidebar nav a').forEach(link => {
+          link.addEventListener('click', () => {
+              if (window.innerWidth < 768) { // md breakpoint
+                  closeMobileMenu();
+              }
+          });
+      });
 
       ['addPanneModal', 'viewPanneModal', 'genericConfirmModal'].forEach(modalId => {
-        document.getElementById(modalId).addEventListener('click', e => { if (e.target.id === modalId) closeModal(modalId); });
+        document.getElementById(modalId)?.addEventListener('click', e => { if (e.target.id === modalId) closeModal(modalId); });
       });
-      document.getElementById('infoStatusModal').addEventListener('click', e => { if (e.target.id === 'infoStatusModal' || e.target.closest('#infoStatusModalOkButton')) closeInfoStatusModal(); });
+      document.getElementById('infoStatusModal')?.addEventListener('click', e => { if (e.target.id === 'infoStatusModal' || e.target.closest('#infoStatusModalOkButton')) closeInfoStatusModal(); });
 
       document.getElementById('closeAddPanneModalButtonTop')?.addEventListener('click', closeAddPanneModal);
       document.getElementById('cancelAddPanneModalButton')?.addEventListener('click', closeAddPanneModal);
@@ -451,7 +566,7 @@
           }
       });
 
-      document.getElementById('genericConfirmModalConfirmBtn').addEventListener('click', async () => {
+      document.getElementById('genericConfirmModalConfirmBtn')?.addEventListener('click', async () => {
         if (typeof currentConfirmAction === 'function') {
              try { await currentConfirmAction(currentActionData); }
              catch (error) {
@@ -477,8 +592,8 @@
       document.getElementById('openAddPanneModalButton')?.addEventListener('click', openAddPanneModal);
       document.getElementById('exportExcelButton')?.addEventListener('click', exportPannesExcel);
       document.getElementById('exportPdfButton')?.addEventListener('click', exportPannesPDF);
-      document.getElementById('panneSearch').addEventListener('input', () => { currentPannePage = 1; fetchAndRenderPannes(); });
-      document.getElementById('panneStatusFilter').addEventListener('change', (event) => applyPanneStatusFilter(event.target.value));
+      document.getElementById('panneSearch')?.addEventListener('input', () => { currentPannePage = 1; fetchAndRenderPannes(); });
+      document.getElementById('panneStatusFilter')?.addEventListener('change', (event) => applyPanneStatusFilter(event.target.value));
 
       document.getElementById('panne-date-filter-today')?.addEventListener('click', () => applyPanneDateFilter('today'));
       document.getElementById('panne-date-filter-last7')?.addEventListener('click', () => applyPanneDateFilter('last7days'));
@@ -487,7 +602,7 @@
       document.getElementById('panne-date-filter-custom-btn')?.addEventListener('click', togglePanneCustomDateRange);
       document.getElementById('applyCustomDateFilterButton')?.addEventListener('click', applyPanneCustomDateFilter);
 
-      document.getElementById('addPanneForm').addEventListener('submit', handlePanneFormSubmit);
+      document.getElementById('addPanneForm')?.addEventListener('submit', handlePanneFormSubmit);
 
       await initializePanneSection();
   });
@@ -508,7 +623,7 @@
     let sD = new Date(today), eD = new Date(today); eD.setHours(23,59,59,999);
     if (filterType === 'last7days') sD.setDate(today.getDate()-6);
     else if (filterType === 'last30days') sD.setDate(today.getDate()-29);
-    else if (filterType === 'all') return {startDate:null,endDate:null}; // Corrected to match usage
+    else if (filterType === 'all') return {startDate:null,endDate:null}; 
     return {startDate:getISODateString(sD),endDate:getISODateString(eD)};
   }
 
@@ -534,8 +649,13 @@
         (data || []).forEach(item => {
             const option = document.createElement('option');
             option.value = item[valueField];
-            let textContent = displayFields.map(field => item[field] || (field === 'plate_number' ? 'N/A Plate' : (field === 'panne_name' ? 'N/A Category' : 'N/A'))).join(' - ');
-            // Simplify fallback text
+            let textContent = displayFields.map(fieldKey => {
+                // For nested properties like vehicle.make
+                let val = item;
+                fieldKey.split('.').forEach(key => { val = val ? val[key] : undefined; });
+                return val || (fieldKey.includes('plate_number') ? 'N/A Plate' : (fieldKey.includes('panne_name') ? 'N/A Category' : 'N/A'));
+            }).join(' - ');
+
             if (textContent.includes('N/A Category') || textContent.includes('N/A Plate') || textContent === 'N/A') {
                  option.textContent = `${textContent.replace('N/A Category', 'Cat. N/A').replace('N/A Plate', 'Plate N/A')} (ID: ${item[valueField]})`;
             } else {
@@ -544,6 +664,7 @@
             select.appendChild(option);
         });
     };
+    // Use a more descriptive display for vehicles, including make, model, and plate
     populateSelect('panne_vehicle_id_form', allVehiclesForDropdown, 'id', ['make', 'model', 'plate_number'], 'Select Vehicle');
     populateSelect('panne_category_id_form', allPanneCategoriesForDropdown, 'id', ['panne_name'], 'Select Panne Category');
   }
@@ -587,7 +708,7 @@
     const searchTerm = document.getElementById('panneSearch').value;
     if (searchTerm) queryParams += `&search=${encodeURIComponent(searchTerm)}`;
     if (activePanneStatusFilter) queryParams += `&status=${encodeURIComponent(activePanneStatusFilter)}`;
-    let range = getDateRange(activePanneDateFilter); // getDateRange now handles 'all'
+    let range = getDateRange(activePanneDateFilter); 
     if (activePanneDateFilter === 'custom' && customPanneFilterStartDate && customPanneFilterEndDate) {
         range = { startDate: customPanneFilterStartDate, endDate: customPanneFilterEndDate };
     }
@@ -768,8 +889,7 @@
 
   // --- Export Functions ---
   async function getPannesForExport() {
-    console.log("[Export] getPannesForExport called.");
-    let queryParams = `limit=10000`;
+    let queryParams = `limit=10000`; // Fetch a large number for export
     const searchTerm = document.getElementById('panneSearch').value;
     if (searchTerm) queryParams += `&search=${encodeURIComponent(searchTerm)}`;
     if (activePanneStatusFilter) queryParams += `&status=${encodeURIComponent(activePanneStatusFilter)}`;
@@ -779,39 +899,16 @@
     }
     if (range?.startDate) queryParams += `&start_date=${encodeURIComponent(range.startDate)}`;
     if (range?.endDate) queryParams += `&end_date=${encodeURIComponent(range.endDate)}`;
-
-    console.log("[Export] Fetching data for export with params:", queryParams);
     const data = await apiRequest(`/panne/?${queryParams}`);
-    console.log("[Export] Data fetched for export:", data ? `${data.length} records` : "No data/Error");
     return Array.isArray(data) ? data : [];
   }
 
   async function exportPannesExcel() {
-    console.log("[Excel Export] exportPannesExcel function called.");
-    if (!getAuthToken()) {
-        openInfoStatusModal("Export Error", "Please log in to export data.", "error");
-        console.log("[Excel Export] Auth token missing.");
-        return;
-    }
-    console.log("[Excel Export] Auth token check passed.");
-
-    console.log("[Excel Export] Checking XLSX library. Typeof XLSX:", typeof XLSX);
-    if (typeof XLSX === 'undefined') {
-        openInfoStatusModal("Error", "Excel library (XLSX) is not loaded. Check console Network tab for CDN script errors.", "error");
-        console.error("[Excel Export] XLSX library is undefined. Ensure xlsx.full.min.js is loaded from CDN.");
-        return;
-    }
-    console.log("[Excel Export] XLSX library check passed.");
-
+    if (!getAuthToken()) { openInfoStatusModal("Export Error", "Please log in to export data.", "error"); return; }
+    if (typeof XLSX === 'undefined') { openInfoStatusModal("Error", "Excel library (XLSX) is not loaded.", "error"); return;}
     try {
         const recordsToExport = await getPannesForExport();
-        if (!recordsToExport || recordsToExport.length === 0) {
-            openInfoStatusModal("Info", "No data to export based on current filters.", "info", 3000);
-            console.log("[Excel Export] No records to export.");
-            return;
-        }
-        console.log(`[Excel Export] Found ${recordsToExport.length} records to export.`);
-
+        if (!recordsToExport || recordsToExport.length === 0) { openInfoStatusModal("Info", "No data to export.", "info"); return; }
         const data = recordsToExport.map(p => ({
             ID: p.id,
             Vehicle: p.vehicle ? `${p.vehicle.make || ''} ${p.vehicle.model || ''} (${p.vehicle.plate_number || 'N/A'})` : 'N/A',
@@ -819,60 +916,27 @@
             Description: p.description || '', Status: p.status,
             'Panne Date': new Date(p.panne_date).toLocaleString(), 'Reported At': new Date(p.created_at).toLocaleString()
         }));
-        console.log("[Excel Export] Data mapped for worksheet. Sample:", data.length > 0 ? data[0] : "N/A");
-
         const ws = XLSX.utils.json_to_sheet(data);
-        console.log("[Excel Export] Worksheet created.");
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Pannes");
-        console.log("[Excel Export] Worksheet appended to workbook.");
-
         XLSX.writeFile(wb, "pannes_issues_export.xlsx");
-        console.log("[Excel Export] XLSX.writeFile called. Download should initiate.");
-        openInfoStatusModal("Success", "Data exported to Excel successfully.", "success", 2500);
+        openInfoStatusModal("Success", "Data exported to Excel.", "success");
     } catch (error) {
-        console.error("[Excel Export] Error during Excel export process:", error);
-        openInfoStatusModal("Export Error", `Failed to export to Excel: ${error.message || 'Unknown error'}. Check console.`, "error");
+        console.error("Excel Export Error:", error);
+        openInfoStatusModal("Export Error", `Failed to export to Excel: ${error.message || 'Unknown error'}.`, "error");
     }
   }
 
   async function exportPannesPDF() {
-    console.log("[PDF Export] exportPannesPDF function called.");
-    if (!getAuthToken()) {
-        openInfoStatusModal("Export Error", "Please log in to export data.", "error");
-        console.log("[PDF Export] Auth token missing.");
-        return;
-    }
-    console.log("[PDF Export] Auth token check passed.");
-
-    console.log("[PDF Export] Checking jsPDF library. Typeof window.jspdf:", typeof window.jspdf, "Typeof window.jspdf.jsPDF:", (window.jspdf ? typeof window.jspdf.jsPDF : "N/A"));
-    if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
-        openInfoStatusModal("Error", "PDF library (jsPDF) is not loaded. Check console Network tab for CDN script errors.", "error");
-        console.error("[PDF Export] jsPDF library is undefined. Ensure jspdf.umd.min.js is loaded from CDN.");
-        return;
-    }
-    console.log("[PDF Export] jsPDF library base check passed.");
-
+    if (!getAuthToken()) { openInfoStatusModal("Export Error", "Please log in to export data.", "error"); return;}
+    if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') { openInfoStatusModal("Error", "PDF library (jsPDF) is not loaded.", "error"); return;}
     try {
         const recordsToExport = await getPannesForExport();
-        if (!recordsToExport || recordsToExport.length === 0) {
-            openInfoStatusModal("Info", "No data to export based on current filters.", "info", 3000);
-            console.log("[PDF Export] No records to export.");
-            return;
-        }
-        console.log(`[PDF Export] Found ${recordsToExport.length} records to export.`);
-
+        if (!recordsToExport || recordsToExport.length === 0) { openInfoStatusModal("Info", "No data to export.", "info"); return;}
+        
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('l');
-        console.log("[PDF Export] jsPDF instance created.");
-        console.log("[PDF Export] Checking autoTable plugin. Typeof doc.autoTable:", typeof doc.autoTable);
-
-        if (typeof doc.autoTable !== 'function') {
-            openInfoStatusModal("Error", "PDF AutoTable plugin is not loaded correctly or not a function. Check console Network tab for CDN script errors.", "error");
-            console.error("[PDF Export] jsPDF AutoTable plugin is undefined or not a function on doc instance. Ensure jspdf.plugin.autotable.min.js is loaded AFTER jspdf.umd.min.js.");
-            return;
-        }
-        console.log("[PDF Export] jsPDF AutoTable plugin check passed.");
+        if (typeof doc.autoTable !== 'function') { openInfoStatusModal("Error", "PDF AutoTable plugin is not loaded.", "error"); return;}
 
         doc.setFontSize(18); doc.text('Panne (Issue) Records', 14, 15);
         const headers = [['ID', 'Vehicle (Plate)', 'Category', 'Status', 'Panne Date']];
@@ -883,21 +947,16 @@
             p.status,
             new Date(p.panne_date).toLocaleDateString()
         ]);
-        console.log("[PDF Export] Data mapped for table. Sample:", data.length > 0 ? data[0] : "N/A");
-
         doc.autoTable({
             head: headers, body: data, startY: 25, theme:'grid',
-            headStyles:{fillColor:[220, 53, 69], textColor:255},
+            headStyles:{fillColor:[220, 53, 69], textColor:255}, // Example: Red header
             columnStyles: { 0:{cellWidth:15}, 1:{cellWidth:50}, 2:{cellWidth:50}, 3:{cellWidth:30}, 4:{cellWidth:40} }
         });
-        console.log("[PDF Export] doc.autoTable called.");
-
         doc.save('pannes_issues_export.pdf');
-        console.log("[PDF Export] doc.save called. Download should initiate.");
-        openInfoStatusModal("Success", "Data exported to PDF successfully.", "success", 2500);
+        openInfoStatusModal("Success", "Data exported to PDF.", "success");
     } catch (error) {
-        console.error("[PDF Export] Error during PDF export process:", error);
-        openInfoStatusModal("Export Error", `Failed to export to PDF: ${error.message || 'Unknown error'}. Check console.`, "error");
+        console.error("PDF Export Error:", error);
+        openInfoStatusModal("Export Error", `Failed to export to PDF: ${error.message || 'Unknown error'}.`, "error");
     }
   }
 </script>

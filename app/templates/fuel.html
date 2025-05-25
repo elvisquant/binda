@@ -26,44 +26,55 @@
   </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
-<div class="flex flex-col md:flex-row h-screen overflow-hidden">
 
-    <!-- Sidebar (Left) -->
-    <aside class="w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden md:block flex-shrink-0 border-r dark:border-gray-700">
-      <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
-        <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
+<!-- Main application wrapper -->
+<div class="flex h-screen">
+
+    <!-- Sidebar (Left) - Modified for responsiveness -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg 
+                             transform -translate-x-full transition-transform duration-300 ease-in-out 
+                             md:relative md:translate-x-0 md:shadow-lg md:border-r dark:border-gray-700 
+                             flex flex-col flex-shrink-0">
+      <div class="flex justify-between items-center">
+        <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
+          <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
+        </div>
+        <!-- Close button for mobile sidebar -->
+        <button id="sidebar-close-button" class="md:hidden text-gray-700 dark:text-gray-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
       </div>
-      <nav class="flex-1">
+      <nav class="flex-1 overflow-y-auto">
         <ul class="space-y-2">
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="layout-dashboard" class="w-5 h-5"></i><a href="dashboard">Dashboard</a>
+              <i data-lucide="layout-dashboard" class="w-5 h-5"></i><a href="dashboard.html">Dashboard</a>
             </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="pie-chart" class="w-5 h-5"></i><a href="analytics">Analytics</a>
+              <i data-lucide="pie-chart" class="w-5 h-5"></i><a href="analytics.html">Analytics</a>
             </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="users" class="w-5 h-5"></i><a href="users">User</a>
+              <i data-lucide="users" class="w-5 h-5"></i><a href="users.html">User</a>
             </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="user" class="w-5 h-5"></i><a href="driver">Driver</a>
+              <i data-lucide="user" class="w-5 h-5"></i><a href="driver.html">Driver</a>
             </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="alert-triangle" class="w-5 h-5"></i><a href="panne">Pannes (Issues)</a>
+              <i data-lucide="alert-triangle" class="w-5 h-5"></i><a href="panne.html">Pannes (Issues)</a>
             </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="car" class="w-5 h-5"></i><a href="vehicle">Vehicles</a>
+              <i data-lucide="car" class="w-5 h-5"></i><a href="vehicle.html">Vehicles</a>
             </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="wrench" class="w-5 h-5"></i><a href="reparation">Reparation</a>
+              <i data-lucide="wrench" class="w-5 h-5"></i><a href="reparation.html">Reparation</a>
             </li>
             <li class="flex items-center space-x-3 text-blue-600 dark:text-blue-400 font-semibold bg-blue-50 dark:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="droplet" class="w-5 h-5"></i><a href="fuel">Fuel</a>
+              <i data-lucide="droplet" class="w-5 h-5"></i><a href="fuel.html">Fuel</a>
             </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="settings" class="w-5 h-5"></i><a href="maintenance">Maintenance</a>
+              <i data-lucide="settings" class="w-5 h-5"></i><a href="maintenance.html">Maintenance</a>
             </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="route" class="w-5 h-5"></i><a href="trip">Trip</a>
+              <i data-lucide="route" class="w-5 h-5"></i><a href="trip.html">Trip</a>
             </li>
         </ul>
       </nav>
@@ -74,73 +85,114 @@
        </div>
     </aside>
 
-  <!-- Main content -->
-  <main class="flex-1 overflow-auto p-6">
-    <section id="fuel-section" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
-      <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
-        <div class="flex flex-wrap gap-2 items-center">
-          <button id="openAddFuelModalButton" class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 text-sm shadow-sm">
-            <i data-lucide="plus" class="w-4 h-4"></i> Add Fuel Log
+    <!-- Overlay for mobile menu -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+    
+    <!-- Content Area Wrapper (Header + Main Content + Right Sidebar) -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      
+      <!-- Header (Mobile Hamburger, Desktop Title, Theme Toggle, User Info) -->
+      <header class="bg-white dark:bg-gray-800 shadow p-3 flex justify-between items-center flex-shrink-0 h-16">
+          <!-- Hamburger Menu Button - visible only on mobile -->
+          <button id="mobile-menu-button" class="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none p-2">
+              <i data-lucide="menu" class="w-6 h-6"></i>
           </button>
-           <select id="fuelVehicleFilter" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
-                <option value="">All Vehicles</option>
-            </select>
-            <select id="fuelFuelTypeFilter" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
-                <option value="">All Fuel Types</option>
-            </select>
-        </div>
-        <div class="flex flex-wrap gap-2 items-center">
-          <button id="exportExcelButton" class="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 text-sm shadow-sm">📄 Excel</button>
-          <button id="exportPdfButton" class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 text-sm shadow-sm">🧾 PDF</button>
-        </div>
-      </div>
+          
+          <!-- Mobile Title - visible only on mobile -->
+          <div class="text-lg font-bold text-primary dark:text-primary-light md:hidden">
+              FleetDash
+          </div>
 
-      <div class="mb-4 flex flex-wrap items-center gap-2">
-        <span class="text-sm font-medium mr-2">Filter by Date Recorded:</span>
-        <button id="fuel-filter-today" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Today</button>
-        <button id="fuel-filter-last7" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Last 7 Days</button>
-        <button id="fuel-filter-last30" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Last 30 Days</button>
-        <button id="fuel-filter-all" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 active">All Time</button>
-        <button id="fuel-filter-custom-btn" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Custom Range</button>
-      </div>
-      <div id="fuelCustomDateRange" class="mb-4 hidden items-center gap-2 p-3 border dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800/50">
-        <input type="date" id="fuelCustomStartDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
-        <span class="text-sm">to</span>
-        <input type="date" id="fuelCustomEndDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
-        <button id="applyCustomDateFilterButton" class="bg-blue-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-blue-600">Apply</button>
-      </div>
+          <!-- Desktop Title/Context - hidden on mobile -->
+          <div class="hidden md:block text-xl font-semibold text-gray-700 dark:text-gray-200">
+              Fuel Log Management
+          </div>
+          
+          <!-- Right side of header: Theme Toggle & User Info -->
+          <div class="flex items-center space-x-3">
+              <button id="theme-toggle-header" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                  <!-- Icon will be set by JS -->
+              </button>
+              <!-- User info for desktop header - hidden on mobile -->
+              <div class="hidden md:flex items-center space-x-2">
+                  <div class="text-sm font-semibold" id="userDisplayNameHeader">User</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">Admin</div>
+              </div>
+          </div>
+      </header>
 
-      <div class="overflow-x-auto">
-        <table id="fuelLogTable" class="w-full text-left text-sm">
-          <thead>
-            <tr class="border-b dark:border-gray-700">
-              <th class="py-3 px-2 font-semibold">ID</th>
-              <th class="px-2 font-semibold">Vehicle (Plate)</th>
-              <th class="px-2 font-semibold">Fuel Type</th>
-              <th class="px-2 font-semibold text-right">Quantity</th>
-              <th class="px-2 font-semibold text-right">Price/Unit ($)</th>
-              <th class="px-2 font-semibold text-right">Total Cost ($)</th>
-              <th class="px-2 font-semibold">Date Recorded</th>
-              <th class="px-2 font-semibold text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="fuelLogBody"></tbody>
-        </table>
-      </div>
-      <div class="mt-6 flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
-        <div class="text-sm text-gray-600 dark:text-gray-400" id="fuelLogCount"></div>
-        <div class="flex items-center space-x-1" id="fuelLogPagination"></div>
-      </div>
-    </section>
-  </main>
+      <!-- Main scrollable content area (Main Page Content + Right Sidebar) -->
+      <div class="flex-1 flex overflow-hidden">
+        <main class="flex-1 overflow-y-auto p-6">
+          <section id="fuel-section" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
+              <div class="flex flex-wrap gap-2 items-center">
+                <button id="openAddFuelModalButton" class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 text-sm shadow-sm">
+                  <i data-lucide="plus" class="w-4 h-4"></i> Add Fuel Log
+                </button>
+                 <select id="fuelVehicleFilter" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
+                      <option value="">All Vehicles</option>
+                  </select>
+                  <select id="fuelFuelTypeFilter" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
+                      <option value="">All Fuel Types</option>
+                  </select>
+              </div>
+              <div class="flex flex-wrap gap-2 items-center">
+                <button id="exportExcelButton" class="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 text-sm shadow-sm">📄 Excel</button>
+                <button id="exportPdfButton" class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 text-sm shadow-sm">🧾 PDF</button>
+              </div>
+            </div>
 
-    <aside class="w-1/5 bg-white dark:bg-gray-800 p-4 space-y-6 shadow-md hidden lg:block flex-shrink-0">
-        <div class="flex justify-between items-center">
-        <button id="theme-toggle" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">🌙</button>
-        <div><div class="text-sm font-semibold" id="userDisplayName">User</div><div class="text-xs text-gray-500 dark:text-gray-300">Admin</div></div>
-        </div>
-        <div><h4 class="font-bold mb-4 text-lg">Fuel Insights</h4><p class="text-xs text-gray-500 dark:text-gray-400">Avg Price/L: N/A</p><p class="text-xs text-gray-500 dark:text-gray-400">Total Cost (Month): N/A</p></div>
-    </aside>
+            <div class="mb-4 flex flex-wrap items-center gap-2">
+              <span class="text-sm font-medium mr-2">Filter by Date Recorded:</span>
+              <button id="fuel-filter-today" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Today</button>
+              <button id="fuel-filter-last7" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Last 7 Days</button>
+              <button id="fuel-filter-last30" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Last 30 Days</button>
+              <button id="fuel-filter-all" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 active">All Time</button>
+              <button id="fuel-filter-custom-btn" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Custom Range</button>
+            </div>
+            <div id="fuelCustomDateRange" class="mb-4 hidden items-center gap-2 p-3 border dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800/50">
+              <input type="date" id="fuelCustomStartDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
+              <span class="text-sm">to</span>
+              <input type="date" id="fuelCustomEndDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
+              <button id="applyCustomDateFilterButton" class="bg-blue-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-blue-600">Apply</button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table id="fuelLogTable" class="w-full text-left text-sm">
+                <thead>
+                  <tr class="border-b dark:border-gray-700">
+                    <th class="py-3 px-2 font-semibold">ID</th>
+                    <th class="px-2 font-semibold">Vehicle (Plate)</th>
+                    <th class="px-2 font-semibold">Fuel Type</th>
+                    <th class="px-2 font-semibold text-right">Quantity</th>
+                    <th class="px-2 font-semibold text-right">Price/Unit ($)</th>
+                    <th class="px-2 font-semibold text-right">Total Cost ($)</th>
+                    <th class="px-2 font-semibold">Date Recorded</th>
+                    <th class="px-2 font-semibold text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="fuelLogBody"></tbody>
+              </table>
+            </div>
+            <div class="mt-6 flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
+              <div class="text-sm text-gray-600 dark:text-gray-400" id="fuelLogCount"></div>
+              <div class="flex items-center space-x-1" id="fuelLogPagination"></div>
+            </div>
+          </section>
+        </main>
+
+        <aside class="w-1/5 bg-white dark:bg-gray-800 p-4 space-y-6 shadow-md hidden lg:block flex-shrink-0 overflow-y-auto border-l dark:border-gray-700">
+            <div class="flex justify-end items-center">
+              <div>
+                  <div class="text-sm font-semibold text-right" id="userDisplayNameRightSidebar">User</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400 text-right">Admin</div>
+              </div>
+            </div>
+            <div><h4 class="font-bold mb-4 text-lg">Fuel Insights</h4><p class="text-xs text-gray-500 dark:text-gray-400">Avg Price/L: N/A</p><p class="text-xs text-gray-500 dark:text-gray-400">Total Cost (Month): N/A</p></div>
+        </aside>
+      </div>
+    </div>
 </div>
 
 <!-- Add/Edit Fuel Log Modal -->
@@ -260,34 +312,55 @@
 <script>
   const API_BASE_URL = 'http://34.201.67.218:8000';
   const LOGIN_PAGE_URL = 'login.html';
+  const FUEL_API_ENDPOINT = '/fuel/'; 
+  const VEHICLE_API_ENDPOINT = '/vehicle/';
+  const FUEL_TYPE_API_ENDPOINT = '/fuel_type/';
+
 
   // --- CORE HELPER FUNCTIONS ---
   function getAuthToken() { return localStorage.getItem('accessToken'); }
   function parseJwt(token) { try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { console.error("DEBUG JWT Parse Error:", e, "Token:", token); return null; }}
 
   function updateUserInfoDisplay() {
-    const token = getAuthToken(); const userDisplayElement = document.getElementById('userDisplayName');
-    if (!userDisplayElement) { return; }
-    if (token) { const decoded = parseJwt(token); userDisplayElement.textContent = (decoded && decoded.sub) ? decoded.sub : 'User (Error)';}
-    else { userDisplayElement.textContent = 'Guest'; }
+    const token = getAuthToken();
+    const userDisplayElements = [
+        document.getElementById('userDisplayNameHeader'),
+        document.getElementById('userDisplayNameRightSidebar') // Ensure this ID exists in your right sidebar
+    ];
+
+    userDisplayElements.forEach(userDisplayElement => {
+        if (!userDisplayElement) return;
+        if (token) {
+            const decoded = parseJwt(token);
+            userDisplayElement.textContent = (decoded && decoded.sub) ? decoded.sub : 'User (Authenticated)';
+        } else {
+            userDisplayElement.textContent = 'Guest';
+        }
+    });
   }
 
   async function apiRequest(endpoint, method = 'GET', body = null) {
     const token = getAuthToken();
     const headers = { 'Content-Type': 'application/json' };
-    if (token && !endpoint.startsWith('/login')) { headers['Authorization'] = `Bearer ${token}`; }
-    else if (!token && !endpoint.startsWith('/login')) { console.warn(`DEBUG WARN: Protected endpoint ${endpoint} called without token.`); }
+    // Determine if auth is needed (most fuel endpoints likely need it)
+    const publicEndpoints = []; // Add public fuel endpoints if any
+    const isPublic = publicEndpoints.some(publicEp => endpoint.startsWith(publicEp) && method === 'GET');
+
+
+    if (token && !isPublic) { headers['Authorization'] = `Bearer ${token}`; }
+    else if (!token && !isPublic && !endpoint.startsWith('/login')) { 
+        console.warn(`DEBUG WARN: Protected endpoint ${endpoint} called without token.`); 
+    }
 
     const config = { method, headers };
     if (body) config.body = JSON.stringify(body);
-    // console.log(`DEBUG API Request: ${method} ${API_BASE_URL}${endpoint}`, body ? `Body: ${JSON.stringify(body)}` : '');
 
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
       const responseForJson = response.clone();
       const responseForText = response.clone();
 
-      if (response.status === 401 && !endpoint.endsWith('/login/')) {
+      if (response.status === 401 && !isPublic && !endpoint.endsWith('/login/')) {
         openInfoStatusModal("Authentication Error", "Session expired or unauthorized. Please log in again.", "error", 5000);
         return null;
       }
@@ -332,24 +405,63 @@
   let currentActionData = null;
   let infoStatusModalTimeout = null;
 
+  // --- Sidebar Toggle Functionality ---
+  const sidebar = document.getElementById('sidebar');
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const sidebarCloseButton = document.getElementById('sidebar-close-button'); 
+  const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+  function openMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('translate-x-0');
+        sidebarOverlay.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden', 'md:overflow-auto');
+    }
+  }
+
+  function closeMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.add('-translate-x-full');
+        sidebar.classList.remove('translate-x-0');
+        sidebarOverlay.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+  }
+  
+  // --- Theme Toggle ---
+  const themeToggleButtonHeader = document.getElementById('theme-toggle-header'); 
+  function setInitialThemeIcon() {
+    if (themeToggleButtonHeader) { 
+        if (document.documentElement.classList.contains('dark')) {
+            themeToggleButtonHeader.innerHTML = '<i data-lucide="sun" class="w-5 h-5"></i>';
+        } else {
+            themeToggleButtonHeader.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>';
+        }
+        lucide.createIcons();
+    }
+  }
+
   // --- MODAL CLOSE FUNCTIONS ---
+  function closeModal(modalId) {
+    const modal = document.getElementById(modalId); if (modal) modal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
   function closeAddFuelModal() {
-    const modal = document.getElementById('addFuelModal'); if (modal) modal.classList.add('hidden');
-    document.body.style.overflow = ''; fuelLogToEditId = null;
+    closeModal('addFuelModal');
+    fuelLogToEditId = null;
     const form = document.getElementById('addFuelForm'); if (form) form.reset();
     const displayArea = document.getElementById('calculatedCostDisplayArea'); if (displayArea) displayArea.style.display = 'none';
   }
-  function closeViewFuelModal() {
-    const modal = document.getElementById('viewFuelModal'); if(modal) modal.classList.add('hidden'); document.body.style.overflow = '';
-  }
+  function closeViewFuelModal() { closeModal('viewFuelModal'); }
   function closeGenericConfirmModal() {
-    const modal = document.getElementById('genericConfirmModal'); if (modal) modal.classList.add('hidden');
-    document.body.style.overflow = ''; currentConfirmAction = null; currentActionData = null;
+    closeModal('genericConfirmModal');
+    currentConfirmAction = null; currentActionData = null;
   }
   function closeInfoStatusModal() {
     if (infoStatusModalTimeout) { clearTimeout(infoStatusModalTimeout); infoStatusModalTimeout = null; }
-    const modal = document.getElementById('infoStatusModal'); if(modal) modal.classList.add('hidden');
-    document.body.style.overflow = '';
+    closeModal('infoStatusModal');
   }
 
   // --- MODAL OPEN FUNCTIONS (Generic & Info/Status) ---
@@ -358,7 +470,7 @@
     document.getElementById('genericConfirmModalMessage').textContent = message;
 
     const confirmBtnEl = document.getElementById('genericConfirmModalConfirmBtn');
-    confirmBtnEl.innerHTML = ''; // Clear previous
+    confirmBtnEl.innerHTML = ''; 
     if (confirmButtonIconName) {
         const icon = document.createElement('i');
         icon.setAttribute('data-lucide', confirmButtonIconName);
@@ -426,7 +538,23 @@
   document.addEventListener('DOMContentLoaded', async () => {
       lucide.createIcons();
       updateUserInfoDisplay();
-      document.getElementById('theme-toggle')?.addEventListener('click', () => document.documentElement.classList.toggle('dark'));
+      
+      themeToggleButtonHeader?.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        setInitialThemeIcon(); 
+      });
+      setInitialThemeIcon();
+
+      mobileMenuButton?.addEventListener('click', openMobileMenu);
+      sidebarCloseButton?.addEventListener('click', closeMobileMenu);
+      sidebarOverlay?.addEventListener('click', closeMobileMenu);
+      document.querySelectorAll('#sidebar nav a').forEach(link => {
+          link.addEventListener('click', () => {
+              if (window.innerWidth < 768) { // md breakpoint
+                  closeMobileMenu();
+              }
+          });
+      });
 
       document.getElementById('addFuelModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeAddFuelModal(); });
       document.getElementById('viewFuelModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeViewFuelModal(); });
@@ -442,7 +570,6 @@
 
       document.getElementById('genericConfirmModalConfirmBtn').addEventListener('click', async () => {
         if (typeof currentConfirmAction === 'function') {
-            console.log("DEBUG: genericConfirmModalConfirmBtn - Executing currentConfirmAction...");
             try {
                  await currentConfirmAction(currentActionData);
             } catch (error) {
@@ -509,8 +636,8 @@
   }
 
   async function fetchDropdownDataForFuel() {
-    vehicleDataForDropdown_fuel = await apiRequest('/vehicle/?limit=1000') || [];
-    fuelTypeDataForDropdown_fuel = await apiRequest('/fuel_type/?limit=100') || [];
+    vehicleDataForDropdown_fuel = await apiRequest(`${VEHICLE_API_ENDPOINT}?limit=1000`) || []; // Corrected
+    fuelTypeDataForDropdown_fuel = await apiRequest(`${FUEL_TYPE_API_ENDPOINT}?limit=100`) || []; // Corrected
 
     if (!Array.isArray(vehicleDataForDropdown_fuel)) vehicleDataForDropdown_fuel = [];
     if (!Array.isArray(fuelTypeDataForDropdown_fuel)) fuelTypeDataForDropdown_fuel = [];
@@ -518,7 +645,7 @@
     populateSelectWithOptionsGeneric('fuelVehicleFilter', vehicleDataForDropdown_fuel, 'id', 'plate_number', "All Vehicles", (v) => v.plate_number);
     populateSelectWithOptionsGeneric('fuelFuelTypeFilter', fuelTypeDataForDropdown_fuel, 'id', 'fuel_type', "All Fuel Types", (ft) => ft.fuel_type);
 
-    populateSelectWithOptionsGeneric('fuel_vehicle_id_form', vehicleDataForDropdown_fuel, 'id', 'plate_number', "Select Vehicle", (v) => v.plate_number);
+    populateSelectWithOptionsGeneric('fuel_vehicle_id_form', vehicleDataForDropdown_fuel, 'id', 'plate_number', "Select Vehicle", (v) => `${v.make} ${v.model} (${v.plate_number})`); // Enhanced display
     populateSelectWithOptionsGeneric('fuel_fuel_type_id_form', fuelTypeDataForDropdown_fuel, 'id', 'fuel_type', "Select Fuel Type", (ft) => ft.fuel_type);
   }
 
@@ -567,7 +694,7 @@
         if (range.endDate) queryParams += `&date_before=${range.endDate}`;
     }
 
-    const data = await apiRequest(`/fuel/?${queryParams}`);
+    const data = await apiRequest(`${FUEL_API_ENDPOINT}?${queryParams}`); // Corrected endpoint
     allFetchedFuelLogsFromServer = Array.isArray(data) ? data : [];
     renderFuelLogTable();
   }
@@ -659,7 +786,7 @@
 
   async function openEditFuelModal(id) {
     if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in.", "error"); return; }
-    const recordToEdit = await apiRequest(`/fuel/${id}`);
+    const recordToEdit = await apiRequest(`${FUEL_API_ENDPOINT}${id}`); // Corrected
     if (!recordToEdit) { openInfoStatusModal("Error","Could not fetch fuel log details for editing.", "error"); return; }
 
     fuelLogToEditId = id;
@@ -680,7 +807,7 @@
   }
 
   async function openViewFuelModal(id) {
-    const record = await apiRequest(`/fuel/${id}`);
+    const record = await apiRequest(`${FUEL_API_ENDPOINT}${id}`); // Corrected
     if (!record) { openInfoStatusModal("Error", "Could not fetch fuel log details for viewing.", "error"); return; }
 
     const vehicle = Array.isArray(vehicleDataForDropdown_fuel) ? vehicleDataForDropdown_fuel.find(v => v.id === record.vehicle_id) : null;
@@ -717,22 +844,22 @@
     if (fuelData.price_little <= 0) { openInfoStatusModal("Validation Error", "Price per Unit must be greater than 0.", "error"); return;}
 
     const actionType = fuelLogToEditId ? "update" : "add";
-    const confirmTitle = fuelLogToEditId ? "Confirm Update" : "Confirm Add Fuel Log"; // CORRECTED
-    const confirmMsg = `Are you sure you want to ${actionType} this fuel log?`; // CORRECTED
-    const confirmBtnText = fuelLogToEditId ? "Update Log" : "Add Log"; // CORRECTED
+    const confirmTitle = fuelLogToEditId ? "Confirm Update" : "Confirm Add Fuel Log"; 
+    const confirmMsg = `Are you sure you want to ${actionType} this fuel log?`; 
+    const confirmBtnText = fuelLogToEditId ? "Update Log" : "Add Log"; 
     const confirmBtnIcon = fuelLogToEditId ? "save" : "plus-circle";
 
     openGenericConfirmModal( confirmTitle, confirmMsg, confirmBtnText, confirmBtnIcon,
         async (dataForAction) => {
             let result;
             if (fuelLogToEditId) {
-                result = await apiRequest(`/fuel/${fuelLogToEditId}`, 'PUT', dataForAction);
+                result = await apiRequest(`${FUEL_API_ENDPOINT}${fuelLogToEditId}`, 'PUT', dataForAction); // Corrected
             } else {
-                result = await apiRequest('/fuel/', 'POST', dataForAction);
+                result = await apiRequest(`${FUEL_API_ENDPOINT}`, 'POST', dataForAction); // Corrected
             }
 
             if (result) {
-                openInfoStatusModal("Success", `Fuel log ${actionType}d successfully!`, "success"); // CORRECTED
+                openInfoStatusModal("Success", `Fuel log ${actionType}d successfully!`, "success"); 
                 closeAddFuelModal();
                 currentFuelLogPage = (actionType === 'add') ? 1 : currentFuelLogPage;
                 await fetchFuelLogs();
@@ -744,17 +871,17 @@
 
   function openConfirmDeleteFuelLogModal(id) {
       if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to delete.", "error"); return; }
-      if (!id) { openInfoStatusModal("Error", "Cannot delete: Fuel Log ID is missing.", "error"); return; } // CORRECTED
+      if (!id) { openInfoStatusModal("Error", "Cannot delete: Fuel Log ID is missing.", "error"); return; } 
 
       openGenericConfirmModal(
         "Confirm Deletion",
-        `Are you sure you want to permanently delete fuel log ID: ${id}? This action cannot be undone.`, // CORRECTED
+        `Are you sure you want to permanently delete fuel log ID: ${id}? This action cannot be undone.`, 
         "Delete",
         "trash-2",
         async (logIdToDelete) => {
-            const result = await apiRequest(`/fuel/${logIdToDelete}`, 'DELETE');
+            const result = await apiRequest(`${FUEL_API_ENDPOINT}${logIdToDelete}`, 'DELETE'); // Corrected
             if (result === true) {
-                openInfoStatusModal("Success", `Fuel log ID: ${logIdToDelete} deleted.`, "success"); // CORRECTED
+                openInfoStatusModal("Success", `Fuel log ID: ${logIdToDelete} deleted.`, "success"); 
                 if(Array.isArray(allFetchedFuelLogsFromServer) && allFetchedFuelLogsFromServer.length === 1 && currentFuelLogPage > 1) {
                     currentFuelLogPage--;
                 }

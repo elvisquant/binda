@@ -17,7 +17,8 @@
     .modal.hidden { visibility: hidden; opacity: 0; }
     .modal:not(.hidden) { visibility: visible; opacity: 1; }
     .dark .modal-content { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5), 0 10px 10px -5px rgba(0,0,0,0.2); }
-    /* No date filter buttons active style needed for drivers in this version */
+    /* .date-filter-btn.active { background-color: #3b82f6; color: white; } */ /* Not needed for driver */
+    /* .dark .date-filter-btn.active { background-color: #60a5fa; } */ /* Not needed for driver */
     .view-detail-label { font-weight: 500; color: #4b5563; }
     .dark .view-detail-label { color: #d1d5db; }
     .view-detail-value { color: #1f2937; }
@@ -25,14 +26,25 @@
   </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
-<div class="flex flex-col md:flex-row h-screen overflow-hidden">
 
-    <!-- Sidebar (Left) -->
-    <aside class="w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden md:block flex-shrink-0 border-r dark:border-gray-700">
-      <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
-        <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
+<!-- Main application wrapper -->
+<div class="flex h-screen">
+
+    <!-- Sidebar (Left) - Modified for responsiveness -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg 
+                             transform -translate-x-full transition-transform duration-300 ease-in-out 
+                             md:relative md:translate-x-0 md:shadow-lg md:border-r dark:border-gray-700 
+                             flex flex-col flex-shrink-0">
+      <div class="flex justify-between items-center">
+        <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
+          <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
+        </div>
+        <!-- Close button for mobile sidebar -->
+        <button id="sidebar-close-button" class="md:hidden text-gray-700 dark:text-gray-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
       </div>
-      <nav class="flex-1">
+      <nav class="flex-1 overflow-y-auto">
         <ul class="space-y-2">
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
               <i data-lucide="layout-dashboard" class="w-5 h-5"></i><a href="dashboard">Dashboard</a>
@@ -73,57 +85,96 @@
        </div>
     </aside>
 
-  <!-- Main content -->
-  <main class="flex-1 overflow-auto p-6">
-    <!-- Driver Table Section -->
-    <section id="driver-section" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
-      <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
-        <div class="flex flex-wrap gap-2 items-center">
-          <button onclick="openAddDriverModal()" class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 text-sm shadow-sm">
-            <i data-lucide="plus" class="w-4 h-4"></i> Add Driver
+    <!-- Overlay for mobile menu -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+    
+    <!-- Content Area Wrapper (Header + Main Content + Right Sidebar) -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      
+      <!-- Header (Mobile Hamburger, Desktop Title, Theme Toggle, User Info) -->
+      <header class="bg-white dark:bg-gray-800 shadow p-3 flex justify-between items-center flex-shrink-0 h-16">
+          <!-- Hamburger Menu Button - visible only on mobile -->
+          <button id="mobile-menu-button" class="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none p-2">
+              <i data-lucide="menu" class="w-6 h-6"></i>
           </button>
-          <input type="text" id="driverSearch" placeholder="Search drivers (name, CNI, email...)" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
-        </div>
-        <div class="flex flex-wrap gap-2 items-center">
-          <button onclick="exportDriversExcel()" class="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 text-sm shadow-sm">📄 Excel</button>
-          <button onclick="exportDriversPDF()" class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 text-sm shadow-sm">🧾 PDF</button>
-        </div>
-      </div>
+          
+          <!-- Mobile Title - visible only on mobile -->
+          <div class="text-lg font-bold text-primary dark:text-primary-light md:hidden">
+              FleetDash
+          </div>
 
-      <!-- No date filters for drivers in this version -->
+          <!-- Desktop Title/Context - hidden on mobile -->
+          <div class="hidden md:block text-xl font-semibold text-gray-700 dark:text-gray-200">
+              Driver Management
+          </div>
+          
+          <!-- Right side of header: Theme Toggle & User Info -->
+          <div class="flex items-center space-x-3">
+              <button id="theme-toggle-header" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                  <!-- Icon will be set by JS -->
+              </button>
+              <!-- User info for desktop header - hidden on mobile -->
+              <div class="hidden md:flex items-center space-x-2">
+                  <div class="text-sm font-semibold" id="userDisplayNameHeader">User</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">Admin</div>
+              </div>
+          </div>
+      </header>
 
-      <div class="overflow-x-auto">
-        <table id="driversTable" class="w-full text-left text-sm">
-          <thead>
-            <tr class="border-b dark:border-gray-700">
-              <th class="py-3 px-2 font-semibold">ID</th>
-              <th class="px-2 font-semibold">Full Name</th>
-              <th class="px-2 font-semibold">Email</th>
-              <th class="px-2 font-semibold">Matricule</th>
-              <th class="px-2 font-semibold">CNI</th>
-              <th class="px-2 font-semibold">Registered</th>
-              <th class="px-2 font-semibold text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="driversBody"></tbody>
-        </table>
-      </div>
-      <div class="mt-6 flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
-        <div class="text-sm text-gray-600 dark:text-gray-400" id="driversCount"></div>
-        <div class="flex items-center space-x-1" id="driversPagination"></div>
-      </div>
-    </section>
-  </main>
+      <!-- Main scrollable content area (Main Page Content + Right Sidebar) -->
+      <div class="flex-1 flex overflow-hidden">
+        <main class="flex-1 overflow-y-auto p-6">
+          <!-- Driver Table Section -->
+          <section id="driver-section" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
+              <div class="flex flex-wrap gap-2 items-center">
+                <button onclick="openAddDriverModal()" class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 text-sm shadow-sm">
+                  <i data-lucide="plus" class="w-4 h-4"></i> Add Driver
+                </button>
+                <input type="text" id="driverSearch" placeholder="Search drivers (name, CNI, email...)" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
+              </div>
+              <div class="flex flex-wrap gap-2 items-center">
+                <button onclick="exportDriversExcel()" class="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 text-sm shadow-sm">📄 Excel</button>
+                <button onclick="exportDriversPDF()" class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 text-sm shadow-sm">🧾 PDF</button>
+              </div>
+            </div>
 
-    <!-- Right Sidebar (Copied, adjust content if needed) -->
-    <aside class="w-1/5 bg-white dark:bg-gray-800 p-4 space-y-6 shadow-md hidden lg:block flex-shrink-0">
-        <div class="flex justify-between items-center">
-        <button id="theme-toggle" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">🌙</button>
-        <div><div class="text-sm font-semibold" id="userDisplayName">User</div><div class="text-xs text-gray-500 dark:text-gray-300">Admin</div></div>
-        </div>
-        <div><h4 class="font-bold mb-4 text-lg">Recent Driver Activity</h4><div class="flex flex-col space-y-6 relative"><div class="absolute left-5 top-0 bottom-0 w-0.5 bg-blue-500"></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">New driver added</p><p class="text-sm text-gray-500 dark:text-gray-400">1 hour ago</p></div></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">Driver profile updated</p><p class="text-sm text-gray-500 dark:text-gray-400">3 hours ago</p></div></div></div></div>
-        <div class="mt-8"><h4 class="font-bold mb-4 text-lg">Quick Actions</h4><div class="grid grid-cols-2 gap-2"><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="user-check" class="w-5 h-5 mb-1"></i><span class="text-xs">Verify Driver</span></button><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="search" class="w-5 h-5 mb-1"></i><span class="text-xs">Find Driver</span></button></div></div>
-    </aside>
+            <div class="overflow-x-auto">
+              <table id="driversTable" class="w-full text-left text-sm">
+                <thead>
+                  <tr class="border-b dark:border-gray-700">
+                    <th class="py-3 px-2 font-semibold">ID</th>
+                    <th class="px-2 font-semibold">Full Name</th>
+                    <th class="px-2 font-semibold">Email</th>
+                    <th class="px-2 font-semibold">Matricule</th>
+                    <th class="px-2 font-semibold">CNI</th>
+                    <th class="px-2 font-semibold">Registered</th>
+                    <th class="px-2 font-semibold text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="driversBody"></tbody>
+              </table>
+            </div>
+            <div class="mt-6 flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
+              <div class="text-sm text-gray-600 dark:text-gray-400" id="driversCount"></div>
+              <div class="flex items-center space-x-1" id="driversPagination"></div>
+            </div>
+          </section>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="w-1/5 bg-white dark:bg-gray-800 p-4 space-y-6 shadow-md hidden lg:block flex-shrink-0 overflow-y-auto border-l dark:border-gray-700">
+            <div class="flex justify-end items-center">
+              <div>
+                  <div class="text-sm font-semibold text-right" id="userDisplayNameRightSidebar">User</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400 text-right">Admin</div>
+              </div>
+            </div>
+            <div><h4 class="font-bold mb-4 text-lg">Recent Driver Activity</h4><div class="flex flex-col space-y-6 relative"><div class="absolute left-5 top-0 bottom-0 w-0.5 bg-blue-500"></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">New driver added</p><p class="text-sm text-gray-500 dark:text-gray-400">1 hour ago</p></div></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">Driver profile updated</p><p class="text-sm text-gray-500 dark:text-gray-400">3 hours ago</p></div></div></div></div>
+            <div class="mt-8"><h4 class="font-bold mb-4 text-lg">Quick Actions</h4><div class="grid grid-cols-2 gap-2"><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="user-check" class="w-5 h-5 mb-1"></i><span class="text-xs">Verify Driver</span></button><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="search" class="w-5 h-5 mb-1"></i><span class="text-xs">Find Driver</span></button></div></div>
+        </aside>
+      </div>
+    </div>
 </div>
 
 <!-- Add/Edit Driver Modal -->
@@ -165,7 +216,6 @@
               <input type="text" id="driver_matricule_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="e.g., EMP12345">
             </div>
         </div>
-        <!-- Add other driver fields here if needed, e.g., phone number, license_number -->
         <div class="flex justify-end gap-3 pt-4">
           <button type="button" onclick="closeAddDriverModal()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
           <button type="submit" id="driverSubmitButton" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center gap-2">
@@ -195,7 +245,6 @@
             <div><span class="view-detail-label">CNI Number:</span> <span id="view-driver-cni_number" class="view-detail-value"></span></div>
             <div><span class="view-detail-label">Matricule:</span> <span id="view-driver-matricule" class="view-detail-value"></span></div>
             <div><span class="view-detail-label">Registered At:</span> <span id="view-driver-created_at" class="view-detail-value"></span></div>
-            <!-- Add other fields like phone, license -->
         </div>
       </div>
       <div class="flex justify-end pt-6">
@@ -263,20 +312,26 @@
 
   function updateUserInfoDisplay() {
     const token = getAuthToken();
-    const userDisplayElement = document.getElementById('userDisplayName');
-    if (!userDisplayElement) return;
-    if (token) {
-        const decoded = parseJwt(token);
-        userDisplayElement.textContent = (decoded && decoded.sub) ? decoded.sub : 'User (token issue)';
-    } else {
-        userDisplayElement.textContent = 'Guest';
-    }
+    const userDisplayElements = [
+        document.getElementById('userDisplayNameHeader'),
+        document.getElementById('userDisplayNameRightSidebar')
+    ];
+
+    userDisplayElements.forEach(userDisplayElement => {
+        if (!userDisplayElement) return;
+        if (token) {
+            const decoded = parseJwt(token);
+            userDisplayElement.textContent = (decoded && decoded.sub) ? decoded.sub : 'User (Authenticated)';
+        } else {
+            userDisplayElement.textContent = 'Guest';
+        }
+    });
   }
 
   async function apiRequest(endpoint, method = 'GET', body = null) {
     const token = getAuthToken();
     const headers = { 'Content-Type': 'application/json' };
-    const publicEndpoints = []; // Add any public driver-related endpoints if they exist
+    const publicEndpoints = []; 
     const isPublic = publicEndpoints.some(publicEp => endpoint.startsWith(publicEp));
 
     if (token && !isPublic) headers['Authorization'] = `Bearer ${token}`;
@@ -322,18 +377,70 @@
   const driversPerPage = 5;
   let currentDriverPage = 1;
   let driverToEditId = null;
-  // driverToDeleteId is handled by generic confirm modal's currentActionData
 
   let currentConfirmAction = null;
   let currentActionData = null;
   let infoStatusModalTimeout = null;
 
+  // --- Sidebar Toggle Functionality ---
+  const sidebar = document.getElementById('sidebar');
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const sidebarCloseButton = document.getElementById('sidebar-close-button');
+  const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+  function openMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('translate-x-0');
+        sidebarOverlay.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden', 'md:overflow-auto');
+    }
+  }
+
+  function closeMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.add('-translate-x-full');
+        sidebar.classList.remove('translate-x-0');
+        sidebarOverlay.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+  }
+  
+  // --- Theme Toggle ---
+  const themeToggleButton = document.getElementById('theme-toggle-header');
+  function setInitialThemeIcon() {
+    if (themeToggleButton) {
+        if (document.documentElement.classList.contains('dark')) {
+            themeToggleButton.innerHTML = '<i data-lucide="sun" class="w-5 h-5"></i>';
+        } else {
+            themeToggleButton.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>';
+        }
+        lucide.createIcons();
+    }
+  }
 
   // --- DOMContentLoaded ---
   document.addEventListener('DOMContentLoaded', async () => {
       lucide.createIcons();
       updateUserInfoDisplay();
-      document.getElementById('theme-toggle')?.addEventListener('click', () => document.documentElement.classList.toggle('dark'));
+      
+      themeToggleButton?.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        setInitialThemeIcon(); 
+      });
+      setInitialThemeIcon();
+
+      mobileMenuButton?.addEventListener('click', openMobileMenu);
+      sidebarCloseButton?.addEventListener('click', closeMobileMenu);
+      sidebarOverlay?.addEventListener('click', closeMobileMenu);
+      document.querySelectorAll('#sidebar nav a').forEach(link => {
+          link.addEventListener('click', () => {
+              if (window.innerWidth < 768) { // md breakpoint
+                  closeMobileMenu();
+              }
+          });
+      });
+
 
       document.getElementById('addDriverModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeAddDriverModal(); });
       document.getElementById('viewDriverModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeViewDriverModal(); });
@@ -355,7 +462,6 @@
 
 
   async function initializeDriverSection() {
-    console.log("Initializing driver section...");
     const token = getAuthToken();
     if (!token) {
         document.getElementById('driversBody').innerHTML = `<tr><td colspan="7" class="text-center py-8 text-red-500">Please log in to view drivers.</td></tr>`;
@@ -378,14 +484,11 @@
 
   function formatDateTimeForDisplay(dateTimeString) {
     if (!dateTimeString) return 'N/A';
-    try { return new Date(dateTimeString).toLocaleDateString(); } // Simpler date format
+    try { return new Date(dateTimeString).toLocaleDateString(); } 
     catch (e) { return dateTimeString; }
   }
 
   function renderDriversTable() {
-    // No client-side date filtering needed for drivers here.
-    // Search is primarily handled server-side via the API query.
-    // Client-side search can be added for further refinement if needed, but keeping it simple here.
     const recordsToDisplay = [...allFetchedDriversFromServer];
 
     const driversBody = document.getElementById('driversBody');
@@ -513,7 +616,6 @@
   function closeViewDriverModal() { document.getElementById('viewDriverModal').classList.add('hidden'); document.body.style.overflow = ''; }
 
 
-  // --- Generic Confirmation & Info/Status Modals (Copied) ---
   function openGenericConfirmModal(title, message, confirmButtonText, confirmButtonIcon, onConfirmCallback, actionData = null) {
     document.getElementById('genericConfirmModalTitle').textContent = title;
     document.getElementById('genericConfirmModalMessage').textContent = message;
@@ -565,7 +667,6 @@
      if (!driverData.first_name || !driverData.last_name || !driverData.email || !driverData.cni_number || !driverData.matricule) {
       openInfoStatusModal("Validation Error", "Please fill all required driver fields.", "error"); return;
     }
-    // Basic email validation
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(driverData.email)) {
         openInfoStatusModal("Validation Error", "Please enter a valid email address.", "error"); return;
     }
@@ -581,7 +682,6 @@
         async (dataForAction) => {
             let result;
             if (driverToEditId) {
-                 // For PUT, your driver.py expects all fields (DriverCreate schema)
                 result = await apiRequest(`/driver/${driverToEditId}`, 'PUT', dataForAction);
             } else {
                 result = await apiRequest('/driver/', 'POST', dataForAction);
@@ -600,15 +700,14 @@
 
   function openConfirmDeleteDriverModal(id) {
       if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to delete.", "error"); return; }
-      // driverToDeleteId is set via currentActionData in openGenericConfirmModal
       openGenericConfirmModal(
         "Confirm Deletion",
         "Are you sure you want to permanently delete this driver record? This action cannot be undone and might affect related trip records.",
         "Delete", "trash-2",
-        async (driverIdToDelete) => { // driverIdToDelete comes from currentActionData
+        async (driverIdToDelete) => { 
             if (!driverIdToDelete) return;
             const result = await apiRequest(`/driver/${driverIdToDelete}`, 'DELETE');
-            if (result) { // apiRequest returns true for successful 204
+            if (result) { 
                 openInfoStatusModal("Success", "Driver record deleted successfully!", "success");
                 if(allFetchedDriversFromServer.length === 1 && currentDriverPage > 1) {
                     currentDriverPage--;
@@ -616,14 +715,11 @@
                 await fetchDrivers();
             }
         },
-        id // Pass the id as actionData
+        id 
       );
   }
 
-
   function getDriverExportData() {
-    // Search is handled by API, so allFetchedDriversFromServer should be pre-filtered
-    // If you implement more client-side filters, apply them here.
     return [...allFetchedDriversFromServer];
   }
 
@@ -654,7 +750,7 @@
         openInfoStatusModal("Export Error", "Log in or load data to export.", "error"); return;
     }
     const {jsPDF} = window.jspdf;
-    const doc = new jsPDF(); // Default portrait
+    const doc = new jsPDF(); 
     doc.setFontSize(18); doc.text('Driver Records', 14, 15);
 
     const recordsToExport = getDriverExportData();
@@ -672,8 +768,6 @@
     doc.autoTable({
         head: headers, body: data, startY: 25, theme:'grid',
         headStyles:{fillColor:[59,130,246], textColor:255},
-        // Adjust columnStyles if needed for driver data
-        // columnStyles: { 0:{cellWidth: 10}, 1:{cellWidth: 50}, 2:{cellWidth: 60}}
     });
     doc.save('drivers_export.pdf');
   }

@@ -26,14 +26,25 @@
   </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
-<div class="flex flex-col md:flex-row h-screen overflow-hidden">
 
-    <!-- Sidebar (Left) -->
-    <aside class="w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden md:block flex-shrink-0 border-r dark:border-gray-700">
-      <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
-        <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
+<!-- Main application wrapper -->
+<div class="flex h-screen">
+
+    <!-- Sidebar (Left) - Modified for responsiveness -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg 
+                             transform -translate-x-full transition-transform duration-300 ease-in-out 
+                             md:relative md:translate-x-0 md:shadow-lg md:border-r dark:border-gray-700 
+                             flex flex-col flex-shrink-0">
+      <div class="flex justify-between items-center">
+        <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
+          <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
+        </div>
+        <!-- Close button for mobile sidebar -->
+        <button id="sidebar-close-button" class="md:hidden text-gray-700 dark:text-gray-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
       </div>
-      <nav class="flex-1">
+      <nav class="flex-1 overflow-y-auto">
         <ul class="space-y-2">
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
               <i data-lucide="layout-dashboard" class="w-5 h-5"></i><a href="dashboard">Dashboard</a>
@@ -74,71 +85,112 @@
        </div>
     </aside>
 
-  <!-- Main content -->
-  <main class="flex-1 overflow-auto p-6">
-    <!-- Trip Table Section -->
-    <section id="trip-section" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
-      <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
-        <div class="flex flex-wrap gap-2 items-center">
-          <button onclick="openAddTripModal()" class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 text-sm shadow-sm">
-            <i data-lucide="plus" class="w-4 h-4"></i> Add Trip
+    <!-- Overlay for mobile menu -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+    
+    <!-- Content Area Wrapper (Header + Main Content + Right Sidebar) -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      
+      <!-- Header (Mobile Hamburger, Desktop Title, Theme Toggle, User Info) -->
+      <header class="bg-white dark:bg-gray-800 shadow p-3 flex justify-between items-center flex-shrink-0 h-16">
+          <!-- Hamburger Menu Button - visible only on mobile -->
+          <button id="mobile-menu-button" class="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none p-2">
+              <i data-lucide="menu" class="w-6 h-6"></i>
           </button>
-          <input type="text" id="tripSearch" placeholder="Search trips (location, purpose, ID...)" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
-        </div>
-        <div class="flex flex-wrap gap-2 items-center">
-          <button onclick="exportTripsExcel()" class="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 text-sm shadow-sm">📄 Excel</button>
-          <button onclick="exportTripsPDF()" class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 text-sm shadow-sm">🧾 PDF</button>
-        </div>
-      </div>
+          
+          <!-- Mobile Title - visible only on mobile -->
+          <div class="text-lg font-bold text-primary dark:text-primary-light md:hidden">
+              FleetDash
+          </div>
 
-      <div class="mb-4 flex flex-wrap items-center gap-2">
-        <span class="text-sm font-medium mr-2">Filter Trips by Start Date:</span>
-        <button id="trip-filter-today" onclick="applyTripDateFilter('today')" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Today</button>
-        <button id="trip-filter-last7" onclick="applyTripDateFilter('last7days')" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Last 7 Days</button>
-        <button id="trip-filter-last30" onclick="applyTripDateFilter('last30days')" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Last 30 Days</button>
-        <button id="trip-filter-all" onclick="applyTripDateFilter('all')" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 active">All Time</button>
-        <button id="trip-filter-custom-btn" onclick="toggleTripCustomDateRange()" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Custom Range</button>
-      </div>
-      <div id="tripCustomDateRange" class="mb-4 hidden items-center gap-2 p-3 border dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800/50">
-        <input type="date" id="tripCustomStartDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
-        <span class="text-sm">to</span>
-        <input type="date" id="tripCustomEndDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
-        <button onclick="applyTripCustomDateFilter()" class="bg-blue-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-blue-600">Apply</button>
-      </div>
+          <!-- Desktop Title/Context - hidden on mobile -->
+          <div class="hidden md:block text-xl font-semibold text-gray-700 dark:text-gray-200">
+              Trip Management
+          </div>
+          
+          <!-- Right side of header: Theme Toggle & User Info -->
+          <div class="flex items-center space-x-3">
+              <button id="theme-toggle-header" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                  <!-- Icon will be set by JS -->
+              </button>
+              <!-- User info for desktop header - hidden on mobile -->
+              <div class="hidden md:flex items-center space-x-2">
+                  <div class="text-sm font-semibold" id="userDisplayNameHeader">User</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">Admin</div>
+              </div>
+          </div>
+      </header>
 
-      <div class="overflow-x-auto">
-        <table id="tripsTable" class="w-full text-left text-sm">
-          <thead>
-            <tr class="border-b dark:border-gray-700">
-              <th class="py-3 px-2 font-semibold">ID</th>
-              <th class="px-2 font-semibold">Vehicle</th>
-              <th class="px-2 font-semibold">Driver</th>
-              <th class="px-2 font-semibold">Start Location</th>
-              <th class="px-2 font-semibold">End Location</th>
-              <th class="px-2 font-semibold">Start Time</th>
-              <th class="px-2 font-semibold">Status</th>
-              <th class="px-2 font-semibold text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="tripsBody"></tbody>
-        </table>
-      </div>
-      <div class="mt-6 flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
-        <div class="text-sm text-gray-600 dark:text-gray-400" id="tripsCount"></div>
-        <div class="flex items-center space-x-1" id="tripsPagination"></div>
-      </div>
-    </section>
-  </main>
+      <!-- Main scrollable content area (Main Page Content + Right Sidebar) -->
+      <div class="flex-1 flex overflow-hidden">
+        <main class="flex-1 overflow-y-auto p-6">
+          <!-- Trip Table Section -->
+          <section id="trip-section" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
+              <div class="flex flex-wrap gap-2 items-center">
+                <button onclick="openAddTripModal()" class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 text-sm shadow-sm">
+                  <i data-lucide="plus" class="w-4 h-4"></i> Add Trip
+                </button>
+                <input type="text" id="tripSearch" placeholder="Search trips (location, purpose, ID...)" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
+              </div>
+              <div class="flex flex-wrap gap-2 items-center">
+                <button onclick="exportTripsExcel()" class="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 text-sm shadow-sm">📄 Excel</button>
+                <button onclick="exportTripsPDF()" class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 text-sm shadow-sm">🧾 PDF</button>
+              </div>
+            </div>
 
-    <!-- Right Sidebar -->
-    <aside class="w-1/5 bg-white dark:bg-gray-800 p-4 space-y-6 shadow-md hidden lg:block flex-shrink-0">
-        <div class="flex justify-between items-center">
-        <button id="theme-toggle" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">🌙</button>
-        <div><div class="text-sm font-semibold" id="userDisplayName">User</div><div class="text-xs text-gray-500 dark:text-gray-300">Admin</div></div>
-        </div>
-        <div><h4 class="font-bold mb-4 text-lg">Recent Updates</h4><div class="flex flex-col space-y-6 relative"><div class="absolute left-5 top-0 bottom-0 w-0.5 bg-blue-500"></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">New trip planned</p><p class="text-sm text-gray-500 dark:text-gray-400">30 minutes ago</p></div></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">Trip completed</p><p class="text-sm text-gray-500 dark:text-gray-400">1 hour ago</p></div></div></div></div>
-        <div class="mt-8"><h4 class="font-bold mb-4 text-lg">Quick Actions</h4><div class="grid grid-cols-2 gap-2"><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="map" class="w-5 h-5 mb-1"></i><span class="text-xs">View Routes</span></button><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="plus-square" class="w-5 h-5 mb-1"></i><span class="text-xs">New Trip</span></button></div></div>
-    </aside>
+            <div class="mb-4 flex flex-wrap items-center gap-2">
+              <span class="text-sm font-medium mr-2">Filter Trips by Start Date:</span>
+              <button id="trip-filter-today" onclick="applyTripDateFilter('today')" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Today</button>
+              <button id="trip-filter-last7" onclick="applyTripDateFilter('last7days')" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Last 7 Days</button>
+              <button id="trip-filter-last30" onclick="applyTripDateFilter('last30days')" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Last 30 Days</button>
+              <button id="trip-filter-all" onclick="applyTripDateFilter('all')" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 active">All Time</button>
+              <button id="trip-filter-custom-btn" onclick="toggleTripCustomDateRange()" class="date-filter-btn px-3 py-1.5 text-sm border dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Custom Range</button>
+            </div>
+            <div id="tripCustomDateRange" class="mb-4 hidden items-center gap-2 p-3 border dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800/50">
+              <input type="date" id="tripCustomStartDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
+              <span class="text-sm">to</span>
+              <input type="date" id="tripCustomEndDate" class="border dark:border-gray-600 rounded-md px-2 py-1.5 text-sm text-black dark:bg-gray-700 dark:text-white">
+              <button onclick="applyTripCustomDateFilter()" class="bg-blue-500 text-white px-3 py-1.5 text-sm rounded-md hover:bg-blue-600">Apply</button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table id="tripsTable" class="w-full text-left text-sm">
+                <thead>
+                  <tr class="border-b dark:border-gray-700">
+                    <th class="py-3 px-2 font-semibold">ID</th>
+                    <th class="px-2 font-semibold">Vehicle</th>
+                    <th class="px-2 font-semibold">Driver</th>
+                    <th class="px-2 font-semibold">Start Location</th>
+                    <th class="px-2 font-semibold">End Location</th>
+                    <th class="px-2 font-semibold">Start Time</th>
+                    <th class="px-2 font-semibold">Status</th>
+                    <th class="px-2 font-semibold text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="tripsBody"></tbody>
+              </table>
+            </div>
+            <div class="mt-6 flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
+              <div class="text-sm text-gray-600 dark:text-gray-400" id="tripsCount"></div>
+              <div class="flex items-center space-x-1" id="tripsPagination"></div>
+            </div>
+          </section>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="w-1/5 bg-white dark:bg-gray-800 p-4 space-y-6 shadow-md hidden lg:block flex-shrink-0 overflow-y-auto border-l dark:border-gray-700">
+            <div class="flex justify-end items-center"> <!-- Changed: Removed theme toggle, aligned user info to right -->
+              <div>
+                  <div class="text-sm font-semibold text-right" id="userDisplayNameRightSidebar">User</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400 text-right">Admin</div>
+              </div>
+            </div>
+            <div><h4 class="font-bold mb-4 text-lg">Recent Updates</h4><div class="flex flex-col space-y-6 relative"><div class="absolute left-5 top-0 bottom-0 w-0.5 bg-blue-500"></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">New trip planned</p><p class="text-sm text-gray-500 dark:text-gray-400">30 minutes ago</p></div></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">Trip completed</p><p class="text-sm text-gray-500 dark:text-gray-400">1 hour ago</p></div></div></div></div>
+            <div class="mt-8"><h4 class="font-bold mb-4 text-lg">Quick Actions</h4><div class="grid grid-cols-2 gap-2"><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="map" class="w-5 h-5 mb-1"></i><span class="text-xs">View Routes</span></button><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="plus-square" class="w-5 h-5 mb-1"></i><span class="text-xs">New Trip</span></button></div></div>
+        </aside>
+      </div>
+    </div>
 </div>
 
 <!-- Add/Edit Trip Modal -->
@@ -299,25 +351,26 @@
 
   function updateUserInfoDisplay() {
     const token = getAuthToken();
-    const userDisplayElement = document.getElementById('userDisplayName');
-    if (!userDisplayElement) return;
-    if (token) {
-        const decoded = parseJwt(token);
-        userDisplayElement.textContent = (decoded && decoded.sub) ? decoded.sub : 'User (token issue)';
-    } else {
-        userDisplayElement.textContent = 'Guest';
-    }
+    const userDisplayElements = [
+        document.getElementById('userDisplayNameHeader'),
+        document.getElementById('userDisplayNameRightSidebar')
+    ];
+
+    userDisplayElements.forEach(userDisplayElement => {
+        if (!userDisplayElement) return;
+        if (token) {
+            const decoded = parseJwt(token);
+            userDisplayElement.textContent = (decoded && decoded.sub) ? decoded.sub : 'User (Authenticated)';
+        } else {
+            userDisplayElement.textContent = 'Guest';
+        }
+    });
   }
 
   async function apiRequest(endpoint, method = 'GET', body = null) {
     const token = getAuthToken();
-    // console.log(`TRIP API REQ: ${method} ${API_BASE_URL}${endpoint}. Token: ${token ? 'Present' : 'Absent'}`);
-
     const headers = { 'Content-Type': 'application/json' };
-    // For trip.html, most endpoints will be protected.
-    // Add public endpoints here if any, e.g., for fetching cities or generic lists.
-    const publicEndpoints = []; // Adjust if needed
-
+    const publicEndpoints = []; 
     const isPublic = publicEndpoints.some(publicEp => endpoint.startsWith(publicEp));
 
     if (token && !isPublic) headers['Authorization'] = `Bearer ${token}`;
@@ -333,14 +386,9 @@
 
       if (response.status === 401 && !isPublic) {
         openInfoStatusModal("Authentication Error", "Session expired or unauthorized. Please log in again.", "error", 3000);
-        // Optional: Redirect to login after a delay
-        // setTimeout(() => {
-        //   localStorage.removeItem('accessToken');
-        //   window.location.href = LOGIN_PAGE_URL;
-        // }, 3000);
         return null;
       }
-      if (response.status === 204) return true; // For successful DELETE or no-content PUT
+      if (response.status === 204) return true; 
 
       const responseData = await responseForJson.json().catch(async (jsonError) => {
           const text = await responseForText.text();
@@ -367,9 +415,9 @@
 
   // --- Global Variables for Trips ---
   let allFetchedTripsFromServer = [];
-  let vehicleDataForDropdown = []; // To store fetched vehicles
-  let driverDataForDropdown = [];   // To store fetched drivers
-  const mockTripStatuses = ["planned", "ongoing", "completed", "cancelled", "delayed"]; // Adjust as needed
+  let vehicleDataForDropdown = []; 
+  let driverDataForDropdown = [];   
+  const mockTripStatuses = ["planned", "ongoing", "completed", "cancelled", "delayed"]; 
 
   const tripsPerPage = 5;
   let currentTripPage = 1;
@@ -383,6 +431,43 @@
   let currentActionData = null;
   let infoStatusModalTimeout = null;
 
+  // --- Sidebar Toggle Functionality ---
+  const sidebar = document.getElementById('sidebar');
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const sidebarCloseButton = document.getElementById('sidebar-close-button');
+  const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+  function openMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('translate-x-0');
+        sidebarOverlay.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden', 'md:overflow-auto');
+    }
+  }
+
+  function closeMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.add('-translate-x-full');
+        sidebar.classList.remove('translate-x-0');
+        sidebarOverlay.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+  }
+  
+  // --- Theme Toggle ---
+  const themeToggleButton = document.getElementById('theme-toggle-header');
+  function setInitialThemeIcon() {
+    if (themeToggleButton) {
+        if (document.documentElement.classList.contains('dark')) {
+            themeToggleButton.innerHTML = '<i data-lucide="sun" class="w-5 h-5"></i>';
+        } else {
+            themeToggleButton.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>';
+        }
+        lucide.createIcons();
+    }
+  }
+
   function setActiveTripDateFilterButton(filterId) {
     document.querySelectorAll('#trip-section .date-filter-btn').forEach(btn => btn.classList.remove('active'));
     const activeBtn = document.getElementById(filterId.startsWith('trip-filter-') ? filterId : `trip-filter-${filterId}`);
@@ -393,9 +478,24 @@
   document.addEventListener('DOMContentLoaded', async () => {
       lucide.createIcons();
       updateUserInfoDisplay();
-      document.getElementById('theme-toggle')?.addEventListener('click', () => document.documentElement.classList.toggle('dark'));
+      
+      themeToggleButton?.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        setInitialThemeIcon(); 
+      });
+      setInitialThemeIcon();
 
-      // Modal event listeners (copied from vehicle.html, should work fine)
+      mobileMenuButton?.addEventListener('click', openMobileMenu);
+      sidebarCloseButton?.addEventListener('click', closeMobileMenu);
+      sidebarOverlay?.addEventListener('click', closeMobileMenu);
+       document.querySelectorAll('#sidebar nav a').forEach(link => {
+          link.addEventListener('click', () => {
+              if (window.innerWidth < 768) { // md breakpoint
+                  closeMobileMenu();
+              }
+          });
+      });
+
       document.getElementById('addTripModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeAddTripModal(); });
       document.getElementById('viewTripModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeViewTripModal(); });
       document.getElementById('genericConfirmModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeGenericConfirmModal(); });
@@ -419,24 +519,21 @@
       await initializeTripSection();
   });
 
-  function getISODateString(date) { return date.toISOString().split('T')[0]; }
-  function getDateRangeForFilter(filterType) { // Renamed to avoid conflict if both files are ever combined
+  function getISODateString(date) { return new Date(date).toISOString().split('T')[0]; }
+  function getDateRangeForFilter(filterType) { 
     const today=new Date(); today.setHours(0,0,0,0); let sD=new Date(today); let eD=new Date(today); eD.setHours(23,59,59,999);
     switch(filterType){ case 'today':break; case 'last7days':sD.setDate(today.getDate()-6);break; case 'last30days':sD.setDate(today.getDate()-29);break; case 'all':return{startDate:null,endDate:null}; default:return{startDate:null,endDate:null};}
     return{startDate:getISODateString(sD),endDate:getISODateString(eD)};
   }
 
   async function initializeTripSection() {
-    console.log("Initializing trip section...");
-    await fetchDropdownDataForTrips(); // Fetch vehicles and drivers
+    await fetchDropdownDataForTrips(); 
     const token = getAuthToken();
     if (!token) {
-        console.warn("INITIALIZE TRIPS: No auth token. Main trip list will not load.");
         document.getElementById('tripsBody').innerHTML = `<tr><td colspan="8" class="text-center py-8 text-red-500">Please log in to view trips.</td></tr>`;
         document.getElementById('tripsCount').textContent = '0 records';
         document.getElementById('tripsPagination').innerHTML = '';
     } else {
-        console.log("INITIALIZE TRIPS: Auth token found. Fetching main trip list.");
         await fetchTrips();
     }
     document.getElementById('tripSearch').addEventListener('input', () => { currentTripPage = 1; fetchTrips(); });
@@ -445,18 +542,16 @@
   }
 
   async function fetchDropdownDataForTrips() {
-    console.log("Fetching vehicle and driver data for dropdowns...");
-    vehicleDataForDropdown = await apiRequest('/vehicle/?limit=1000') || []; // Adjust limit as needed
-    driverDataForDropdown = await apiRequest('/driver/?limit=1000') || [];   // Adjust limit as needed
+    vehicleDataForDropdown = await apiRequest('/vehicle/?limit=1000') || []; 
+    driverDataForDropdown = await apiRequest('/driver/?limit=1000') || [];   
     populateTripFormDropdowns();
-    console.log("Vehicle and Driver dropdown data fetched.");
   }
 
   function populateSelectWithOptionsGeneric(selectElementId, optionsArray, valueField, textField, placeholder = "Select Option", displayFormatter = null) {
     const selectElement = document.getElementById(selectElementId);
     if (!selectElement) { console.error(`Populate: Element '${selectElementId}' not found.`); return; }
 
-    const currentValue = selectElement.value; // Preserve current value if editing
+    const currentValue = selectElement.value; 
     selectElement.innerHTML = `<option value="">${placeholder}</option>`;
     selectElement.disabled = !Array.isArray(optionsArray) || optionsArray.length === 0;
 
@@ -474,8 +569,8 @@
   }
 
   function populateTripFormDropdowns() {
-    populateSelectWithOptionsGeneric('trip_vehicle_id_form', vehicleDataForDropdown, 'id', 'plate_number', "Select Vehicle", (v) => `${v.plate_number} (${v.make_name || v.make} ${v.model_name || v.model})`); // Assuming make/model names are available or use IDs
-    populateSelectWithOptionsGeneric('trip_driver_id_form', driverDataForDropdown, 'id', 'full_name', "Select Driver", (d) => `${d.first_name} ${d.last_name} (ID: ${d.id})`); // Assuming first/last name
+    populateSelectWithOptionsGeneric('trip_vehicle_id_form', vehicleDataForDropdown, 'id', 'plate_number', "Select Vehicle", (v) => `${v.plate_number} (${v.make_name || v.make} ${v.model_name || v.model})`); 
+    populateSelectWithOptionsGeneric('trip_driver_id_form', driverDataForDropdown, 'id', 'full_name', "Select Driver", (d) => `${d.first_name} ${d.last_name} (ID: ${d.id})`); 
 
     const statusSelect = document.getElementById('trip_status_form');
     statusSelect.innerHTML = '<option value="">Select Status</option>';
@@ -487,10 +582,6 @@
 
   async function fetchTrips() {
     const searchTerm = document.getElementById('tripSearch').value;
-    // For server-side date filtering, you'd add date parameters here:
-    // let queryParams = `limit=${tripsPerPage}&skip=${(currentTripPage - 1) * tripsPerPage}&search=${encodeURIComponent(searchTerm)}`;
-    // if (activeTripDateFilter !== 'all') { ... add date params ... }
-    // const data = await apiRequest(`/trip/?${queryParams}`);
     const data = await apiRequest(`/trip/?limit=${tripsPerPage}&skip=${(currentTripPage - 1) * tripsPerPage}&search=${encodeURIComponent(searchTerm)}`);
     if (data) { allFetchedTripsFromServer = data;} else { allFetchedTripsFromServer = []; }
     renderTripsTable();
@@ -501,26 +592,24 @@
     try {
         return new Date(dateTimeString).toLocaleString();
     } catch (e) {
-        return dateTimeString; // Fallback if parsing fails
+        return dateTimeString; 
     }
   }
 
   function renderTripsTable() {
     let recordsToDisplay = [...allFetchedTripsFromServer];
-    // Client-side date filtering (if server-side not implemented)
     if (activeTripDateFilter !== 'all') {
       let range = (activeTripDateFilter === 'custom' && customTripFilterStartDate && customTripFilterEndDate) ?
                   { startDate: customTripFilterStartDate, endDate: customTripFilterEndDate } :
                   getDateRangeForFilter(activeTripDateFilter);
       if (range.startDate && range.endDate) {
         recordsToDisplay = recordsToDisplay.filter(r => {
-          if (!r.start_time) return false; // Skip records without a start_time for filtering
+          if (!r.start_time) return false; 
           const recordStartDate = getISODateString(new Date(r.start_time));
           return recordStartDate >= range.startDate && recordStartDate <= range.endDate;
         });
       }
     }
-    // Client-side search (if server-side is basic or for further refinement)
     const searchTermClient = document.getElementById('tripSearch').value.toLowerCase();
     if (searchTermClient && recordsToDisplay.length > 0) {
         recordsToDisplay = recordsToDisplay.filter(r =>
@@ -543,7 +632,6 @@
         const vehicleDisplay = vehicle ? `${vehicle.plate_number}` : `VehicleID ${r.vehicle_id}`;
         const driverDisplay = driver ? `${driver.first_name} ${driver.last_name}` : `DriverID ${r.driver_id}`;
         const statusFormatted = r.status ? (r.status.charAt(0).toUpperCase() + r.status.slice(1).replace(/_/g, ' ')) : 'N/A';
-        // Example status colors (adjust as needed)
         const statusColor = r.status === "completed" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" :
                             r.status === "ongoing" ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" :
                             r.status === "planned" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200" :
@@ -569,24 +657,23 @@
         if (!getAuthToken()) { message = "Please log in to view trip records."; }
         else if (getAuthToken() && allFetchedTripsFromServer.length === 0 && !searchTermClient ) { message = "No trips in the system yet. Try adding one!";}
         else if (searchTermClient) { message = "No trips match your current search/filter criteria." }
-        tripsBody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-gray-500">${message}</td></tr>`; // Adjusted colspan
+        tripsBody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-gray-500">${message}</td></tr>`; 
     }
     lucide.createIcons();
     const displayedRecordCount = recordsToDisplay.length;
     const estimatedStart = displayedRecordCount > 0 ? (currentTripPage -1) * tripsPerPage + 1 : 0;
     const estimatedEnd = (currentTripPage -1) * tripsPerPage + displayedRecordCount;
     document.getElementById('tripsCount').textContent = `Showing ${estimatedStart} to ${estimatedEnd} of approx. ${estimatedEnd} records (current view)`;
-    renderTripPagination(allFetchedTripsFromServer.length); // Use total from server if available, or current view for simple pagination
+    renderTripPagination(allFetchedTripsFromServer.length); 
   }
 
-  function renderTripPagination(currentPageRecordCount) { // Simplified pagination, assumes server returns only one page of data
+  function renderTripPagination(currentPageRecordCount) { 
     const paginationContainer = document.getElementById('tripsPagination');
     paginationContainer.innerHTML = '';
     if (currentTripPage === 1 && currentPageRecordCount < tripsPerPage) {
-        if (currentPageRecordCount === 0) {} // Don't show pagination if no records
-        else if (currentPageRecordCount < tripsPerPage && currentTripPage === 1) return; // No need for pagination if less than one page and on first page
+        if (currentPageRecordCount === 0) {} 
+        else if (currentPageRecordCount < tripsPerPage && currentTripPage === 1) return; 
     }
-
 
     const buttonClasses = "px-3 py-1.5 text-sm rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-900 focus:ring-blue-500";
     const inactiveClasses = "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700";
@@ -607,7 +694,7 @@
 
     const nextButton = document.createElement('button');
     nextButton.innerHTML = `Next <i data-lucide="chevron-right" class="w-4 h-4 inline-block ml-1"></i>`;
-    const hasMore = currentPageRecordCount === tripsPerPage; // True if current page is full
+    const hasMore = currentPageRecordCount === tripsPerPage; 
     nextButton.className = `${buttonClasses} ${!hasMore ? disabledClasses : inactiveClasses}`;
     if (hasMore) {
         nextButton.onclick = () => { currentTripPage++; fetchTrips(); };
@@ -620,7 +707,7 @@
     if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to add a trip.", "error"); return; }
     tripToEditId = null;
     document.getElementById('addTripForm').reset();
-    await fetchDropdownDataForTrips(); // Ensure dropdowns are fresh
+    await fetchDropdownDataForTrips(); 
     document.getElementById('tripModalTitle').textContent = "Add New Trip";
     document.getElementById('tripSubmitButton').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4"></i> Add Trip`;
     lucide.createIcons();
@@ -631,9 +718,7 @@
   function formatDateTimeForInput(dateTimeString) {
     if (!dateTimeString) return '';
     const date = new Date(dateTimeString);
-    // Check if the date is valid
     if (isNaN(date.getTime())) return '';
-    // Format to YYYY-MM-DDTHH:mm (which datetime-local expects)
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
@@ -649,7 +734,7 @@
 
     tripToEditId = id;
     document.getElementById('addTripForm').reset();
-    await fetchDropdownDataForTrips(); // Ensure dropdowns are populated
+    await fetchDropdownDataForTrips(); 
 
     document.getElementById('tripModalTitle').textContent = "Edit Trip Record";
     document.getElementById('tripSubmitButton').innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> Save Changes`;
@@ -694,7 +779,7 @@
     document.getElementById('view-trip-purpose').textContent = record.purpose || 'N/A';
     document.getElementById('view-trip-status').textContent = record.status ? (record.status.charAt(0).toUpperCase() + record.status.slice(1).replace(/_/g, ' ')) : 'N/A';
     document.getElementById('view-trip-notes').textContent = record.notes || 'No notes provided.';
-    document.getElementById('view-trip-created_at').textContent = formatDateTimeForDisplay(record.created_at || record.registration_date); // Assuming one of these fields exists
+    document.getElementById('view-trip-created_at').textContent = formatDateTimeForDisplay(record.created_at || record.registration_date); 
 
     document.getElementById('viewTripModal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
@@ -703,7 +788,6 @@
   function closeViewTripModal() { document.getElementById('viewTripModal').classList.add('hidden'); document.body.style.overflow = ''; }
 
 
-  // --- Generic Confirmation & Info/Status Modals (copied from vehicle.html, should be fine) ---
   function openGenericConfirmModal(title, message, confirmButtonText, confirmButtonIcon, onConfirmCallback, actionData = null) {
     document.getElementById('genericConfirmModalTitle').textContent = title;
     document.getElementById('genericConfirmModalMessage').textContent = message;
@@ -784,12 +868,12 @@
         async (dataForAction) => {
             let result;
             if (tripToEditId) { result = await apiRequest(`/trip/${tripToEditId}`, 'PUT', dataForAction); }
-            else { result = await apiRequest('/trip/', 'POST', dataForAction); } // <<< THIS NOW USES apiRequest
+            else { result = await apiRequest('/trip/', 'POST', dataForAction); } 
 
             if (result) {
               openInfoStatusModal("Success", `Trip record ${tripToEditId ? 'updated' : 'added'} successfully!`, "success");
               closeAddTripModal();
-              currentTripPage = tripToEditId ? currentTripPage : 1; // Go to first page on add
+              currentTripPage = tripToEditId ? currentTripPage : 1; 
               await fetchTrips();
             }
         },
@@ -809,9 +893,9 @@
         async () => {
             if (!tripToDeleteId) return;
             const result = await apiRequest(`/trip/${tripToDeleteId}`, 'DELETE');
-            if (result) { // apiRequest returns true for successful 204 (No Content) on DELETE
+            if (result) { 
                 openInfoStatusModal("Success", "Trip record deleted successfully!", "success");
-                if(allFetchedTripsFromServer.length === 1 && currentTripPage > 1) { // If it was the last item on a page > 1
+                if(allFetchedTripsFromServer.length === 1 && currentTripPage > 1) { 
                     currentTripPage--;
                 }
                 await fetchTrips();
@@ -829,7 +913,7 @@
     document.getElementById('tripCustomDateRange').classList.add('hidden');
     setActiveTripDateFilterButton(filterType);
     currentTripPage = 1;
-    fetchTrips(); // This will re-fetch and client-side filter, or send params if server-side filtering is added
+    fetchTrips(); 
   }
 
   function toggleTripCustomDateRange() {
@@ -837,7 +921,7 @@
     if (!document.getElementById('tripCustomDateRange').classList.contains('hidden')) {
         setActiveTripDateFilterButton('trip-filter-custom-btn');
     } else if (activeTripDateFilter === 'custom') {
-        applyTripDateFilter('all'); // Revert to 'all' if custom range is hidden
+        applyTripDateFilter('all'); 
     }
   }
 
@@ -857,7 +941,6 @@
 
   function getTripExportData() {
     let recordsToExport = [...allFetchedTripsFromServer];
-    // Apply date filters
     if (activeTripDateFilter !== 'all') {
         let range = (activeTripDateFilter === 'custom' && customTripFilterStartDate && customTripFilterEndDate)
                     ? { startDate: customTripFilterStartDate, endDate: customTripFilterEndDate }
@@ -870,7 +953,6 @@
             });
         }
     }
-    // Apply search term
     const searchTerm = document.getElementById('tripSearch').value.toLowerCase();
     if (searchTerm) {
         recordsToExport = recordsToExport.filter(r =>
@@ -920,7 +1002,7 @@
         openInfoStatusModal("Export Error", "Please log in to export trip data, or ensure data is loaded.", "error"); return;
     }
     const {jsPDF} = window.jspdf;
-    const doc = new jsPDF('l'); // Landscape
+    const doc = new jsPDF('l'); 
     doc.setFontSize(18); doc.text('Trip Records', 14, 15);
 
     const recordsToExport = getTripExportData();
@@ -934,9 +1016,9 @@
         r.id,
         vehicle ? vehicle.plate_number : `VID:${r.vehicle_id}`,
         driver ? `${driver.first_name.substring(0,1)}. ${driver.last_name}` : `DID:${r.driver_id}`,
-        r.start_location.substring(0,15), // Truncate for PDF
-        r.end_location.substring(0,15),   // Truncate
-        new Date(r.start_time).toLocaleDateString(), // Just date for brevity in PDF
+        r.start_location.substring(0,15), 
+        r.end_location.substring(0,15),   
+        new Date(r.start_time).toLocaleDateString(), 
         r.status
     ]});
 
