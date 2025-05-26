@@ -8,9 +8,6 @@ from sqlalchemy.sql import func # For default timestamps
 from .database import Base
 
 
-
-
-
 class User(Base):
     __tablename__ = "user"
 

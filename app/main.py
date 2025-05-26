@@ -1,14 +1,32 @@
-# app/main.py
-from fastapi import FastAPI, Request, HTTPException
+#HERE WE USE FASTAPI WITH SQLALCHEMY :USING ORM
+import os
+from fastapi import FastAPI,Request,HTTPException
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
-import os
+from . import models 
+from .database import engine
+from .routers import  user, auth,category_document,vehicle_make,vehicle_model,vehicle_type,vehicle_transmission,category_maintenance,category_panne,document_vehicle,driver,vehicle,fuel,garage,panne,reparation,trip,fuel_type
+from .config import settings
+from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+#models.Base.metadata.create_all(bind = engine)
+
+
+try:
+    print("Attempting to create database tables if they don't exist...")
+    models.Base.metadata.create_all(bind=engine)
+    print("Database tables checked/created successfully.")
+except Exception as e:
+    print(f"CRITICAL ERROR during table creation: {e}")
 
 # --- Import Your API Router for Authentication ---
 try:
     # For your API endpoint: POST /login/
-    from .routers.auth import router as auth_api_router
+    from .routers import  user, auth,category_document,vehicle_make,vehicle_model,vehicle_type,vehicle_transmission,category_maintenance,category_panne,document_vehicle,driver,vehicle,fuel,garage,panne,reparation,trip,fuel_type,fuel,maintenance
+
 except ImportError as e:
     print(f"CRITICAL ERROR: Could not import router from app.routers.auth: {e}.")
     print("Ensure 'app/routers/auth.py' exists in the 'app/routers/' package,")
@@ -49,11 +67,32 @@ else:
 
 # --- Include Your Authentication API Router FIRST ---
 # This ensures its specific path (POST /login/) takes precedence.
-app.include_router(auth_api_router)
+app.include_router(auth.router)
+
 # If you have other DATA API routers (e.g., for /api/trips, /api/vehicles), include them here.
 # Example:
 # from .routers import trip_api # Assuming you create app/routers/trip_api.py
 # app.include_router(trip_api.router, prefix="/api/trips", tags=["Trip Data API"])
+# Include your routers
+#app.include_router(auth.router)  
+app.include_router(user.router)
+app.include_router(category_document.router)
+app.include_router(category_maintenance.router)
+app.include_router(maintenance.router)
+app.include_router(category_panne.router)
+app.include_router(document_vehicle.router)
+app.include_router(driver.router)
+app.include_router(fuel.router)
+app.include_router(garage.router)
+app.include_router(panne.router)
+app.include_router(reparation.router)
+app.include_router(trip.router)
+app.include_router(fuel_type.router)
+app.include_router(vehicle.router)
+app.include_router(vehicle_make.router)
+app.include_router(vehicle_model.router)
+app.include_router(vehicle_transmission.router)
+app.include_router(vehicle_type.router)
 
 
 # --- Helper function to serve Jinja2 templates from app/templates ---
@@ -136,85 +175,6 @@ async def serve_panne_page(request: Request):
 async def serve_fuel_page(request: Request):
     """Serves fuel.html from app/templates/."""
     return await serve_html_template("fuel.html", request)
-
-# --- Admin Section HTML Pages (Example, if you want them) ---
-# These are also defined directly on the 'app' instance,
-# using the same `serve_html_template` helper.
-# Ensure you have corresponding HTML files in app/templates/ (e.g., admin_dashboard.html)
-
-@app.get("/admin/dashboard", response_class=HTMLResponse, name="admin_dashboard_page", tags=["Admin Pages"])
-async def serve_admin_dashboard(request: Request):
-    """Serves an admin-specific dashboard page, e.g., 'admin_dashboard.html' from app/templates/."""
-    # Ensure 'admin_dashboard.html' (or your chosen name) exists in app/templates/
-    return await serve_html_template("admin_dashboard.html", request)
-
-@app.get("/admin/users", response_class=HTMLResponse, name="admin_users_management_page", tags=["Admin Pages"])
-async def serve_admin_users_management(request: Request):
-    """Serves an admin page for user management, e.g., 'admin_users_management.html'."""
-    # Ensure 'admin_users_management.html' exists in app/templates/
-    return await serve_html_template("admin_users_management.html", request)
-
-@app.get("/admin/settings", response_class=HTMLResponse, name="admin_settings_page", tags=["Admin Pages"])
-async def serve_admin_settings(request: Request):
-    """Serves an admin settings page, e.g., 'admin_settings.html'."""
-    # Ensure 'admin_settings.html' exists in app/templates/
-    return await serve_html_template("admin_settings.html", request)
-
-# Add more routes for any other "admin" specific pages you need,
-# ensuring the HTML template files exist in app/templates/.
-
-# --- Final Application Info ---
-print("--- FastAPI Application (app/main.py) Setup Complete ---")
-print(f"The root path '/' will serve 'app/templates/login.html'.")
-print(f"The API endpoint POST /login/ is handled by 'app.routers.auth.router'.")
-print(f"All other HTML pages (general and admin-prefixed) are served by GET routes defined in this main.py.")
-print(f"To run (from project root): uvicorn app.main:app --reload --host 0.0.0.0 --port 8000")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

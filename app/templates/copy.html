@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard - Fleet Overview</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: { DEFAULT: '#3b82f6', hover: '#2563eb', dark: '#60a5fa', 'dark-hover': '#3b82f6', light: '#dbeafe' },
+            secondary: { DEFAULT: '#10b981', hover: '#059669', dark: '#34d399', 'dark-hover': '#10b981', light: '#d1fae5' },
+            warning: { DEFAULT: '#f59e0b', hover: '#d97706', dark: '#fbbf24', 'dark-hover': '#f59e0b', light: '#fef3c7' },
+            danger: { DEFAULT: '#ef4444', hover: '#dc2626', dark: '#f87171', 'dark-hover': '#ef4444', light: '#fee2e2' },
+            info: { DEFAULT: '#3b82f6', light: '#dbeafe', dark: '#60a5fa' } 
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .kpi-card { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+    .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
+    .dark .kpi-card:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3), 0 4px 6px -2px rgba(0,0,0,0.25); }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a3a3a3; }
+    .dark ::-webkit-scrollbar-track { background: #2d3748; }
+    .dark ::-webkit-scrollbar-thumb { background: #4a5568; }
+    .dark ::-webkit-scrollbar-thumb:hover { background: #718096; }
+    .kpi-value { font-size: 1.625rem; line-height: 2.125rem; word-break: break-all; }
+     @media (min-width: 1024px) { .kpi-value { font-size: 1.75rem; line-height: 2.25rem; } }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
+  </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white antialiased">
+
+<!-- Main application wrapper -->
+<div class="flex h-screen">
+
+    <!-- Sidebar (Left) - Modified for responsiveness -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg 
+                             transform -translate-x-full transition-transform duration-300 ease-in-out 
+                             md:relative md:translate-x-0 md:shadow-lg md:border-r dark:border-gray-700 
+                             flex flex-col flex-shrink-0">
+      <div class="flex items-center justify-between">
+          <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
+            <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
+          </div>
+          <button id="sidebar-close-button" class="md:hidden p-1 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
+              <span class="sr-only">Close menu</span>
+              <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+      </div>
+      <nav class="flex-1 overflow-y-auto">
+        <ul class="space-y-2">
+        <li class="flex items-center space-x-3 text-blue-600 dark:text-blue-400 font-semibold bg-blue-50 dark:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="layout-dashboard" class="w-5 h-5"></i><a href="dashboard">Dashboard</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="pie-chart" class="w-5 h-5"></i><a href="analytics">Analytics</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="users" class="w-5 h-5"></i><a href="users">User</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="user" class="w-5 h-5"></i><a href="driver">Driver</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="alert-triangle" class="w-5 h-5"></i><a href="panne">Pannes (Issues)</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="car" class="w-5 h-5"></i><a href="vehicle">Vehicles</a>
+        </li>
+         <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="wrench" class="w-5 h-5"></i><a href="reparation">Reparation</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="droplet" class="w-5 h-5"></i><a href="fuel">Fuel</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="settings" class="w-5 h-5"></i><a href="maintenance">Maintenance</a>
+        </li>
+        <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+          <i data-lucide="route" class="w-5 h-5"></i><a href="trip">Trip</a>
+        </li>
+      </ul>
+      </nav>
+       <div class="pt-4 border-t border-gray-200 dark:border-gray-700/50 mt-auto">
+            <a href="#" id="global-logout-btn" class="flex items-center space-x-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/40 p-2.5 rounded-lg transition-colors">
+                <i data-lucide="log-out" class="w-5 h-5"></i><span>Logout</span>
+            </a>
+       </div>
+    </aside>
+
+    <!-- Sidebar Overlay -->
+    <div id="sidebar-overlay" class="fixed inset-0 z-30 bg-black bg-opacity-50 hidden md:hidden transition-opacity duration-300 ease-in-out"></div>
+    
+    <!-- Content Area Wrapper (Header + Main Content + Right Sidebar) -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      
+      <!-- Header (Mobile Hamburger, Desktop Title, Theme Toggle, User Info) -->
+      <header class="bg-white dark:bg-gray-800 shadow p-3 flex justify-between items-center flex-shrink-0 h-16">
+          <!-- Hamburger Menu Button - visible only on mobile -->
+          <button id="mobile-menu-button" class="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none p-2">
+              <i data-lucide="menu" class="w-6 h-6"></i>
+          </button>
+          
+          <!-- Mobile Title - visible only on mobile -->
+          <div class="text-lg font-bold text-primary dark:text-primary-light md:hidden">
+              FleetDash
+          </div>
+
+          <!-- Desktop Title/Context - hidden on mobile -->
+          <div class="hidden md:block text-xl font-semibold text-gray-700 dark:text-gray-200">
+              Dashboard Overview
+          </div>
+          
+          <!-- Right side of header: Theme Toggle & User Info -->
+          <div class="flex items-center space-x-3">
+              <button id="theme-toggle-header" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                  <!-- Icon will be set by JS -->
+              </button>
+              <!-- User info for desktop header - hidden on mobile -->
+              <div class="hidden md:flex items-center space-x-2">
+                  <div class="text-sm font-semibold" id="userDisplayNameHeader">User</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">Fleet Manager</div> <!-- Example Role -->
+              </div>
+          </div>
+      </header>
+
+      <!-- Main scrollable content area (Main Page Content + Right Sidebar) -->
+      <div class="flex-1 flex overflow-hidden">
+        <main class="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 md:space-y-8">
+          <header class="flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
+              <div class="flex items-center w-full sm:w-auto">
+                  <!-- Title is now in the main header -->
+              </div>
+              <div class="flex items-center space-x-3">
+                  <div class="relative">
+                       <button id="quickAddBtn" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-hover dark:bg-primary-dark dark:hover:bg-primary-dark-hover flex items-center gap-2 shadow-sm transition-colors">
+                          <i data-lucide="plus-circle" class="w-5 h-5"></i> Quick Add
+                      </button>
+                      <div id="quickAddDropdown" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-xl z-10 hidden">
+                          <a href="vehicle.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">New Vehicle</a>
+                          <a href="fuel.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">Log Fuel</a>
+                          <a href="panne.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">Report Panne</a>
+                      </div>
+                  </div>
+                  <input type="date" id="dashboardDateFilter" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent appearance-none">
+              </div>
+          </header>
+
+          <!-- KPI Cards Section -->
+          <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              <div class="kpi-card bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg flex items-start justify-between">
+                  <div>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Total Vehicles</p>
+                      <p id="kpiTotalVehicles" class="kpi-value font-bold text-gray-800 dark:text-white mt-1">0</p>
+                      <p id="kpiTotalVehiclesChange" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">-</p>
+                  </div>
+                  <div class="p-3 rounded-full bg-primary-light dark:bg-primary/20 text-primary dark:text-primary-light">
+                      <i data-lucide="truck" class="w-6 h-6"></i>
+                  </div>
+              </div>
+              <div class="kpi-card bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg flex items-start justify-between">
+                  <div>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Active Trips</p>
+                      <p id="kpiActiveTrips" class="kpi-value font-bold text-gray-800 dark:text-white mt-1">0</p>
+                      <p id="kpiActiveTripsChange" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">-</p>
+                  </div>
+                  <div class="p-3 rounded-full bg-secondary-light dark:bg-secondary/20 text-secondary dark:text-secondary-light">
+                      <i data-lucide="route" class="w-6 h-6"></i>
+                  </div>
+              </div>
+              <div class="kpi-card bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg flex items-start justify-between">
+                   <div>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Repairs (Month)</p>
+                      <p id="kpiRepairsMonth" class="kpi-value font-bold text-gray-800 dark:text-white mt-1">0</p>
+                      <p id="kpiRepairsMonthChange" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">-</p>
+                  </div>
+                  <div class="p-3 rounded-full bg-warning-light dark:bg-warning/20 text-warning dark:text-warning-light">
+                      <i data-lucide="wrench" class="w-6 h-6"></i>
+                  </div>
+              </div>
+              <div class="kpi-card bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg flex items-start justify-between">
+                  <div>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Fuel Cost (Today)</p>
+                      <p id="kpiFuelCostToday" class="kpi-value font-bold text-gray-800 dark:text-white mt-1">$0</p>
+                      <p id="kpiFuelCostTodayChange" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">-</p>
+                  </div>
+                  <div class="p-3 rounded-full bg-danger-light dark:bg-danger/20 text-danger dark:text-danger-light">
+                      <i data-lucide="fuel" class="w-6 h-6"></i>
+                  </div>
+              </div>
+          </section>
+
+          <!-- Charts Section -->
+          <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+              <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+                  <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Monthly Activity Summary</h3>
+                  <div class="h-72 md:h-80"><canvas id="monthlyActivityChart"></canvas></div>
+              </div>
+              <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+                  <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Vehicle Status</h3>
+                  <div class="h-72 md:h-80 flex items-center justify-center"><canvas id="vehicleStatusChart"></canvas></div>
+              </div>
+          </section>
+          
+          <!-- System Health & Top Performers -->
+          <section class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+              <div class="md:col-span-1 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+                  <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">System Health</h3>
+                  <div class="space-y-3">
+                      <div class="flex items-center justify-between"><span class="text-sm text-gray-600 dark:text-gray-300">API Server</span><span class="text-sm font-medium text-green-500 dark:text-green-400 flex items-center"><i data-lucide="check-circle" class="w-4 h-4 mr-1"></i> Operational</span></div>
+                      <div class="flex items-center justify-between"><span class="text-sm text-gray-600 dark:text-gray-300">Database</span><span class="text-sm font-medium text-green-500 dark:text-green-400 flex items-center"><i data-lucide="check-circle" class="w-4 h-4 mr-1"></i> Optimal</span></div>
+                      <div class="flex items-center justify-between"><span class="text-sm text-gray-600 dark:text-gray-300">GPS Tracking</span><span class="text-sm font-medium text-yellow-500 dark:text-yellow-400 flex items-center"><i data-lucide="alert-circle" class="w-4 h-4 mr-1"></i> Minor Delay</span></div>
+                       <div class="flex items-center justify-between"><span class="text-sm text-gray-600 dark:text-gray-300">Notification Service</span><span class="text-sm font-medium text-green-500 dark:text-green-400 flex items-center"><i data-lucide="check-circle" class="w-4 h-4 mr-1"></i> Active</span></div>
+                  </div>
+              </div>
+              <div class="md:col-span-2 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+                   <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Top Performing Drivers (Last 30 Days)</h3>
+                   <ul class="space-y-3">
+                      <li class="flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md"><div class="flex items-center space-x-3"><img src="https://i.pravatar.cc/40?u=driver1" alt="Driver" class="w-8 h-8 rounded-full"><span class="font-medium text-sm text-gray-700 dark:text-gray-200">Alice Smith</span></div><span class="text-sm text-green-500 dark:text-green-400">98% On-Time</span></li>
+                      <li class="flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md"><div class="flex items-center space-x-3"><img src="https://i.pravatar.cc/40?u=driver2" alt="Driver" class="w-8 h-8 rounded-full"><span class="font-medium text-sm text-gray-700 dark:text-gray-200">Bob Johnson</span></div><span class="text-sm text-green-500 dark:text-green-400">25 Trips Completed</span></li>
+                   </ul>
+              </div>
+          </section>
+
+          <section class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+                  <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Recent Critical Pannes</h3>
+                  <ul class="space-y-3 max-h-60 overflow-y-auto">
+                      <li class="flex justify-between items-center p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md"><div><p class="font-medium text-gray-800 dark:text-gray-100">TRK-007: Engine Overheating</p><p class="text-xs text-gray-500 dark:text-gray-400">Reported: 2 hours ago - Status: Active</p></div><a href="panne.html" class="text-sm text-primary dark:text-primary-light hover:underline">View</a></li>
+                      <li class="flex justify-between items-center p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md"><div><p class="font-medium text-gray-800 dark:text-gray-100">CAR-001: Brake System Failure</p><p class="text-xs text-gray-500 dark:text-gray-400">Reported: 1 day ago - Status: Investigating</p></div><a href="panne.html" class="text-sm text-primary dark:text-primary-light hover:underline">View</a></li>
+                      <li class="flex justify-between items-center p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md"><div><p class="font-medium text-gray-800 dark:text-gray-100">XYZ-123: Flat Tire</p><p class="text-xs text-gray-500 dark:text-gray-400">Reported: 3 days ago - Status: Resolved</p></div><a href="panne.html" class="text-sm text-primary dark:text-primary-light hover:underline">View</a></li>
+                  </ul>
+              </div>
+              <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+                  <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Upcoming Maintenance</h3>
+                  <ul class="space-y-3 max-h-60 overflow-y-auto">
+                      <li class="flex justify-between items-center p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md"><div><p class="font-medium text-gray-800 dark:text-gray-100">XYZ-123: Oil Change (50,000km)</p><p class="text-xs text-gray-500 dark:text-gray-400">Due: In 3 days</p></div><a href="maintenance.html" class="text-sm text-primary dark:text-primary-light hover:underline">Details</a></li>
+                       <li class="flex justify-between items-center p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md"><div><p class="font-medium text-gray-800 dark:text-gray-100">ABC-789: Tire Rotation</p><p class="text-xs text-gray-500 dark:text-gray-400">Due: Next week</p></div><a href="maintenance.html" class="text-sm text-primary dark:text-primary-light hover:underline">Details</a></li>
+                       <li class="flex justify-between items-center p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md"><div><p class="font-medium text-gray-800 dark:text-gray-100">TRK-007: Annual Inspection</p><p class="text-xs text-gray-500 dark:text-gray-400">Due: In 2 weeks</p></div><a href="maintenance.html" class="text-sm text-primary dark:text-primary-light hover:underline">Details</a></li>
+                  </ul>
+              </div>
+          </section>
+        </main>
+
+        <aside class="w-1/5 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden lg:block flex-shrink-0 border-l dark:border-gray-700 overflow-y-auto">
+            <!-- This is the RIGHT sidebar. It had a theme toggle, but it was moved to the main header. -->
+            <!-- We'll keep the user info section here for LG screens. -->
+            <div class="flex justify-end items-center">
+                <div class="text-right">
+                    <div class="text-sm font-semibold text-gray-800 dark:text-white" id="userDisplayNameRightSidebar">Jane Doe</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">Fleet Manager</div>
+                </div>
+                <img src="https://i.pravatar.cc/40?u=admin_stats_page" alt="Admin" class="w-10 h-10 rounded-full ml-2 object-cover">
+            </div>
+            <hr class="dark:border-gray-700/50">
+            <div>
+                <h4 class="font-semibold mb-3 text-gray-700 dark:text-gray-200">Key Performance Insights</h4>
+                <ul class="text-xs space-y-2.5 text-gray-600 dark:text-gray-300">
+                    <li class="flex items-start space-x-2"><i data-lucide="trending-up" class="w-4 h-4 text-green-500 mt-0.5 shrink-0"></i><span>Fuel Efficiency: <span class="font-medium">Up 3.2%</span> vs. last period.</span></li>
+                    <li class="flex items-start space-x-2"><i data-lucide="trending-down" class="w-4 h-4 text-red-500 mt-0.5 shrink-0"></i><span>Idle Time: <span class="font-medium">Up 7%</span>, investigate causes.</span></li>
+                    <li class="flex items-start space-x-2"><i data-lucide="check-circle" class="w-4 h-4 text-blue-500 mt-0.5 shrink-0"></i><span>Maintenance Compliance: <span class="font-medium">96%</span>.</span></li>
+                    <li class="flex items-start space-x-2"><i data-lucide="dollar-sign" class="w-4 h-4 text-gray-500 mt-0.5 shrink-0"></i><span>Cost per Mile: <span class="font-medium" id="quickStatCostPerMile">$0.65</span> (avg).</span></li>
+                </ul>
+            </div>
+            <hr class="dark:border-gray-700/50">
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <h4 class="font-semibold text-gray-700 dark:text-gray-200">Alerts & Notifications</h4>
+                    <a href="#" class="text-xs text-primary dark:text-primary-light hover:underline">View All (<span id="notificationCount">3</span>)</a>
+                </div>
+                <div class="space-y-3 max-h-40 overflow-y-auto pr-1">
+                    <div class="flex items-start space-x-2 p-2.5 bg-danger-light dark:bg-danger/20 rounded-lg"><i data-lucide="alert-octagon" class="w-5 h-5 text-danger dark:text-danger-light mt-0.5 flex-shrink-0"></i><p class="text-xs text-gray-700 dark:text-gray-300">Critical: Vehicle <span class="font-medium">XYZ-123</span> engine issue.</p></div>
+                    <div class="flex items-start space-x-2 p-2.5 bg-warning-light dark:bg-warning/20 rounded-lg"><i data-lucide="clock" class="w-5 h-5 text-warning dark:text-warning-light mt-0.5 flex-shrink-0"></i><p class="text-xs text-gray-700 dark:text-gray-300">Maint. for <span class="font-medium">CAR-001</span> overdue.</p></div>
+                    <div class="flex items-start space-x-2 p-2.5 bg-info-light dark:bg-info/20 rounded-lg"><i data-lucide="check-circle-2" class="w-5 h-5 text-info dark:text-info-light mt-0.5 flex-shrink-0"></i><p class="text-xs text-gray-700 dark:text-gray-300">Trip #1023 completed successfully.</p></div>
+                </div>
+            </div>
+        </aside>
+      </div>
+    </div>
+</div>
+
+<script>
+  // --- Sidebar Toggle Functionality ---
+  const sidebar = document.getElementById('sidebar');
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const sidebarCloseButton = document.getElementById('sidebar-close-button'); // Ensure this is the correct ID from your HTML
+  const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+  function openMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('translate-x-0');
+        sidebarOverlay.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden', 'md:overflow-auto');
+    }
+  }
+
+  function closeMobileMenu() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.add('-translate-x-full');
+        sidebar.classList.remove('translate-x-0');
+        sidebarOverlay.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+  }
+  
+  // --- Theme Toggle ---
+  const themeToggleButtonHeader = document.getElementById('theme-toggle-header'); 
+  function setInitialThemeIcon() {
+    if (themeToggleButtonHeader) { 
+        if (document.documentElement.classList.contains('dark')) {
+            themeToggleButtonHeader.innerHTML = '<i data-lucide="sun" class="w-5 h-5"></i>';
+        } else {
+            themeToggleButtonHeader.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>';
+        }
+        lucide.createIcons();
+    }
+  }
+
+  // --- User Info Display ---
+  function updateUserInfoDisplay() {
+    // This function is a placeholder. If you have dynamic user info, implement it here.
+    // For now, it's mostly static in the HTML.
+    const userNameHeader = document.getElementById('userDisplayNameHeader');
+    const userNameSidebar = document.getElementById('userDisplayNameRightSidebar'); // Corrected ID
+    // Example: const storedUsername = localStorage.getItem('username');
+    // if (userNameHeader && storedUsername) userNameHeader.textContent = storedUsername;
+    // if (userNameSidebar && storedUsername) userNameSidebar.textContent = storedUsername;
+  }
+
+  // --- Mock Data ---
+  function generateMonthlyLabels(count, refEndDate = new Date()) {
+      const labels = [];
+      let currentDate = new Date(refEndDate.getFullYear(), refEndDate.getMonth(), 1);
+      for (let i = 0; i < count; i++) {
+          labels.unshift(currentDate.toLocaleString('default', { month: 'short', year: '2-digit' }));
+          currentDate.setMonth(currentDate.getMonth() - 1);
+      }
+      return labels;
+  }
+
+  const mockDashboardData = {
+      kpis: {
+          totalVehicles: 78, totalVehiclesChange: "+2 this month", totalVehiclesChangeType: 'positive',
+          activeTrips: 15, activeTripsChange: "-3 from yesterday", activeTripsChangeType: 'negative',
+          repairsMonth: 12, repairsMonthChange: "On par", repairsMonthChangeType: 'neutral',
+          fuelCostToday: 245, fuelCostTodayChange: "-5% vs avg", fuelCostTodayChangeType: 'positive',
+      },
+      monthlyActivity: {
+          labels: generateMonthlyLabels(12), 
+          trips: Array.from({length: 12}, () => Math.floor(Math.random() * 80) + 20),
+          maintenance: Array.from({length: 12}, () => Math.floor(Math.random() * 50) + 10),
+          pannes: Array.from({length: 12}, () => Math.floor(Math.random() * 20) + 5)
+      },
+      vehicleStatus: {
+          labels: ['Available', 'In Use', 'In Repair', 'Decommissioned'],
+          data: [50, 15, 8, 5]
+      }
+  };
+
+  // --- DOMContentLoaded ---
+  document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons(); 
+      updateUserInfoDisplay(); // Call to update user info if dynamic
+      initializeDashboard();
+
+      // Theme toggle button in the main header
+      if (themeToggleButtonHeader) {
+        themeToggleButtonHeader.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            setInitialThemeIcon(); // Update icon
+            initializeDashboardCharts(true, mockDashboardData.monthlyActivity, mockDashboardData.vehicleStatus); // Pass true for theme change
+        });
+        setInitialThemeIcon(); // Set initial icon
+      }
+      
+      // Sidebar Toggle Listeners
+      if (mobileMenuButton) mobileMenuButton.addEventListener('click', openMobileMenu);
+      if (sidebarCloseButton) sidebarCloseButton.addEventListener('click', closeMobileMenu);
+      if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeMobileMenu);
+
+      // Close mobile menu when a nav link is clicked
+      document.querySelectorAll('#sidebar nav a').forEach(link => {
+          link.addEventListener('click', () => {
+              if (window.innerWidth < 768) { // md breakpoint
+                  closeMobileMenu();
+              }
+          });
+      });
+
+      const dashboardDateFilter = document.getElementById('dashboardDateFilter');
+      if (dashboardDateFilter) {
+        const today = new Date().toISOString().split('T')[0];
+        dashboardDateFilter.value = today;
+        dashboardDateFilter.addEventListener('change', (event) => {
+            console.log("Dashboard date filter changed to:", event.target.value);
+            updateKPIsForDate(event.target.value);
+        });
+      }
+
+      const quickAddBtn = document.getElementById('quickAddBtn');
+      const quickAddDropdown = document.getElementById('quickAddDropdown');
+      if(quickAddBtn && quickAddDropdown) {
+          quickAddBtn.addEventListener('click', (e) => {
+              e.stopPropagation(); 
+              quickAddDropdown.classList.toggle('hidden');
+          });
+          document.addEventListener('click', (event) => {
+              if (!quickAddBtn.contains(event.target) && !quickAddDropdown.contains(event.target)) {
+                  quickAddDropdown.classList.add('hidden');
+              }
+          });
+      }
+      
+      window.addEventListener('resize', () => {
+          if (window.innerWidth >= 768) {
+              document.body.classList.remove('overflow-hidden');
+              if (sidebarOverlay && !sidebarOverlay.classList.contains('hidden')) {
+                  sidebarOverlay.classList.add('hidden');
+              }
+          } else {
+              if (sidebar && sidebar.classList.contains('translate-x-0') && !sidebar.classList.contains('-translate-x-full')) {
+                 if (!document.body.classList.contains('overflow-hidden')) {
+                    document.body.classList.add('overflow-hidden');
+                 }
+              }
+          }
+      });
+
+      // Global logout button
+       document.getElementById('global-logout-btn')?.addEventListener('click', (e) => {
+          e.preventDefault();
+          // Add your logout logic here (e.g., clearing localStorage, redirecting)
+          console.log("Global logout clicked");
+          alert("Logout functionality to be implemented.");
+          // localStorage.removeItem('authToken');
+          // window.location.href = 'login.html';
+      });
+
+
+  }); // End of DOMContentLoaded
+
+  let monthlyActivityChartInstance = null;
+  let vehicleStatusChartInstance = null;
+
+  function initializeDashboard() {
+      updateKPIs(mockDashboardData.kpis);
+      initializeDashboardCharts(false, mockDashboardData.monthlyActivity, mockDashboardData.vehicleStatus); 
+  }
+  
+  function updateKPIs(kpiData) {
+      document.getElementById('kpiTotalVehicles').textContent = kpiData.totalVehicles;
+      const tvChangeEl = document.getElementById('kpiTotalVehiclesChange');
+      tvChangeEl.textContent = kpiData.totalVehiclesChange;
+      tvChangeEl.className = `text-xs mt-0.5 ${kpiData.totalVehiclesChangeType === 'positive' ? 'text-green-500 dark:text-green-400' : kpiData.totalVehiclesChangeType === 'negative' ? 'text-red-500 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`;
+
+      document.getElementById('kpiActiveTrips').textContent = kpiData.activeTrips;
+      const atChangeEl = document.getElementById('kpiActiveTripsChange');
+      atChangeEl.textContent = kpiData.activeTripsChange;
+      atChangeEl.className = `text-xs mt-0.5 ${kpiData.activeTripsChangeType === 'positive' ? 'text-green-500 dark:text-green-400' : kpiData.activeTripsChangeType === 'negative' ? 'text-red-500 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`;
+      
+      document.getElementById('kpiRepairsMonth').textContent = kpiData.repairsMonth;
+      const rmChangeEl = document.getElementById('kpiRepairsMonthChange');
+      rmChangeEl.textContent = kpiData.repairsMonthChange;
+      rmChangeEl.className = `text-xs mt-0.5 ${kpiData.repairsMonthChangeType === 'positive' ? 'text-green-500 dark:text-green-400' : kpiData.repairsMonthChangeType === 'negative' ? 'text-red-500 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`;
+
+      document.getElementById('kpiFuelCostToday').textContent = `$${kpiData.fuelCostToday}`;
+      const fcChangeEl = document.getElementById('kpiFuelCostTodayChange');
+      fcChangeEl.textContent = kpiData.fuelCostTodayChange;
+      fcChangeEl.className = `text-xs mt-0.5 ${kpiData.fuelCostTodayChangeType === 'positive' ? 'text-green-500 dark:text-green-400' : kpiData.fuelCostTodayChangeType === 'negative' ? 'text-red-500 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`;
+  }
+
+  function updateKPIsForDate(selectedDate) {
+      const dateSeed = new Date(selectedDate).getDate(); 
+      const newKpis = {
+          totalVehicles: mockDashboardData.kpis.totalVehicles, totalVehiclesChange: mockDashboardData.kpis.totalVehiclesChange, totalVehiclesChangeType: mockDashboardData.kpis.totalVehiclesChangeType,
+          activeTrips: Math.max(0, mockDashboardData.kpis.activeTrips + (dateSeed % 5) - 2), activeTripsChange: ( (dateSeed % 5) - 2 >= 0 ? "+" : "") + ((dateSeed % 5) - 2) + " from previous day", activeTripsChangeType: ( (dateSeed % 5) - 2 >= 0 ? 'positive' : 'negative'),
+          repairsMonth: mockDashboardData.kpis.repairsMonth, repairsMonthChange: mockDashboardData.kpis.repairsMonthChange, repairsMonthChangeType: mockDashboardData.kpis.repairsMonthChangeType,
+          fuelCostToday: Math.max(50, mockDashboardData.kpis.fuelCostToday + (dateSeed % 50) - 25), fuelCostTodayChange: ((dateSeed % 10) - 5) + "% vs avg", fuelCostTodayChangeType: ((dateSeed % 10) - 5 >=0 ? 'negative' : 'positive') 
+      };
+      updateKPIs(newKpis);
+  }
+
+  function initializeDashboardCharts(isThemeChange = false, monthlyData, statusData) {
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)';
+    const labelColor = isDarkMode ? 'rgba(229, 231, 235, 0.8)' : 'rgba(55, 65, 81, 0.8)';
+    const tooltipBgColor = isDarkMode ? 'rgba(31, 41, 55, 0.9)' : 'rgba(255, 255, 255, 0.9)';
+    const tooltipTitleColor = isDarkMode ? '#f3f4f6' : '#1f2937'; 
+    const tooltipBodyColor = isDarkMode ? '#d1d5db' : '#4b5563';
+    
+    const primaryDefault = tailwind.config.theme.extend.colors.primary.DEFAULT;
+    const secondaryDefault = tailwind.config.theme.extend.colors.secondary.DEFAULT;
+    const warningDefault = tailwind.config.theme.extend.colors.warning.DEFAULT;
+
+    const monthlyCtx = document.getElementById('monthlyActivityChart')?.getContext('2d');
+    if (monthlyCtx) {
+        if (monthlyActivityChartInstance) monthlyActivityChartInstance.destroy();
+        monthlyActivityChartInstance = new Chart(monthlyCtx, {
+            type: 'bar',
+            data: {
+                labels: monthlyData.labels,
+                datasets: [
+                    { label: 'Trips', data: monthlyData.trips, backgroundColor: primaryDefault, borderRadius: 4 },
+                    { label: 'Maintenance', data: monthlyData.maintenance, backgroundColor: secondaryDefault, borderRadius: 4 },
+                    { label: 'Pannes', data: monthlyData.pannes, backgroundColor: warningDefault, borderRadius: 4 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, animation: !isThemeChange, scales: { y: { beginAtZero: true, grid: { color: gridColor, borderColor: gridColor }, ticks: { color: labelColor, precision: 0 } }, x: { grid: { display: false }, ticks: { color: labelColor } } }, plugins: { legend: { position: 'top', labels: { color: labelColor, boxWidth: 12, padding: 15 } }, tooltip: { mode: 'index', intersect: false, backgroundColor: tooltipBgColor, titleColor: tooltipTitleColor, bodyColor: tooltipBodyColor, borderColor: gridColor, borderWidth: 1, padding: 10, callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}` }} } }
+        });
+    }
+
+    const statusCtx = document.getElementById('vehicleStatusChart')?.getContext('2d');
+    if (statusCtx) {
+        if (vehicleStatusChartInstance) vehicleStatusChartInstance.destroy();
+        const totalStatus = statusData.data.reduce((a,b) => a+b, 0);
+        vehicleStatusChartInstance = new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: statusData.labels,
+                datasets: [{
+                    label: 'Vehicle Status', data: statusData.data,
+                    backgroundColor: [secondaryDefault, primaryDefault, warningDefault, '#6b7280'],
+                    borderColor: isDarkMode ? '#1f2937' : '#fff', borderWidth: 3, hoverOffset: 8
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '65%', animation: !isThemeChange, plugins: { legend: { position: 'bottom', labels: { color: labelColor, boxWidth: 12, padding: 15 } }, tooltip: { backgroundColor: tooltipBgColor, titleColor: tooltipTitleColor, bodyColor: tooltipBodyColor, borderColor: gridColor, borderWidth: 1, padding: 10, callbacks: { label: ctx => `${ctx.label}: ${ctx.parsed} (${totalStatus > 0 ? ((ctx.parsed / totalStatus) * 100).toFixed(1) : 0}%)` }} } }
+        });
+    }
+  }
+</script>
+</body>
+</html>
