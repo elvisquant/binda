@@ -13,7 +13,7 @@ from ..database import get_db
 router = APIRouter(
     prefix="/fuel",
     tags=['Fuel Records'],
-    dependencies=[Depends(oauth2.get_current_user)] # Secure all endpoints in this router
+    #dependencies=[Depends(oauth2.get_current_user)] # Secure all endpoints in this router
 )
 
 @router.post("/", response_model=schemas.FuelOut, status_code=status.HTTP_201_CREATED)

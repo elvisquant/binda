@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from . import models 
 from .database import engine
-from .routers import  user, auth,category_document,vehicle_make,vehicle_model,vehicle_type,vehicle_transmission,category_maintenance,category_panne,document_vehicle,driver,vehicle,fuel,garage,panne,reparation,trip,fuel_type
+from .routers import  dashboard_data_api,user, auth,category_document,vehicle_make,vehicle_model,vehicle_type,vehicle_transmission,category_maintenance,category_panne,document_vehicle,driver,vehicle,fuel,garage,panne,reparation,trip,fuel_type
 from .config import settings
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -25,7 +25,7 @@ except Exception as e:
 # --- Import Your API Router for Authentication ---
 try:
     # For your API endpoint: POST /login/
-    from .routers import  user, auth,category_document,vehicle_make,vehicle_model,vehicle_type,vehicle_transmission,category_maintenance,category_panne,document_vehicle,driver,vehicle,fuel,garage,panne,reparation,trip,fuel_type,fuel,maintenance
+    from .routers import  dashboard_data_api,user, auth,category_document,vehicle_make,vehicle_model,vehicle_type,vehicle_transmission,category_maintenance,category_panne,document_vehicle,driver,vehicle,fuel,garage,panne,reparation,trip,fuel_type,fuel,maintenance
 
 except ImportError as e:
     print(f"CRITICAL ERROR: Could not import router from app.routers.auth: {e}.")
@@ -93,6 +93,7 @@ app.include_router(vehicle_make.router)
 app.include_router(vehicle_model.router)
 app.include_router(vehicle_transmission.router)
 app.include_router(vehicle_type.router)
+app.include_router(dashboard_data_api.router)
 
 
 # --- Helper function to serve Jinja2 templates from app/templates ---

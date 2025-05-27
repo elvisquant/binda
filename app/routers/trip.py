@@ -12,7 +12,7 @@ from ..database import get_db
 router = APIRouter(
     prefix="/trip",
     tags=['Trips'],
-    dependencies=[Depends(oauth2.get_current_user)]
+    #dependencies=[Depends(oauth2.get_current_user)]
 )
 
 @router.post("/", response_model=schemas.TripResponse, status_code=status.HTTP_201_CREATED)

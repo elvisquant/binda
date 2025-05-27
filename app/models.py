@@ -107,6 +107,12 @@ class Vehicle(Base):
     purchase_date = Column(TIMESTAMP(timezone=True), nullable=True)
     status = Column(String, default="available")
     registration_date = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()')) 
+
+     
+    make_ref = relationship("VehicleMake") # Points to VehicleMake class
+    model_ref = relationship("VehicleModel") # Points to VehicleModel class
+
+
 ##################################################################################################################
 
 class CategoryDocument(Base):
@@ -137,19 +143,24 @@ class CategoryMaintenance(Base):
     id = Column(Integer, primary_key=True, index=True)
     cat_maintenance = Column(String, nullable=False)
 ##################################################################################################################
-
+  
 class Maintenance(Base):
     __tablename__ = "maintenance"
-
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    cat_maintenance_id = Column(Integer, ForeignKey("category_maintenance.id", ondelete="SET NULL"), nullable=True) # Consider ondelete behavior
-    vehicle_id = Column(Integer, ForeignKey("vehicle.id", ondelete="CASCADE"), nullable=False) # Changed from vehicule_id. Consider ondelete.
-    garage_id = Column(Integer, ForeignKey("garage.id", ondelete="SET NULL"), nullable=True) # Consider ondelete behavior
+    # Foreign Keys
+    cat_maintenance_id = Column(Integer, ForeignKey("category_maintenance.id", ondelete="SET NULL"), nullable=True)
+    vehicle_id = Column(Integer, ForeignKey("vehicle.id", ondelete="CASCADE"), nullable=False) # ForeignKey references 'vehicle.id'
+    garage_id = Column(Integer, ForeignKey("garage.id", ondelete="SET NULL"), nullable=True)
 
     maintenance_cost = Column(Float, default=0.0, nullable=False)
     receipt = Column(String, nullable=False)
     maintenance_date = Column(TIMESTAMP(timezone=True), nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
+    
+  
+    vehicle = relationship("Vehicle") 
+    category_maintenance = relationship("CategoryMaintenance")
+    garage = relationship("Garage")
 
    
 ##################################################################################################################
@@ -224,3 +235,9 @@ class Trip(Base):
     driver = relationship("Driver")   # Replace "Driver" with your actual Driver model name
 
     # If you have other fields like distance, estimated_duration, etc., keep them.
+
+
+
+
+
+  

@@ -19,12 +19,12 @@
         }
         
         .error-message { 
-            color: #FCA5A5 !important;
-            background-color: #7F1D1D !important;
-            border-color: #B91C1C !important;
+            color: #FCA5A5 !important; /* text-red-300 */
+            background-color: #7F1D1D !important; /* bg-red-900 */
+            border-color: #B91C1C !important; /* border-red-700 */
             padding: 0.75rem 1rem;
-            border-radius: 0.375rem;
-            font-size: 0.875rem; 
+            border-radius: 0.375rem; /* rounded-md */
+            font-size: 0.875rem; /* text-sm */
             margin-top: 1rem; 
             text-align: left;
             display: flex;
@@ -34,82 +34,73 @@
         
         .login-container {
             transition: all 0.3s ease;
-            background-color: #1e293b !important;
-            border-color: #334155 !important;
+            background-color: #1e293b !important; /* bg-slate-800 */
+            border-color: #334155 !important; /* border-slate-700 */
         }
         
         @media (max-width: 640px) {
-            .login-container {
-                margin: 1rem;
-                padding: 1.5rem;
-            }
+            .login-container { margin: 1rem; padding: 1.5rem; }
         }
         
         .input-field {
             transition: all 0.2s ease;
-            background-color: #1e293b !important;
-            border-color: #334155 !important;
+            background-color: #1e293b !important; /* bg-slate-800 */
+            border-color: #334155 !important; /* border-slate-700 */
             color: white !important;
         }
         
         .input-field:focus {
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); /* ring-blue-500 ring-opacity-30 */
         }
         
         .login-btn {
             transition: all 0.2s ease;
             transform: translateY(0);
         }
-        
-        .login-btn:hover {
-            transform: translateY(-1px);
-        }
-        
-        .login-btn:active {
-            transform: translateY(0);
-        }
+        .login-btn:hover { transform: translateY(-1px); }
+        .login-btn:active { transform: translateY(0); }
     </style>
 </head>
-<body class="bg-gray-900">
+<body class="bg-slate-900"> {/* Changed from bg-gray-900 to match theme better */}
 
-    <div class="login-container bg-gray-800 p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-700">
+    <div class="login-container bg-slate-800 p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-700">
         <div class="text-center mb-8">
             <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-blue-900/30 flex items-center justify-center">
                 <i data-lucide="log-in" class="w-10 h-10 text-blue-400"></i>
             </div>
             <h1 class="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-            <p class="text-gray-400">Sign in to access your FleetDash account</p>
+            <p class="text-slate-400">Sign in to access your FleetDash account</p> {/* Changed from text-gray-400 */}
         </div>
 
         <form id="loginForm" class="space-y-6">
             <div class="space-y-2">
-                <label for="username_identifier" class="block text-sm font-medium text-gray-300">Username or Email</label>
+                <label for="username_identifier" class="block text-sm font-medium text-slate-300">Username or Email</label> {/* Changed from text-gray-300 */}
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-lucide="user" class="h-5 w-5 text-gray-400"></i>
+                        <i data-lucide="user" class="h-5 w-5 text-slate-400"></i>
                     </div>
                     <input type="text" id="username_identifier" name="username" required
-                           class="input-field pl-10 w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           class="input-field pl-10 w-full px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                            placeholder="yourname or user@example.com">
                 </div>
             </div>
             
             <div class="space-y-2">
-                <label for="password" class="block text-sm font-medium text-gray-300">Password</label>
+                <label for="password" class="block text-sm font-medium text-slate-300">Password</label> {/* Changed from text-gray-300 */}
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-lucide="lock" class="h-5 w-5 text-gray-400"></i>
+                        <i data-lucide="lock" class="h-5 w-5 text-slate-400"></i>
                     </div>
                     <input type="password" id="password" name="password" required
-                           class="input-field pl-10 w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           class="input-field pl-10 w-full px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                            placeholder="Enter your password">
                 </div>
             </div>
             
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
-                    <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded bg-gray-700">
-                    <label for="remember-me" class="ml-2 block text-sm text-gray-300">Remember me</label>
+                    <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-600 rounded bg-slate-700"> {/* Changed border/bg */}
+                    <label for="remember-me" class="ml-2 block text-sm text-slate-300">Remember me</label> {/* Changed from text-gray-300 */}
                 </div>
                 <div class="text-sm">
                     <a href="#" class="font-medium text-blue-400 hover:text-blue-300">Forgot password?</a>
@@ -125,7 +116,7 @@
             
             <div>
                 <button type="submit" id="loginButton"
-                        class="login-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center shadow-md hover:shadow-lg">
+                        class="login-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-800 flex items-center justify-center shadow-md hover:shadow-lg"> {/* Added focus:ring-offset-slate-800 */}
                     <span id="loginButtonText">Sign In</span>
                     <i id="loginSpinner" data-lucide="loader-2" class="w-5 h-5 ml-2 animate-spin hidden"></i>
                 </button>
@@ -135,51 +126,47 @@
         <div class="mt-6">
             <div class="relative">
                 <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-gray-700"></div>
+                    <div class="w-full border-t border-slate-700"></div> {/* Changed border-gray-700 */}
                 </div>
                 <div class="relative flex justify-center text-sm">
-                    <span class="px-2 bg-gray-800 text-gray-400">Or continue with</span>
+                    <span class="px-2 bg-slate-800 text-slate-400">Or continue with</span> {/* Changed bg/text */}
                 </div>
             </div>
 
             <div class="mt-6 grid grid-cols-2 gap-3">
-                <a href="#" class="w-full inline-flex justify-center py-2 px-4 border border-gray-700 rounded-lg shadow-sm bg-gray-700 text-sm font-medium text-gray-300 hover:bg-gray-600">
+                <a href="#" class="w-full inline-flex justify-center py-2 px-4 border border-slate-700 rounded-lg shadow-sm bg-slate-700 text-sm font-medium text-slate-300 hover:bg-slate-600">
                     <i data-lucide="github" class="h-5 w-5"></i>
                 </a>
-                <a href="#" class="w-full inline-flex justify-center py-2 px-4 border border-gray-700 rounded-lg shadow-sm bg-gray-700 text-sm font-medium text-gray-300 hover:bg-gray-600">
+                <a href="#" class="w-full inline-flex justify-center py-2 px-4 border border-slate-700 rounded-lg shadow-sm bg-slate-700 text-sm font-medium text-slate-300 hover:bg-slate-600">
                     <i data-lucide="facebook" class="h-5 w-5"></i>
                 </a>
             </div>
         </div>
         
-        <p class="text-center text-sm text-gray-400 mt-6">
+        <p class="text-center text-sm text-slate-400 mt-6"> {/* Changed text-gray-400 */}
             Don't have an account? <a href="#" class="font-medium text-blue-400 hover:text-blue-300">Sign up</a>
         </p>
     </div>
 
     <script>
-        lucide.createIcons();
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        } else {
+            console.warn("Lucide script not loaded or failed to initialize before use.");
+        }
 
         const loginForm = document.getElementById('loginForm');
         const errorMessageContainer = document.getElementById('errorMessageContainer');
-        const errorMessageDiv = document.getElementById('errorMessage'); // Not directly used but good to have reference
         const errorText = document.getElementById('errorText');
         const loginButton = document.getElementById('loginButton');
         const loginButtonText = document.getElementById('loginButtonText');
         const loginSpinner = document.getElementById('loginSpinner');
 
-        // --- ### CRITICAL FIXES APPLIED HERE ### ---
-        // API_BASE_URL should be empty if your API is served from the same domain and port.
-        // This makes API calls relative, e.g., /login/, /users/, etc.
-        const API_BASE_URL = '';
-
-        // Your auth.py router has prefix="/login" and the endpoint is @router.post("/")
-        // So the full API path for login is /login/
-        const API_LOGIN_ENDPOINT = '/login/'; // Changed from API_LOGIN_URL to be more specific
-
-        // Path to redirect to after successful login. Ensure this route exists in your main.py.
-        const DASHBOARD_REDIRECT_URL = '/dashboard';
-        // --- ##################################### ---
+        // API_BASE_URL: Empty if API is on the same origin (e.g., http://localhost:8000/login/)
+        // Or set to 'http://your-backend-domain.com' if different.
+        const API_BASE_URL = ''; 
+        const API_LOGIN_ENDPOINT = '/login/'; // Path to your FastAPI login endpoint (usually ends with a slash for POST)
+        const DASHBOARD_REDIRECT_URL = '/dashboard'; // Path to redirect to after successful login
 
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -188,72 +175,90 @@
             loginButton.disabled = true;
             loginButtonText.classList.add('hidden');
             loginSpinner.classList.remove('hidden');
-            lucide.createIcons(); // Re-render spinner icon
+            if (typeof lucide !== 'undefined') lucide.createIcons(); // Ensure spinner icon is rendered
 
             const formData = new FormData(loginForm);
-            // OAuth2PasswordRequestForm expects 'username' and 'password' fields in the form data.
-            // Your input names are already 'username' and 'password', which is correct.
+            // Your backend's OAuth2PasswordRequestForm expects 'username' and 'password'.
+            // Ensure your input field names are `name="username"` and `name="password"`.
+            // Your `username_identifier` input has name="username", which is fine for the 'username' part.
+            
+            let responseBodyForDebug = ""; // To store raw response text
 
             try {
                 const fullApiLoginUrl = API_BASE_URL + API_LOGIN_ENDPOINT;
-                console.log('LOGIN SCRIPT: Attempting login to:', fullApiLoginUrl, 'with form data...');
+                console.log('Attempting login to:', fullApiLoginUrl);
 
                 const response = await fetch(fullApiLoginUrl, {
                     method: 'POST',
-                    body: formData, // FormData is correctly sent as 'application/x-www-form-urlencoded' by default by fetch for OAuth2
+                    body: formData, 
+                    // For FormData, fetch usually sets 'Content-Type': 'application/x-www-form-urlencoded'
+                    // or 'multipart/form-data' automatically. FastAPI's OAuth2PasswordRequestForm expects
+                    // 'application/x-www-form-urlencoded'.
                 });
 
-                const responseTextForDebug = await response.clone().text();
-                console.log(`LOGIN SCRIPT: Login API Raw Response (Status ${response.status}):\n${responseTextForDebug.substring(0,500)}${responseTextForDebug.length > 500 ? '...' : ''}`);
+                responseBodyForDebug = await response.text(); // Get raw text first for robust error logging
+                console.log(`Login API Raw Response (Status ${response.status}):\n${responseBodyForDebug.substring(0,500)}`);
 
                 if (!response.ok) {
                     let errorDetail = `Login attempt failed. Status: ${response.status}.`;
                     try {
-                        const errorData = await response.json(); 
+                        // Try to parse as JSON if possible, as FastAPI often returns JSON errors
+                        const errorData = JSON.parse(responseBodyForDebug); 
                         errorDetail = errorData.detail || JSON.stringify(errorData);
                     } catch (e) {
-                        errorDetail = responseTextForDebug || `Server error (status ${response.status}). Please try again.`;
+                        // If not JSON, use the raw text (might be HTML error page from server)
+                        errorDetail = responseBodyForDebug.substring(0, 200) || `Server error (status ${response.status}). Please try again.`;
                     }
-                    console.error('LOGIN SCRIPT: Login failed:', response.status, errorDetail);
-                    errorText.textContent = `${errorDetail}`; // Display the error message
+                    console.error('Login failed:', response.status, errorDetail);
+                    errorText.textContent = `${errorDetail}`;
                     errorMessageContainer.classList.remove('hidden');
+                    if (typeof lucide !== 'undefined') lucide.createIcons(); // Ensure error icon is rendered
                     return; 
                 }
 
-                const data = await response.json();
-                console.log('LOGIN SCRIPT: Login successful, API response data:', data);
+                const data = JSON.parse(responseBodyForDebug); // Now parse the successful JSON response
+                console.log('Login successful, API response data:', data);
                 
                 if (data.access_token) {
+                    // CRITICAL: Storing the token with the key 'accessToken'
                     localStorage.setItem('accessToken', data.access_token);
-                    console.log("LOGIN SCRIPT: Token stored in localStorage. Verifying 'accessToken':", localStorage.getItem('accessToken') ? "EXISTS" : "STILL MISSING AFTER SETTING");
+                    console.log("Token stored in localStorage as 'accessToken'.");
 
+                    // Optional: Store other user details if your dashboard needs them without re-decoding JWT often
                     if(data.username) localStorage.setItem('username', data.username); 
                     if(data.user_id) localStorage.setItem('userId', String(data.user_id));
                     if(data.status) localStorage.setItem('userStatus', data.status);
-
+                    
+                    // Check user status if relevant
                     if (data.status && data.status !== 'active') {
-                         alert(`Login successful, but account status is '${data.status}'. You may have limited access or need to complete an action.`);
-                         // Decide if you still want to redirect or show a specific page
+                         alert(`Login successful, but account status is '${data.status}'. You may have limited access.`);
                     }
                     
-                    console.log('LOGIN SCRIPT: Redirecting to:', DASHBOARD_REDIRECT_URL);
+                    console.log('Redirecting to:', DASHBOARD_REDIRECT_URL);
                     window.location.href = DASHBOARD_REDIRECT_URL; 
                 } else {
-                    console.error('LOGIN SCRIPT: Login OK, but no access_token in response data:', data);
-                    errorText.textContent = 'Login successful, but token was not provided. Please contact support.';
+                    console.error('Login OK, but no access_token in response data:', data);
+                    errorText.textContent = 'Login successful, but token was not provided by the server. Please contact support.';
                     errorMessageContainer.classList.remove('hidden');
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
                 }
 
-            } catch (error) {
-                console.error('LOGIN SCRIPT: Network error or error during login fetch/JSON parsing:', error);
-                errorText.textContent = 'An unexpected network error occurred. Please check your connection and try again.';
+            } catch (error) { // Catches network errors or if JSON.parse fails on a 2xx response (shouldn't happen if API is correct)
+                console.error('Network error or error during login processing:', error);
+                errorText.textContent = 'An unexpected error occurred. Please check your connection and try again. Details: ' + error.message;
                 errorMessageContainer.classList.remove('hidden');
+                if (typeof lucide !== 'undefined') lucide.createIcons();
             } finally {
                 loginButton.disabled = false;
                 loginButtonText.classList.remove('hidden');
                 loginSpinner.classList.add('hidden');
             }
         });
+
+        // Ensure lucide icons are created on initial load if not already by main script
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
     </script>
 </body>
 </html>

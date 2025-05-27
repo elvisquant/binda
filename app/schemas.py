@@ -5,7 +5,57 @@ import enum # For Python enum
 from enum import Enum
 
 ###################################################################################################################
+# --- Pydantic Schemas for Dashboard Responses ---
+# (You might want to put these in your main schemas.py and import them)
 
+class KPIStats(BaseModel):
+    total_vehicles: int
+    planned_trips: int 
+    repairs_this_month: int
+    fuel_cost_this_week: float
+
+
+class FuelEfficiencyData(BaseModel):
+    current_month_volume: float
+    last_month_volume: float
+    percentage_change: Optional[float] = None
+    trend: Optional[str] = None # "up", "down", "steady", "no_comparison"
+
+
+class MaintenanceComplianceData(BaseModel):
+    total_maintenance_records: int
+    # If you want comparison for maintenance:
+    # current_month_maintenances: int
+    # last_month_maintenances: int
+
+class PerformanceInsightsResponse(BaseModel):
+    fuel_efficiency: FuelEfficiencyData
+    maintenance_compliance: MaintenanceComplianceData # Renamed for clarity
+
+
+class AlertItem(BaseModel):
+    plate_number: Optional[str] = "N/A"
+    message: Optional[str] = "N/A"
+    entity_type: str # "panne", "maintenance", "trip"
+    status: Optional[str] = "N/A" # Optional: specific status of the alert item
+
+class AlertsResponse(BaseModel):
+    critical_panne: Optional[AlertItem] = None
+    maintenance_alert: Optional[AlertItem] = None
+    trip_alert: Optional[AlertItem] = None
+    total_alerts: int = 0
+
+
+# --- NEW Schemas for Chart Data ---
+class MonthlyActivityChartData(BaseModel):
+    labels: List[str]
+    trips: List[int]
+    maintenances: List[int]
+    pannes: List[int]
+
+
+
+###################################################################################################################
 class UserBase(BaseModel):
     username: str = Field(..., min_length=3, max_length=50, example="pronda")
     email: EmailStr = Field(..., example="root@gmail.com")
@@ -183,48 +233,43 @@ class TripUpdate(BaseModel): # For PUT, allow partial updates
     notes: Optional[str] = None
     # --- END NEW OPTIONAL FIELDS ---
 
-# To include related vehicle and driver info when returning a trip
-# You might already have something similar
-class VehicleNestedInTrip(BaseModel): # Simplified Vehicle for nesting
-    id: int
-    plate_number: str
-    # Add other vehicle fields you want to show directly with the trip
-    make: Optional[str] = None # Assuming you resolve this from vehicle.make (id) to vehicle_make.vehicle_make (name)
-    model: Optional[str] = None# Assuming you resolve this from vehicle.model (id) to vehicle_model.vehicle_model (name)
 
+class VehicleStatusChartData(BaseModel):
+    labels: List[str]
+    counts: List[int]
+
+
+
+class VehicleNestedInTrip(BaseModel): # Or whatever you named your simplified vehicle schema
+    id: int
+    plate_number: Optional[str] = None 
+    make: Optional[str] = None 
+    model: Optional[str] = None
+    # Add any other vehicle fields you want to see with the trip
+    class Config:
+        from_attributes = True # Pydantic v2+ (formerly orm_mode = True)
+
+class DriverNestedInTrip(BaseModel): # If you also load driver
+    id: int
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    class Config: from_attributes = True
+
+
+
+
+class TripResponse(TripBase):
+    id: int
+    created_at: Optional[datetime] = None 
+    updated_at: Optional[datetime] = None
+
+    vehicle: Optional[VehicleNestedInTrip] = None   
+    driver: Optional[DriverNestedInTrip] = None     
+    
     class Config:
         from_attributes = True
 
-class DriverNestedInTrip(BaseModel): # Simplified Driver for nesting
-    id: int
-    first_name: str
-    last_name: str
-    # Add other driver fields
 
-    class Config:
-        from_attributes = True
-
-
-class TripResponse(TripBase): # Schema for returning a trip to the client
-    id: int
-    created_at: Optional[datetime] = None # Or datetime if always present
-    updated_at: Optional[datetime] = None # Or datetime if always present
-
-    # Optional: Include nested vehicle and driver details if your API returns them
-    # vehicle: Optional[VehicleNestedInTrip] = None
-    # driver: Optional[DriverNestedInTrip] = None
-    # If you resolve make/model names from IDs at the API level, you can add them here:
-    # vehicle_plate_number: Optional[str] = None
-    # driver_full_name: Optional[str] = None
-
-
-    class Config:
-        from_attributes = True # For SQLAlchemy model to Pydantic conversion
-
-# Schema for a list of trips (if you use it)
-class TripListResponse(BaseModel):
-    trips: List[TripResponse]
-    total_count: Optional[int] = None # For pagination
 ##################################################################################################################
 
 class VehicleTransmissionBase(BaseModel):
@@ -483,3 +528,5 @@ class ReparationResponse(ReparationBase): # Your existing base
 
     class Config:
         from_attributes = True
+
+

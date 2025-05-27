@@ -55,7 +55,7 @@ def create_reparation(
 def read_reparation(
     reparation_id: int,
     db: Session = Depends(get_db),
-    current_user: schemas.UserOut = Depends(oauth2.get_current_user)
+    #current_user: schemas.UserOut = Depends(oauth2.get_current_user)
 ):
     db_reparation = db.query(models.Reparation).options(
         joinedload(models.Reparation.panne),  # Eager loads the related Panne object
