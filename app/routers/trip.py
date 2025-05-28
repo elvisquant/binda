@@ -1,7 +1,7 @@
 # app/routers/trip.py
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload 
 from sqlalchemy import or_ # For search queries
 from typing import List, Optional
 from datetime import date as date_type, datetime
@@ -64,7 +64,7 @@ def read_trip_by_id(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Trip not found")
     return db_trip
 
-@router.get("/", response_model=List[schemas.TripResponse])
+""" @router.get("/", response_model=List[schemas.TripResponse])
 def read_all_trips(
     db: Session = Depends(get_db),
     skip: int = 0,
@@ -108,7 +108,69 @@ def read_all_trips(
         query = query.filter(models.Trip.start_time <= datetime.combine(start_date_before, datetime.max.time()))
 
     trips = query.order_by(models.Trip.start_time.desc()).offset(skip).limit(limit).all()
+    return trips """
+
+
+@router.get("/", response_model=List[schemas.TripResponse])
+def read_all_trips(
+    db: Session = Depends(get_db),
+    skip: int = 0,
+    limit: int = Query(default=100, ge=1, le=1000),
+    search: Optional[str] = Query(default=None),
+    status_filter: Optional[str] = Query(default=None, alias="status"),
+    vehicle_id_filter: Optional[int] = Query(default=None, alias="vehicle_id"),
+    driver_id_filter: Optional[int] = Query(default=None, alias="driver_id"),
+    start_date_after: Optional[date_type] = Query(default=None),
+    start_date_before: Optional[date_type] = Query(default=None)
+):
+    # Start with the base query and apply eager loading options
+    query = db.query(models.Trip).options(
+        selectinload(models.Trip.vehicle).selectinload(models.Vehicle.make_ref),  # Eager load Trip -> Vehicle -> VehicleMake
+        selectinload(models.Trip.vehicle).selectinload(models.Vehicle.model_ref), # Eager load Trip -> Vehicle -> VehicleModel
+        selectinload(models.Trip.driver)  # Eager load Trip -> Driver
+    )
+
+    if search:
+        search_term = f"%{search}%"
+        # Apply joins for filtering. These joins are for the WHERE clause.
+        # The selectinload options define what's loaded in the SELECT part.
+        # Note: If searching by make/model names, ensure VehicleMake/VehicleModel are also joined.
+        search_query_joins = query.join(models.Vehicle, models.Trip.vehicle_id == models.Vehicle.id, isouter=True)\
+                                  .join(models.Driver, models.Trip.driver_id == models.Driver.id, isouter=True)
+        
+        # For searching by make/model string name, you'd need to join further:
+        # search_query_joins = search_query_joins.join(models.Vehicle.make_ref, isouter=True) \
+        #                                        .join(models.Vehicle.model_ref, isouter=True)
+        
+        query = search_query_joins.filter( # Use the query with joins for filtering
+            or_(
+                models.Trip.start_location.ilike(search_term),
+                models.Trip.end_location.ilike(search_term),
+                models.Trip.purpose.ilike(search_term),
+                models.Trip.notes.ilike(search_term),
+                models.Vehicle.plate_number.ilike(search_term),
+                # To search by make/model name:
+                # models.VehicleMake.vehicle_make.ilike(search_term),
+                # models.VehicleModel.vehicle_model.ilike(search_term),
+                models.Driver.first_name.ilike(search_term),
+                models.Driver.last_name.ilike(search_term)
+            )
+        )
+
+    if status_filter:
+        query = query.filter(models.Trip.status == status_filter)
+    if vehicle_id_filter:
+        query = query.filter(models.Trip.vehicle_id == vehicle_id_filter)
+    if driver_id_filter:
+        query = query.filter(models.Trip.driver_id == driver_id_filter)
+    if start_date_after:
+        query = query.filter(models.Trip.start_time >= datetime.combine(start_date_after, datetime.min.time()))
+    if start_date_before:
+        query = query.filter(models.Trip.start_time <= datetime.combine(start_date_before, datetime.max.time()))
+
+    trips = query.order_by(models.Trip.start_time.desc()).offset(skip).limit(limit).all()
     return trips
+
 
 @router.put("/{trip_id}", response_model=schemas.TripResponse)
 def update_existing_trip(

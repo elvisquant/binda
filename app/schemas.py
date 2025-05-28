@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr,Field, validator # 
+from pydantic import BaseModel, EmailStr, Field, validator, computed_field
 from typing import Optional,List
 from datetime import datetime, time
 import enum # For Python enum
@@ -251,14 +251,53 @@ class VehicleStatusChartData(BaseModel):
 
 
 
-class VehicleNestedInTrip(BaseModel): # Or whatever you named your simplified vehicle schema
+######             ############### ######################
+
+
+class VehicleNestedInTrip(BaseModel):
+    id: int
+    plate_number: Optional[str] = None
+
+
+@computed_field(return_type=Optional[str])
+@property
+def make(self) -> Optional[str]:
+        # `self` refers to the instance of VehicleNestedInTrip.
+        # `self.make_ref` would be populated from `orm_vehicle.make_ref`
+        # which is a `VehicleMake` ORM object.
+        if hasattr(self, 'make_ref') and self.make_ref and hasattr(self.make_ref, 'vehicle_make'):
+            return self.make_ref.vehicle_make
+        return None
+
+@computed_field(return_type=Optional[str])
+@property
+def model(self) -> Optional[str]:
+        # `self.model_ref` would be populated from `orm_vehicle.model_ref`
+        # which is a `VehicleModel` ORM object.
+        if hasattr(self, 'model_ref') and self.model_ref and hasattr(self.model_ref, 'vehicle_model'):
+            return self.model_ref.vehicle_model
+        return None
+    
+    # You can include other fields from the Vehicle ORM model that should be directly mapped
+    # year: Optional[int] = None # Example: if VehicleDB has a 'year' attribute
+
+class Config:
+        from_attributes = True
+        # `populate_by_name = True` is useful with aliases, not strictly necessary for computed_field
+        # if direct attribute names are used for population.
+
+# ... (Your TripResponse schema should remain the same, using VehicleNestedInTrip)
+
+
+
+""" class VehicleNestedInTrip(BaseModel): # Or whatever you named your simplified vehicle schema
     id: int
     plate_number: Optional[str] = None 
     make: Optional[str] = None 
     model: Optional[str] = None
     # Add any other vehicle fields you want to see with the trip
     class Config:
-        from_attributes = True # Pydantic v2+ (formerly orm_mode = True)
+        from_attributes = True # Pydantic v2+ (formerly orm_mode = True) """
 
 class DriverNestedInTrip(BaseModel): # If you also load driver
     id: int
