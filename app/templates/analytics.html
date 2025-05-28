@@ -40,9 +40,19 @@
     .kpi-value { font-size: 1.75rem; line-height: 2.25rem; word-break: break-all; }
     @media (min-width: 1024px) { .kpi-value { font-size: 1.875rem; line-height: 2.25rem; } }
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
+    /* Basic Toast Styling */
+    #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 0.5rem; }
+    .toast-message { background-color: #333; color: white; padding: 10px 15px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); font-size: 0.875rem; }
+    .toast-message.success { background-color: #10b981; }
+    .toast-message.error { background-color: #ef4444; }
+    .toast-message.info { background-color: #3b82f6; }
+
   </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white antialiased">
+
+<!-- Toast messages will appear here -->
+<div id="toast-container"></div>
 
 <!-- Main application wrapper -->
 <div class="flex h-screen">
@@ -69,9 +79,6 @@
         <li class="flex items-center space-x-3 text-blue-600 dark:text-blue-400 font-semibold bg-blue-50 dark:bg-gray-700 p-2 rounded-md transition-colors">
           <i data-lucide="pie-chart" class="w-5 h-5"></i><a href="analytics">Analytics</a>
         </li>
-        <!--li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-          <i data-lucide="users" class="w-5 h-5"></i><a href="users">User</a>
-        </!li-->
         <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
           <i data-lucide="user" class="w-5 h-5"></i><a href="driver">Driver</a>
         </li>
@@ -110,30 +117,21 @@
       
       <!-- Header (Mobile Hamburger, Desktop Title, Theme Toggle, User Info) -->
       <header class="bg-white dark:bg-gray-800 shadow p-3 flex justify-between items-center flex-shrink-0 h-16">
-          <!-- Hamburger Menu Button - visible only on mobile -->
           <button id="mobile-menu-button" class="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none p-2">
               <i data-lucide="menu" class="w-6 h-6"></i>
           </button>
-          
-          <!-- Mobile Title - visible only on mobile -->
           <div class="text-lg font-bold text-primary dark:text-primary-light md:hidden">
               FleetDash
           </div>
-
-          <!-- Desktop Title/Context - hidden on mobile -->
           <div class="hidden md:block text-xl font-semibold text-gray-700 dark:text-gray-200">
               Statistics & Reports
           </div>
-          
-          <!-- Right side of header: Theme Toggle & User Info -->
           <div class="flex items-center space-x-3">
               <button id="theme-toggle-header" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
-                  <!-- Icon will be set by JS -->
               </button>
-              <!-- User info for desktop header - hidden on mobile -->
               <div class="hidden md:flex items-center space-x-2">
                   <div class="text-sm font-semibold" id="userDisplayNameHeader">User</div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">Fleet Analyst</div> <!-- Example Role -->
+                  <div class="text-xs text-gray-500 dark:text-gray-400">Fleet Analyst</div> 
               </div>
           </div>
       </header>
@@ -143,7 +141,6 @@
         <main class="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 md:space-y-8">
           <header class="flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
               <div class="flex items-center w-full sm:w-auto">
-                  <!-- Title is now in the main header -->
               </div>
               <div class="flex items-center space-x-3">
                   <label for="reportPeriod" class="text-sm font-medium text-gray-600 dark:text-gray-300 shrink-0">Period:</label>
@@ -258,7 +255,7 @@
                     <li class="flex items-start space-x-2"><i data-lucide="trending-up" class="w-4 h-4 text-green-500 mt-0.5 shrink-0"></i><span>Fuel Efficiency: <span class="font-medium">Up 3.2%</span> vs. last period.</span></li>
                     <li class="flex items-start space-x-2"><i data-lucide="trending-down" class="w-4 h-4 text-red-500 mt-0.5 shrink-0"></i><span>Idle Time: <span class="font-medium">Up 7%</span>, investigate causes.</span></li>
                     <li class="flex items-start space-x-2"><i data-lucide="check-circle" class="w-4 h-4 text-blue-500 mt-0.5 shrink-0"></i><span>Maintenance Compliance: <span class="font-medium">96%</span>.</span></li>
-                    <li class="flex items-start space-x-2"><i data-lucide="dollar-sign" class="w-4 h-4 text-gray-500 mt-0.5 shrink-0"></i><span>Cost per Mile: <span class="font-medium" id="quickStatCostPerMile">$0.65</span> (avg).</span></li>
+                    <li class="flex items-start space-x-2"><i data-lucide="dollar-sign" class="w-4 h-4 text-gray-500 mt-0.5 shrink-0"></i><span>Cost per Mile: <span class="font-medium" id="quickStatCostPerMile">$0.00</span> (avg).</span></li>
                 </ul>
             </div>
             <hr class="dark:border-gray-700/50">
@@ -279,6 +276,25 @@
 </div>
 
 <script>
+  // --- Simple Toast Notification System ---
+  function showToast(message, duration = 3000, type = 'info') { // type can be 'info', 'success', 'error'
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+
+      const toastElement = document.createElement('div');
+      toastElement.textContent = message;
+      toastElement.className = `toast-message ${type}`;
+      
+      container.appendChild(toastElement);
+      setTimeout(() => {
+          toastElement.style.opacity = '0';
+          setTimeout(() => {
+            toastElement.remove();
+          }, 300); 
+      }, duration);
+  }
+
+
   // --- Sidebar Toggle Functionality ---
   const sidebar = document.getElementById('sidebar');
   const mobileMenuButton = document.getElementById('mobile-menu-button');
@@ -320,46 +336,37 @@
   function updateUserInfoDisplay() {
     const userNameHeader = document.getElementById('userDisplayNameHeader');
     const userNameSidebar = document.getElementById('userDisplayNameRightSidebar');
-    // Example: const storedUsername = localStorage.getItem('username');
-    // if (userNameHeader && storedUsername) userNameHeader.textContent = storedUsername;
-    // if (userNameSidebar && storedUsername) userNameSidebar.textContent = storedUsername;
-    // For now, using static values from HTML or placeholder "User"
-    if (userNameHeader) userNameHeader.textContent = userNameHeader.textContent || "User";
-    if (userNameSidebar) userNameSidebar.textContent = userNameSidebar.textContent || "User";
+    // IMPORTANT: Ensure 'username' is the correct key used in localStorage.setItem in your login script.
+    // If you stored it as 'userName' or 'user_name', change 'username' here to match.
+    const storedUsername = localStorage.getItem('username'); 
+    if (userNameHeader && storedUsername) userNameHeader.textContent = storedUsername;
+    else if (userNameHeader) userNameHeader.textContent = "User";
+    
+    if (userNameSidebar && storedUsername) userNameSidebar.textContent = storedUsername;
+    else if (userNameSidebar) userNameSidebar.textContent = "User";
   }
 
-  // --- Mock Data ---
-  function generateMonthlyLabels(count, refEndDate = new Date()) {
-      const labels = [];
-      let currentDate = new Date(refEndDate.getFullYear(), refEndDate.getMonth(), 1);
-      for (let i = 0; i < count; i++) {
-          labels.unshift(currentDate.toLocaleString('default', { month: 'short', year: '2-digit' }));
-          currentDate.setMonth(currentDate.getMonth() - 1);
-      }
-      return labels;
-  }
-
-  const mockExpenseDataSets = {
-      last30days: { fuel: { total: 12340.50, trend: Array.from({length: 12}, (_,i) => i < 1 ? Math.floor(Math.random()*12000)+500 : 0) }, reparation: { total: 8750.00, trend: Array.from({length: 12}, (_,i) => i < 1 ? Math.floor(Math.random()*8000)+500 : 0) }, maintenance: { total: 5120.75, trend: Array.from({length: 12}, (_,i) => i < 1 ? Math.floor(Math.random()*5000)+500 : 0) }, purchases: { total: 0, trend: Array(12).fill(0) } },
-      last90days: { fuel: { total: 38000.20, trend: Array.from({length: 12}, (_,i) => i < 3 ? Math.floor(Math.random()*3500)+2500 : 0) }, reparation: { total: 25000.00, trend: Array.from({length: 12}, (_,i) => i < 3 ? Math.floor(Math.random()*2500)+1500 : 0) }, maintenance: { total: 15000.50, trend: Array.from({length: 12}, (_,i) => i < 3 ? Math.floor(Math.random()*1500)+1000 : 0) }, purchases: { total: 75000.00, trend: [0,0,0,0,0,0,75000,0,0,0,0,0].slice(-3).concat(Array(9).fill(0)) } },
-      last6months: { fuel: { total: 75000.80, trend: Array.from({length: 12}, (_,i) => i < 6 ? Math.floor(Math.random()*6500)+5500 : 0) }, reparation: { total: 48000.00, trend: Array.from({length: 12}, (_,i) => i < 6 ? Math.floor(Math.random()*4500)+3500 : 0) }, maintenance: { total: 28000.00, trend: Array.from({length: 12}, (_,i) => i < 6 ? Math.floor(Math.random()*2500)+2000 : 0) }, purchases: { total: 75000.00, trend: [0,0,0,0,0,75000,0,0,0,0,0,0].slice(-6).concat(Array(6).fill(0)) } },
-      last12months: { fuel: { total: 150000.00, trend: Array.from({length: 12}, () => Math.floor(Math.random() * 13000) + 10000) }, reparation: { total: 95000.00, trend: Array.from({length: 12}, () => Math.floor(Math.random() * 8000) + 7000) }, maintenance: { total: 58000.00, trend: Array.from({length: 12}, () => Math.floor(Math.random() * 5000) + 4000) }, purchases: { total: 150000.00, trend: [0,0,0,0,0,75000,0,0,0,0,0,75000] }  },
-      currentYear: { fuel: { total: 70000.00, trend: [12000,11500,12300,11800,12500,9900].concat(Array(6).fill(0)) }, reparation: { total: 45000.00, trend: [7000,7500,7200,7800,7300,8200].concat(Array(6).fill(0)) }, maintenance: { total: 27000.00, trend: [4000,4200,4100,4300,4400,6000].concat(Array(6).fill(0)) }, purchases: { total: 75000.00, trend: [0,0,0,0,0,75000].concat(Array(6).fill(0)) } }
+  let currentExpenseData = {
+      fuel: { total: 0, trend: [] },
+      reparation: { total: 0, trend: [] },
+      maintenance: { total: 0, trend: [] },
+      purchases: { total: 0, trend: [] }
   };
-  let currentExpenseData = JSON.parse(JSON.stringify(mockExpenseDataSets.last12months));
 
   // --- DOMContentLoaded ---
   document.addEventListener('DOMContentLoaded', () => { 
       lucide.createIcons(); 
       updateUserInfoDisplay();
-      initializeStatisticsPage(); // Call this after other initializations
+      initializeStatisticsPage(); 
       
-      themeToggleButtonHeader?.addEventListener('click', () => { // Corrected variable name
+      themeToggleButtonHeader?.addEventListener('click', () => {
         document.documentElement.classList.toggle('dark');
         setInitialThemeIcon();
-        initializeStatisticsCharts(currentExpenseData, generateDynamicMonthLabels(currentExpenseData.fuel.trend.length)); 
+        const reportPeriodSelect = document.getElementById('reportPeriod');
+        const currentLabels = monthlyExpenseChartInstance?.config.data.labels || generateDynamicMonthLabels(12);
+        initializeStatisticsCharts(currentExpenseData, currentLabels); 
       });
-      setInitialThemeIcon(); // Set initial icon for header toggle
+      setInitialThemeIcon(); 
       
       mobileMenuButton?.addEventListener('click', openMobileMenu);
       sidebarCloseButton?.addEventListener('click', closeMobileMenu);
@@ -371,10 +378,10 @@
       const reportPeriodSelect = document.getElementById('reportPeriod');
       if(reportPeriodSelect) {
           reportPeriodSelect.addEventListener('change', handleReportPeriodChange);
-          const today = new Date(); const firstDayOfYear = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0];
+          const today = new Date(); 
+          const firstDayOfYear = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0];
           document.getElementById('reportCustomStart').value = firstDayOfYear;
           document.getElementById('reportCustomEnd').value = today.toISOString().split('T')[0];
-          fetchAndDisplayDataForPeriod(reportPeriodSelect.value); 
       }
       const applyCustomDateBtn = document.getElementById('applyCustomDateBtn');
       if(applyCustomDateBtn) applyCustomDateBtn.addEventListener('click', () => fetchAndDisplayDataForPeriod('custom'));
@@ -385,62 +392,138 @@
       });
 
       document.getElementById('global-logout-btn')?.addEventListener('click', (e) => {
-          e.preventDefault(); console.log("Global logout clicked"); alert("Logout functionality to be implemented.");
+          e.preventDefault(); 
+          console.log("Global logout clicked"); 
+          localStorage.removeItem('accessToken'); // CORRECTED KEY
+          localStorage.removeItem('refreshToken'); // Assuming you store this as 'refreshToken'
+          localStorage.removeItem('username');     // Check this key too
+          showToast("Logged out successfully.", 2000, "success");
+          setTimeout(() => window.location.href = "/static/login.html", 1000); 
       });
-  }); // End DOMContentLoaded
+  }); 
 
   let monthlyExpenseChartInstance = null;
   let expenseDistributionChartInstance = null;
 
   function initializeStatisticsPage() {
-      updateExpenseKPIs(currentExpenseData);
-      initializeStatisticsCharts(currentExpenseData, generateDynamicMonthLabels(12)); 
-      updateQuickStats();
+      const defaultPeriod = document.getElementById('reportPeriod').value || 'last12months';
+      fetchAndDisplayDataForPeriod(defaultPeriod);
   }
   
   function handleReportPeriodChange(event) {
       const period = event.target.value;
       const customRangeContainer = document.getElementById('customReportDateContainer');
-      if (period === 'custom') { customRangeContainer.classList.remove('hidden'); customRangeContainer.classList.add('flex'); } 
-      else { customRangeContainer.classList.add('hidden'); customRangeContainer.classList.remove('flex'); fetchAndDisplayDataForPeriod(period); }
+      if (period === 'custom') { 
+          customRangeContainer.classList.remove('hidden'); 
+          customRangeContainer.classList.add('flex'); 
+      } else { 
+          customRangeContainer.classList.add('hidden'); 
+          customRangeContainer.classList.remove('flex'); 
+          fetchAndDisplayDataForPeriod(period); 
+      }
   }
   
   function getPeriodDateRange(period) {
-      const today = new Date(); let startDate = new Date(); let endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
+      const today = new Date(); 
+      let startDate = new Date(); 
+      let endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
       switch (period) {
           case 'last30days': startDate.setDate(today.getDate() - 29); break;
           case 'last90days': startDate.setDate(today.getDate() - 89); break;
           case 'last6months': startDate = new Date(today.getFullYear(), today.getMonth() - 5, 1); break;
-          case 'last12months': startDate = new Date(today.getFullYear() - 1, today.getMonth() + 1, 1); break;
+          case 'last12months': startDate = new Date(today.getFullYear() -1 , today.getMonth(), today.getDate() - (today.getDate() -1) +1); break;
           case 'currentYear': startDate = new Date(today.getFullYear(), 0, 1); break;
-          case 'custom': const cS = document.getElementById('reportCustomStart').value, cE = document.getElementById('reportCustomEnd').value; if (!cS || !cE) { alert("Please select custom start and end dates."); return null; } startDate = new Date(cS); endDate = new Date(cE); endDate.setHours(23,59,59,999); if (startDate > endDate) { alert("Start date cannot be after end date."); return null; } break;
+          case 'custom': 
+              const cS = document.getElementById('reportCustomStart').value;
+              const cE = document.getElementById('reportCustomEnd').value; 
+              if (!cS || !cE) { showToast("Please select custom start and end dates.", 3000, "error"); return null; } 
+              startDate = new Date(cS); 
+              endDate = new Date(cE); 
+              endDate.setHours(23,59,59,999); 
+              if (startDate > endDate) { showToast("Start date cannot be after end date.", 3000, "error"); return null; } 
+              break;
           default: startDate.setDate(today.getDate() - 29);
       }
-      startDate.setHours(0,0,0,0); return { startDate, endDate };
+      startDate.setHours(0,0,0,0); 
+      return { startDate, endDate };
   }
 
   function generateDynamicMonthLabels(count, refEndDate = new Date()) {
-      const labels = []; let currentDate = new Date(refEndDate.getFullYear(), refEndDate.getMonth(), 1); 
-      for (let i = 0; i < count; i++) { labels.unshift(currentDate.toLocaleString('default', { month: 'short', year: '2-digit' })); currentDate.setMonth(currentDate.getMonth() - 1); } return labels;
+      const labels = []; 
+      let currentDate = new Date(refEndDate.getFullYear(), refEndDate.getMonth(), 1); 
+      for (let i = 0; i < count; i++) { 
+          labels.unshift(currentDate.toLocaleString('default', { month: 'short', year: '2-digit' })); 
+          currentDate.setMonth(currentDate.getMonth() - 1); 
+      } 
+      return labels;
   }
 
-  function fetchAndDisplayDataForPeriod(period) {
-      const range = getPeriodDateRange(period); if (!range && period === 'custom') return;
-      let dataToDisplay; let labelsForChart;
-      if (period === 'custom') {
-          let startMonth = range.startDate.getFullYear() * 12 + range.startDate.getMonth(); let endMonth = range.endDate.getFullYear() * 12 + range.endDate.getMonth(); const numMonths = Math.max(1, endMonth - startMonth + 1);
-          labelsForChart = generateDynamicMonthLabels(numMonths, range.endDate); dataToDisplay = { fuel:{total:0,trend:[]}, reparation:{total:0,trend:[]}, maintenance:{total:0,trend:[]}, purchases:{total:0,trend:[]} };
-          dataToDisplay.fuel.trend = labelsForChart.map(() => {const val = Math.floor(Math.random()*2500)+500; dataToDisplay.fuel.total+=val; return val;}); dataToDisplay.reparation.trend = labelsForChart.map(() => {const val = Math.floor(Math.random()*1500)+200; dataToDisplay.reparation.total+=val; return val;}); dataToDisplay.maintenance.trend = labelsForChart.map(() => {const val = Math.floor(Math.random()*1000)+100; dataToDisplay.maintenance.total+=val; return val;}); dataToDisplay.purchases.trend = labelsForChart.map((_,idx) => {const val = (idx % Math.max(1, Math.floor(numMonths/3)) === 0 && Math.random() > 0.6) ? Math.floor(Math.random() * 25000) + 10000 : 0; dataToDisplay.purchases.total += val; return val;});
-      } else {
-          dataToDisplay = JSON.parse(JSON.stringify(mockExpenseDataSets[period] || mockExpenseDataSets.last12months)); 
-          labelsForChart = generateDynamicMonthLabels(dataToDisplay.fuel.trend.length); // Use actual trend length
-          Object.keys(dataToDisplay).forEach(cat => { // Ensure trend arrays match label length
-              if (dataToDisplay[cat].trend.length < labelsForChart.length) { dataToDisplay[cat].trend = [...Array(labelsForChart.length - dataToDisplay[cat].trend.length).fill(0), ...dataToDisplay[cat].trend]; } 
-              else if (dataToDisplay[cat].trend.length > labelsForChart.length) { dataToDisplay[cat].trend = dataToDisplay[cat].trend.slice(-labelsForChart.length); }
-          });
+  async function fetchAndDisplayDataForPeriod(period) {
+      const range = getPeriodDateRange(period);
+      if (!range && period === 'custom') return; 
+
+      const authToken = localStorage.getItem('accessToken'); // CORRECTED KEY
+      console.log("Token from localStorage in fetchAndDisplayDataForPeriod:", authToken); 
+      if (!authToken) {
+          showToast("Authentication token not found. Please log in.", 5000, "error");
+          return;
       }
-      currentExpenseData = dataToDisplay; updateExpenseKPIs(currentExpenseData); initializeStatisticsCharts(currentExpenseData, labelsForChart); updateQuickStats(currentExpenseData);
+
+      const startDateString = range.startDate.toISOString().split('T')[0];
+      const endDateString = range.endDate.toISOString().split('T')[0];
+
+      showToast("Fetching summary data...", 2000, "info");
+
+      try {
+        const response = await fetch(`/analytics-data/expense-summary?start_date=${startDateString}&end_date=${endDateString}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ detail: `HTTP error! Status: ${response.status}` }));
+            throw new Error(errorData.detail || `HTTP error! Status: ${response.status}`);
+        }
+
+        const apiData = await response.json(); 
+
+        const transformedData = {
+            fuel: { total: apiData.total_fuel_cost, trend: [] },
+            reparation: { total: apiData.total_reparation_cost, trend: [] },
+            maintenance: { total: apiData.total_maintenance_cost, trend: [] },
+            purchases: { total: apiData.total_vehicle_purchase_cost, trend: [] }
+        };
+        
+        const chartLabels = apiData.monthly_breakdown.map(item => item.month_year);
+        
+        apiData.monthly_breakdown.forEach(item => {
+            transformedData.fuel.trend.push(item.fuel_cost);
+            transformedData.reparation.trend.push(item.reparation_cost);
+            transformedData.maintenance.trend.push(item.maintenance_cost);
+            transformedData.purchases.trend.push(item.purchase_cost);
+        });
+
+        currentExpenseData = transformedData; 
+        updateExpenseKPIs(currentExpenseData);
+        initializeStatisticsCharts(currentExpenseData, chartLabels); 
+        updateQuickStats(currentExpenseData);
+        showToast("Data updated successfully.", 2000, "success");
+
+      } catch (error) {
+          console.error('Error fetching or processing expense summary data:', error);
+          showToast(`Error: ${error.message}`, 5000, "error");
+          const emptyData = { fuel: {total:0,trend:[]}, reparation:{total:0,trend:[]}, maintenance:{total:0,trend:[]}, purchases:{total:0,trend:[]} };
+          const emptyLabels = generateDynamicMonthLabels(1); 
+          currentExpenseData = emptyData; 
+          updateExpenseKPIs(emptyData);
+          initializeStatisticsCharts(emptyData, emptyLabels);
+          updateQuickStats(emptyData);
+      }
   }
+
 
   function updateExpenseKPIs(data) {
     document.getElementById('kpiFuelTotal').textContent = `$${data.fuel.total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
@@ -450,9 +533,13 @@
   }
   
   function updateQuickStats(data = currentExpenseData) {
-    const totalFuelTrendSum = data.fuel.trend.reduce((s,v)=>s+v,0); const numFuelMonthsWithData = data.fuel.trend.filter(v=>v>0).length || 1;
-    document.getElementById('quickStatCostPerMile').textContent = `$${(totalFuelTrendSum / numFuelMonthsWithData / (1000 + Math.random()*2000) ).toFixed(2)}`; 
-    lucide.createIcons(); 
+    const totalFuelCostsForPeriod = data.fuel.total;
+    const numberOfMonths = data.fuel.trend.length || 1;
+    const estimatedMilesPerMonthAverage = 1500; 
+    const estimatedTotalMiles = numberOfMonths * estimatedMilesPerMonthAverage;
+    
+    document.getElementById('quickStatCostPerMile').textContent = 
+        `$${(estimatedTotalMiles > 0 ? (totalFuelCostsForPeriod / estimatedTotalMiles) : 0).toFixed(2)}`; 
   }
 
   function initializeStatisticsCharts(data = currentExpenseData, labels = generateDynamicMonthLabels(12)) {
@@ -467,8 +554,22 @@
     const monthlyCtx = document.getElementById('monthlyExpenseChart')?.getContext('2d');
     if (monthlyCtx) {
         if (monthlyExpenseChartInstance) monthlyExpenseChartInstance.destroy();
+        const trendLabels = labels.length > 0 ? labels : ['No Data'];
+        const fuelTrend = data.fuel.trend.length === trendLabels.length ? data.fuel.trend : Array(trendLabels.length).fill(0);
+        const reparationTrend = data.reparation.trend.length === trendLabels.length ? data.reparation.trend : Array(trendLabels.length).fill(0);
+        const maintenanceTrend = data.maintenance.trend.length === trendLabels.length ? data.maintenance.trend : Array(trendLabels.length).fill(0);
+        const purchasesTrend = data.purchases.trend.length === trendLabels.length ? data.purchases.trend : Array(trendLabels.length).fill(0);
+
         monthlyExpenseChartInstance = new Chart(monthlyCtx, {
-            type: 'bar', data: { labels: labels, datasets: [ { label: 'Fuel', data: data.fuel.trend.slice(-labels.length), backgroundColor: fuelColor, stack: 'Stack 0', borderRadius: 4 }, { label: 'Reparations', data: data.reparation.trend.slice(-labels.length), backgroundColor: reparationColor, stack: 'Stack 0', borderRadius: 4 }, { label: 'Maintenance', data: data.maintenance.trend.slice(-labels.length), backgroundColor: maintenanceColor, stack: 'Stack 0', borderRadius: 4 }, { label: 'Purchases', data: data.purchases.trend.slice(-labels.length), backgroundColor: purchaseColor, stack: 'Stack 1', borderRadius: 4 } ] },
+            type: 'bar', data: { 
+                labels: trendLabels, 
+                datasets: [ 
+                    { label: 'Fuel', data: fuelTrend, backgroundColor: fuelColor, stack: 'Stack 0', borderRadius: 4 }, 
+                    { label: 'Reparations', data: reparationTrend, backgroundColor: reparationColor, stack: 'Stack 0', borderRadius: 4 }, 
+                    { label: 'Maintenance', data: maintenanceTrend, backgroundColor: maintenanceColor, stack: 'Stack 0', borderRadius: 4 }, 
+                    { label: 'Purchases', data: purchasesTrend, backgroundColor: purchaseColor, stack: 'Stack 1', borderRadius: 4 } 
+                ] 
+            },
             options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, stacked: true, grid: { color: gridColor }, ticks: { color: labelColor, callback: value => `$${value/1000}k` } }, x: { stacked: true, grid: { display: false }, ticks: { color: labelColor } } }, plugins: { legend: { position: 'top', labels: { color: labelColor, boxWidth: 12, padding: 15 } }, tooltip: { mode: 'index', intersect: false, backgroundColor: isDarkMode ? '#374151' : '#fff', titleColor: isDarkMode ? '#f3f4f6' : '#1f2937', bodyColor: isDarkMode ? '#d1d5db' : '#4b5563', callbacks: { label: ctx => `${ctx.dataset.label}: $${ctx.raw.toLocaleString()}` }} } }
         });
     }
@@ -478,19 +579,29 @@
         const totalExpenses = data.fuel.total + data.reparation.total + data.maintenance.total + data.purchases.total;
         const hasData = totalExpenses > 0;
         expenseDistributionChartInstance = new Chart(distributionCtx, {
-            type: 'doughnut', data: { labels: hasData ? ['Fuel','Reparations','Maintenance','Purchases'] : ['No Data'], datasets: [{ label: 'Expense Distribution', data: hasData ? [data.fuel.total, data.reparation.total, data.maintenance.total, data.purchases.total] : [1], backgroundColor: hasData ? [fuelColor, reparationColor, maintenanceColor, purchaseColor] : [isDarkMode?'#4b5563':'#e5e7eb'], borderColor: isDarkMode?'#1f2937':'#fff', borderWidth: 3, hoverOffset: 8 }] },
+            type: 'doughnut', data: { 
+                labels: hasData ? ['Fuel','Reparations','Maintenance','Purchases'] : ['No Data'], 
+                datasets: [{ 
+                    label: 'Expense Distribution', 
+                    data: hasData ? [data.fuel.total, data.reparation.total, data.maintenance.total, data.purchases.total] : [1], 
+                    backgroundColor: hasData ? [fuelColor, reparationColor, maintenanceColor, purchaseColor] : [isDarkMode?'#4b5563':'#e5e7eb'], 
+                    borderColor: isDarkMode?'#1f2937':'#fff', 
+                    borderWidth: 3, 
+                    hoverOffset: 8 
+                }] 
+            },
             options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { display: hasData, position: 'bottom', labels: { color: labelColor, boxWidth: 12, padding: 15 } }, tooltip: { enabled: hasData, backgroundColor: isDarkMode ? '#374151' : '#fff', titleColor: isDarkMode ? '#f3f4f6' : '#1f2937', bodyColor: isDarkMode ? '#d1d5db' : '#4b5563', callbacks: { label: ctx => `${ctx.label}: $${ctx.raw.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})} (${totalExpenses > 0 ? ((ctx.raw/totalExpenses)*100).toFixed(1) : 0}%)` }} } }
         });
     }
   }
 
-  async function generateReport() { // Make it async
+  async function generateReport() {
     const period = document.getElementById('reportPeriod').value;
     const range = getPeriodDateRange(period);
-    if (!range) return;
+    if (!range) return; 
 
     const selectedCategoriesInput = [];
-    const categoryMap = { // Maps UI checkbox value to API category name
+    const categoryMap = {
         fuel: { name: 'Fuel', checked: document.getElementById('reportCatFuel').checked },
         reparation: { name: 'Reparations', checked: document.getElementById('reportCatReparation').checked },
         maintenance: { name: 'Maintenance', checked: document.getElementById('reportCatMaintenance').checked },
@@ -499,12 +610,12 @@
 
     for (const key in categoryMap) {
         if (categoryMap[key].checked) {
-            selectedCategoriesInput.push(key); // e.g., 'fuel', 'reparation'
+            selectedCategoriesInput.push(key);
         }
     }
 
     if (selectedCategoriesInput.length === 0) {
-        alert("Please select at least one expense category.");
+        showToast("Please select at least one expense category.", 3000, "error");
         return;
     }
 
@@ -513,15 +624,18 @@
         `${range.startDate.toLocaleDateString().replace(/\//g, '-')}_to_${range.endDate.toLocaleDateString().replace(/\//g, '-')}` :
         period;
     const fileNameBase = `Detailed_Expense_Report_${periodString}`;
-    const authToken = localStorage.getItem('access_token');
+    const authToken = localStorage.getItem('accessToken'); // CORRECTED KEY
 
-    showToast("Generating detailed report... This may take a moment.", 5000); // Longer toast
+    if (!authToken) {
+        showToast("Authentication token not found. Please log in.", 5000, "error");
+        return;
+    }
+
+    showToast("Generating detailed report... This may take a moment.", 5000, "info");
 
     try {
         const startDateString = range.startDate.toISOString().split('T')[0];
         const endDateString = range.endDate.toISOString().split('T')[0];
-
-        // Construct query parameters for categories
         const categoryParams = selectedCategoriesInput.map(cat => `categories=${encodeURIComponent(cat)}`).join('&');
 
         const response = await fetch(
@@ -534,75 +648,56 @@
             });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json().catch(() => ({ detail: `HTTP error! Status: ${response.status}` }));
             console.error('Error fetching detailed report data:', response.status, errorData);
-            alert(`Error fetching detailed report: ${errorData.detail || response.statusText}`);
-            return;
+            throw new Error(`Error fetching detailed report: ${errorData.detail || response.statusText}`);
         }
 
         const detailedData = await response.json();
-        // console.log("Detailed Data for report:", detailedData);
 
         if (format === 'excel') {
             const wb = XLSX.utils.book_new();
+            let sheetsAdded = 0;
 
             if (categoryMap.fuel.checked && detailedData.fuel_records && detailedData.fuel_records.length > 0) {
                 const fuelSheetData = detailedData.fuel_records.map(r => ({
-                    ID: r.id,
-                    Vehicle: r.vehicle_plate,
-                    Date: new Date(r.date).toLocaleDateString(), // Format date
-                    Time: new Date(r.date).toLocaleTimeString(), // Format time
-                    Quantity: r.quantity,
-                    Cost: r.cost,
-                    Notes: r.notes
+                    ID: r.id, Vehicle: r.vehicle_plate, Date: new Date(r.date).toLocaleDateString(), Time: new Date(r.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), Quantity: r.quantity, Cost: r.cost, Notes: r.notes
                 }));
                 const wsFuel = XLSX.utils.json_to_sheet(fuelSheetData);
                 XLSX.utils.book_append_sheet(wb, wsFuel, "Fuel Details");
+                sheetsAdded++;
             }
-
             if (categoryMap.reparation.checked && detailedData.reparation_records && detailedData.reparation_records.length > 0) {
                 const reparationSheetData = detailedData.reparation_records.map(r => ({
-                    ID: r.id,
-                    Vehicle: r.vehicle_plate,
-                    Date: new Date(r.repair_date).toLocaleDateString(),
-                    Description: r.description,
-                    Provider: r.provider,
-                    Cost: r.cost
+                    ID: r.id, Vehicle: r.vehicle_plate, Date: new Date(r.repair_date).toLocaleDateString(), Description: r.description, Provider: r.provider, Cost: r.cost
                 }));
                 const wsRep = XLSX.utils.json_to_sheet(reparationSheetData);
                 XLSX.utils.book_append_sheet(wb, wsRep, "Reparation Details");
+                sheetsAdded++;
             }
             if (categoryMap.maintenance.checked && detailedData.maintenance_records && detailedData.maintenance_records.length > 0) {
                  const maintenanceSheetData = detailedData.maintenance_records.map(r => ({
-                    ID: r.id,
-                    Vehicle: r.vehicle_plate,
-                    Date: new Date(r.maintenance_date).toLocaleDateString(),
-                    Description: r.description,
-                    Provider: r.provider,
-                    Cost: r.cost
+                    ID: r.id, Vehicle: r.vehicle_plate, Date: new Date(r.maintenance_date).toLocaleDateString(), Description: r.description, Provider: r.provider, Cost: r.cost
                 }));
                 const wsMaint = XLSX.utils.json_to_sheet(maintenanceSheetData);
                 XLSX.utils.book_append_sheet(wb, wsMaint, "Maintenance Details");
+                sheetsAdded++;
             }
             if (categoryMap.purchases.checked && detailedData.purchase_records && detailedData.purchase_records.length > 0) {
                  const purchaseSheetData = detailedData.purchase_records.map(r => ({
-                    ID: r.id,
-                    'Plate Number': r.plate_number,
-                    Make: r.make,
-                    Model: r.model,
-                    'Purchase Date': r.purchase_date ? new Date(r.purchase_date).toLocaleDateString() : "N/A",
-                    'Purchase Price': r.purchase_price
+                    ID: r.id, 'Plate Number': r.plate_number, Make: r.make, Model: r.model, 'Purchase Date': r.purchase_date ? new Date(r.purchase_date).toLocaleDateString() : "N/A", 'Purchase Price': r.purchase_price
                 }));
                 const wsPurchase = XLSX.utils.json_to_sheet(purchaseSheetData);
                 XLSX.utils.book_append_sheet(wb, wsPurchase, "Vehicle Purchases");
+                sheetsAdded++;
             }
 
-            if (wb.SheetNames.length === 0) {
-                alert("No detailed records found for the selected categories and period.");
+            if (sheetsAdded === 0) {
+                showToast("No detailed records found for the selected categories and period.", 3000, "info");
                 return;
             }
             XLSX.writeFile(wb, `${fileNameBase}.xlsx`);
-            showToast("Excel report generated and download started.");
+            showToast("Excel report generated and download started.", 3000, "success");
 
         } else { // PDF
             const { jsPDF } = window.jspdf;
@@ -618,101 +713,106 @@
             doc.text(`Period: ${period === 'custom' ? `${range.startDate.toLocaleDateString()} to ${range.endDate.toLocaleDateString()}` : period}`, 14, yPos);
             yPos += 12;
 
-            const addCategoryToPdf = (title, headers, data, grandTotalAmount) => {
+            const addCategoryToPdf = (title, headers, data, grandTotalAmountKey, isCurrency=true) => {
                 if (!data || data.length === 0) return false;
 
-                if (yPos > pageHeight - bottomMargin - 30) { // Check if new page needed for title
-                    doc.addPage();
-                    yPos = 20;
+                if (yPos > pageHeight - bottomMargin - 30) { 
+                    doc.addPage(); yPos = 20;
                 }
-                doc.setFontSize(12);
-                doc.setFont(undefined, 'bold');
-                doc.text(title, 14, yPos);
-                yPos += 6;
+                doc.setFontSize(12); doc.setFont(undefined, 'bold');
+                doc.text(title, 14, yPos); yPos += 6;
                 doc.setFont(undefined, 'normal');
 
+                let footData;
+                if (grandTotalAmountKey !== undefined) {
+                    const totalAmount = data.reduce((sum, row) => sum + (parseFloat(row[grandTotalAmountKey]) || 0), 0);
+                    const formattedTotal = isCurrency 
+                        ? totalAmount.toLocaleString(undefined, { style:'currency', currency:'USD' }) 
+                        : totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                    
+                    let emptyCells = headers.map(()=>'');
+                    emptyCells[1] = 'Total:'; 
+                    emptyCells[grandTotalAmountKey] = formattedTotal; 
+                    footData = [emptyCells];
+                }
+
+
                 doc.autoTable({
-                    head: [headers],
-                    body: data,
-                    startY: yPos,
-                    theme: 'grid',
+                    head: [headers.map(h => h.label || h)], 
+                    body: data.map(row => headers.map(header => row[header.key || header] !== undefined ? (header.format ? header.format(row[header.key || header]) : row[header.key || header]) : '')),
+                    startY: yPos, theme: 'grid',
                     headStyles: { fillColor: [59, 130, 246], textColor: 255, fontSize: 8 },
                     bodyStyles: { fontSize: 7 },
-                    didDrawPage: function (data) { // Handle page breaks within table
-                        yPos = data.cursor.y + 10; // Update yPos after table
-                    },
-                    // Add foot if grandTotalAmount is provided
-                    foot: grandTotalAmount !== undefined ? [['', 'Total', grandTotalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }), '']] : undefined,
+                    foot: footData,
                     footStyles: { fontStyle: 'bold', fillColor: [230, 230, 230], textColor: 20, fontSize: 8 },
+                    didDrawPage: function (data) { yPos = data.cursor.y + 10; },
                 });
-                yPos = doc.autoTable.previous.finalY + 10; // Update yPos after table
+                yPos = doc.autoTable.previous.finalY + 10;
                 return true;
             };
             
             let reportHasData = false;
 
             if (categoryMap.fuel.checked && detailedData.fuel_records && detailedData.fuel_records.length > 0) {
-                const totalFuelCost = detailedData.fuel_records.reduce((sum, r) => sum + r.cost, 0);
-                const fuelTableData = detailedData.fuel_records.map(r => [
-                    r.vehicle_plate,
-                    new Date(r.date).toLocaleString(), // Date and Time
-                    r.quantity.toFixed(2),
-                    r.cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-                    r.notes || ''
-                ]);
-                if (addCategoryToPdf('Fuel Records', ['Vehicle', 'Date/Time', 'Quantity', 'Cost ($)', 'Notes'], fuelTableData, totalFuelCost)) reportHasData = true;
+                const fuelTableHeaders = [
+                    {label: 'Vehicle', key: 'vehicle_plate'}, 
+                    {label: 'Date/Time', key: 'date', format: (d) => new Date(d).toLocaleString()}, 
+                    {label: 'Qty', key: 'quantity', format: (q) => q.toFixed(2)}, 
+                    {label: 'Cost ($)', key: 'cost', format: (c) => c.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})},
+                    {label: 'Notes', key: 'notes'}
+                ];
+                const costKeyIndexFuel = fuelTableHeaders.findIndex(h => h.label === 'Cost ($)');
+                if (addCategoryToPdf('Fuel Records', fuelTableHeaders, detailedData.fuel_records, costKeyIndexFuel)) reportHasData = true;
             }
-
             if (categoryMap.reparation.checked && detailedData.reparation_records && detailedData.reparation_records.length > 0) {
-                const totalRepCost = detailedData.reparation_records.reduce((sum, r) => sum + r.cost, 0);
-                const repTableData = detailedData.reparation_records.map(r => [
-                    r.vehicle_plate,
-                    new Date(r.repair_date).toLocaleDateString(),
-                    r.description,
-                    r.provider || '',
-                    r.cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                ]);
-                if (addCategoryToPdf('Reparation Records', ['Vehicle', 'Date', 'Description', 'Provider', 'Cost ($)'], repTableData, totalRepCost)) reportHasData = true;
+                const repTableHeaders = [
+                    {label:'Vehicle', key:'vehicle_plate'}, 
+                    {label:'Date', key:'repair_date', format: (d) => new Date(d).toLocaleDateString()}, 
+                    {label:'Description', key:'description'}, 
+                    {label:'Provider', key:'provider'}, 
+                    {label:'Cost ($)', key:'cost', format: (c) => c.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}
+                ];
+                const costKeyIndexRep = repTableHeaders.findIndex(h => h.label === 'Cost ($)');
+                if (addCategoryToPdf('Reparation Records', repTableHeaders, detailedData.reparation_records, costKeyIndexRep)) reportHasData = true;
             }
             if (categoryMap.maintenance.checked && detailedData.maintenance_records && detailedData.maintenance_records.length > 0) {
-                const totalMaintCost = detailedData.maintenance_records.reduce((sum, r) => sum + r.cost, 0);
-                const maintTableData = detailedData.maintenance_records.map(r => [
-                    r.vehicle_plate,
-                    new Date(r.maintenance_date).toLocaleDateString(),
-                    r.description,
-                    r.provider || '',
-                    r.cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                ]);
-                if (addCategoryToPdf('Maintenance Records', ['Vehicle', 'Date', 'Description', 'Provider', 'Cost ($)'], maintTableData, totalMaintCost)) reportHasData = true;
+                const maintTableHeaders = [
+                    {label:'Vehicle', key:'vehicle_plate'}, 
+                    {label:'Date', key:'maintenance_date', format: (d) => new Date(d).toLocaleDateString()}, 
+                    {label:'Description', key:'description'}, 
+                    {label:'Provider', key:'provider'}, 
+                    {label:'Cost ($)', key:'cost', format: (c) => c.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}
+                ];
+                const costKeyIndexMaint = maintTableHeaders.findIndex(h => h.label === 'Cost ($)');
+                if (addCategoryToPdf('Maintenance Records', maintTableHeaders, detailedData.maintenance_records, costKeyIndexMaint)) reportHasData = true;
             }
-            if (categoryMap.purchases.checked && detailedData.purchase_records && detailedData.purchase_records.length > 0) {
-                const totalPurchaseCost = detailedData.purchase_records.reduce((sum, r) => sum + (r.purchase_price || 0), 0);
-                const purchaseTableData = detailedData.purchase_records.map(r => [
-                    r.plate_number,
-                    r.make,
-                    r.model,
-                    r.purchase_date ? new Date(r.purchase_date).toLocaleDateString() : "N/A",
-                    (r.purchase_price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                ]);
-                 if (addCategoryToPdf('Vehicle Purchases', ['Plate #', 'Make', 'Model', 'Purchase Date', 'Price ($)'], purchaseTableData, totalPurchaseCost)) reportHasData = true;
+             if (categoryMap.purchases.checked && detailedData.purchase_records && detailedData.purchase_records.length > 0) {
+                const purchaseTableHeaders = [
+                    {label:'Plate #', key:'plate_number'}, 
+                    {label:'Make', key:'make'}, 
+                    {label:'Model', key:'model'}, 
+                    {label:'Purchase Date', key:'purchase_date', format: (d) => d ? new Date(d).toLocaleDateString() : "N/A"}, 
+                    {label:'Price ($)', key:'purchase_price', format: (p) => (p || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}
+                ];
+                const priceKeyIndexPurch = purchaseTableHeaders.findIndex(h => h.label === 'Price ($)');
+                if (addCategoryToPdf('Vehicle Purchases', purchaseTableHeaders, detailedData.purchase_records, priceKeyIndexPurch)) reportHasData = true;
             }
 
+
             if (!reportHasData) {
-                alert("No detailed records found for the selected categories and period to generate PDF.");
+                showToast("No detailed records found for the selected categories and period to generate PDF.", 3000, "info");
                 return;
             }
 
             doc.save(`${fileNameBase}.pdf`);
-            showToast("PDF report generated and download started.");
+            showToast("PDF report generated and download started.", 3000, "success");
         }
 
     } catch (error) {
         console.error('Failed to generate detailed report:', error);
-        alert('An error occurred while generating the detailed report. Please check console.');
+        showToast(`Report Generation Error: ${error.message}`, 5000, "error");
     }
 }
 </script>
-<!-- The global_logout.js is not standard, assuming its functionality is handled within this page or it's not critical for this example -->
-<!-- <script src="/static/js/global_logout.js" defer></script> --> 
 </body>
 </html>

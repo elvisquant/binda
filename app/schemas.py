@@ -651,7 +651,7 @@ class MaintenanceRecordDetail(BaseModel):
     vehicle_plate: Optional[str] = "N/A"
     maintenance_date: date # Maintenance usually on a specific date
     description: str
-    cost: float
+    maintenance_cost: float
     provider: Optional[str] = None
 
     class Config:

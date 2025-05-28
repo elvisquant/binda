@@ -241,7 +241,7 @@ class Trip(Base):
 
 
 
-# In your Pydantic Schemas for Analytics API
+
 
 
 
