@@ -243,7 +243,7 @@
         <aside class="w-1/5 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden lg:block flex-shrink-0 border-l dark:border-gray-700 overflow-y-auto">
             <div class="flex justify-end items-center">
                 <div class="text-right">
-                    <div class="text-sm font-semibold text-gray-800 dark:text-white" id="userDisplayNameRightSidebar">Jane Doe</div>
+                    <div class="text-sm font-semibold text-gray-800 dark:text-white" id="userDisplayNameRightSidebar">User</div>
                     <div class="text-xs text-gray-500 dark:text-gray-400">Fleet Analyst</div>
                 </div>
                 <img src="https://i.pravatar.cc/40?u=analyst_jane_doe" alt="Analyst" class="w-10 h-10 rounded-full ml-2 object-cover">
@@ -277,23 +277,18 @@
 
 <script>
   // --- Simple Toast Notification System ---
-  function showToast(message, duration = 3000, type = 'info') { // type can be 'info', 'success', 'error'
+  function showToast(message, duration = 3000, type = 'info') { 
       const container = document.getElementById('toast-container');
       if (!container) return;
-
       const toastElement = document.createElement('div');
       toastElement.textContent = message;
       toastElement.className = `toast-message ${type}`;
-      
       container.appendChild(toastElement);
       setTimeout(() => {
           toastElement.style.opacity = '0';
-          setTimeout(() => {
-            toastElement.remove();
-          }, 300); 
+          setTimeout(() => { toastElement.remove(); }, 300); 
       }, duration);
   }
-
 
   // --- Sidebar Toggle Functionality ---
   const sidebar = document.getElementById('sidebar');
@@ -336,14 +331,16 @@
   function updateUserInfoDisplay() {
     const userNameHeader = document.getElementById('userDisplayNameHeader');
     const userNameSidebar = document.getElementById('userDisplayNameRightSidebar');
-    // IMPORTANT: Ensure 'username' is the correct key used in localStorage.setItem in your login script.
-    // If you stored it as 'userName' or 'user_name', change 'username' here to match.
+    // IMPORTANT: This assumes 'username' is the key used in localStorage.setItem in your login script.
     const storedUsername = localStorage.getItem('username'); 
-    if (userNameHeader && storedUsername) userNameHeader.textContent = storedUsername;
-    else if (userNameHeader) userNameHeader.textContent = "User";
-    
-    if (userNameSidebar && storedUsername) userNameSidebar.textContent = storedUsername;
-    else if (userNameSidebar) userNameSidebar.textContent = "User";
+    console.log("Stored username for display (from updateUserInfoDisplay):", storedUsername); // DEBUG
+
+    if (userNameHeader) {
+        userNameHeader.textContent = storedUsername || "User"; 
+    }
+    if (userNameSidebar) {
+        userNameSidebar.textContent = storedUsername || "User"; 
+    }
   }
 
   let currentExpenseData = {
@@ -356,13 +353,12 @@
   // --- DOMContentLoaded ---
   document.addEventListener('DOMContentLoaded', () => { 
       lucide.createIcons(); 
-      updateUserInfoDisplay();
+      updateUserInfoDisplay(); // Call this to set username on page load
       initializeStatisticsPage(); 
       
       themeToggleButtonHeader?.addEventListener('click', () => {
         document.documentElement.classList.toggle('dark');
         setInitialThemeIcon();
-        const reportPeriodSelect = document.getElementById('reportPeriod');
         const currentLabels = monthlyExpenseChartInstance?.config.data.labels || generateDynamicMonthLabels(12);
         initializeStatisticsCharts(currentExpenseData, currentLabels); 
       });
@@ -394,11 +390,11 @@
       document.getElementById('global-logout-btn')?.addEventListener('click', (e) => {
           e.preventDefault(); 
           console.log("Global logout clicked"); 
-          localStorage.removeItem('accessToken'); // CORRECTED KEY
-          localStorage.removeItem('refreshToken'); // Assuming you store this as 'refreshToken'
-          localStorage.removeItem('username');     // Check this key too
+          localStorage.removeItem('accessToken'); 
+          localStorage.removeItem('refreshToken'); // Ensure this key matches your storage
+          localStorage.removeItem('username');     // Ensure this key matches your storage
           showToast("Logged out successfully.", 2000, "success");
-          setTimeout(() => window.location.href = "/static/login.html", 1000); 
+          setTimeout(() => window.location.href = "/static/login.html", 1000); // Adjust to your login page
       });
   }); 
 
@@ -462,8 +458,7 @@
       const range = getPeriodDateRange(period);
       if (!range && period === 'custom') return; 
 
-      const authToken = localStorage.getItem('accessToken'); // CORRECTED KEY
-      console.log("Token from localStorage in fetchAndDisplayDataForPeriod:", authToken); 
+      const authToken = localStorage.getItem('accessToken'); 
       if (!authToken) {
           showToast("Authentication token not found. Please log in.", 5000, "error");
           return;
@@ -471,47 +466,36 @@
 
       const startDateString = range.startDate.toISOString().split('T')[0];
       const endDateString = range.endDate.toISOString().split('T')[0];
-
       showToast("Fetching summary data...", 2000, "info");
 
       try {
         const response = await fetch(`/analytics-data/expense-summary?start_date=${startDateString}&end_date=${endDateString}`, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
-            }
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` }
         });
-
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({ detail: `HTTP error! Status: ${response.status}` }));
             throw new Error(errorData.detail || `HTTP error! Status: ${response.status}`);
         }
-
         const apiData = await response.json(); 
-
         const transformedData = {
             fuel: { total: apiData.total_fuel_cost, trend: [] },
             reparation: { total: apiData.total_reparation_cost, trend: [] },
             maintenance: { total: apiData.total_maintenance_cost, trend: [] },
             purchases: { total: apiData.total_vehicle_purchase_cost, trend: [] }
         };
-        
         const chartLabels = apiData.monthly_breakdown.map(item => item.month_year);
-        
         apiData.monthly_breakdown.forEach(item => {
             transformedData.fuel.trend.push(item.fuel_cost);
             transformedData.reparation.trend.push(item.reparation_cost);
             transformedData.maintenance.trend.push(item.maintenance_cost);
             transformedData.purchases.trend.push(item.purchase_cost);
         });
-
         currentExpenseData = transformedData; 
         updateExpenseKPIs(currentExpenseData);
         initializeStatisticsCharts(currentExpenseData, chartLabels); 
         updateQuickStats(currentExpenseData);
         showToast("Data updated successfully.", 2000, "success");
-
       } catch (error) {
           console.error('Error fetching or processing expense summary data:', error);
           showToast(`Error: ${error.message}`, 5000, "error");
@@ -523,7 +507,6 @@
           updateQuickStats(emptyData);
       }
   }
-
 
   function updateExpenseKPIs(data) {
     document.getElementById('kpiFuelTotal').textContent = `$${data.fuel.total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
@@ -537,7 +520,6 @@
     const numberOfMonths = data.fuel.trend.length || 1;
     const estimatedMilesPerMonthAverage = 1500; 
     const estimatedTotalMiles = numberOfMonths * estimatedMilesPerMonthAverage;
-    
     document.getElementById('quickStatCostPerMile').textContent = 
         `$${(estimatedTotalMiles > 0 ? (totalFuelCostsForPeriod / estimatedTotalMiles) : 0).toFixed(2)}`; 
   }
@@ -585,9 +567,7 @@
                     label: 'Expense Distribution', 
                     data: hasData ? [data.fuel.total, data.reparation.total, data.maintenance.total, data.purchases.total] : [1], 
                     backgroundColor: hasData ? [fuelColor, reparationColor, maintenanceColor, purchaseColor] : [isDarkMode?'#4b5563':'#e5e7eb'], 
-                    borderColor: isDarkMode?'#1f2937':'#fff', 
-                    borderWidth: 3, 
-                    hoverOffset: 8 
+                    borderColor: isDarkMode?'#1f2937':'#fff', borderWidth: 3, hoverOffset: 8 
                 }] 
             },
             options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { display: hasData, position: 'bottom', labels: { color: labelColor, boxWidth: 12, padding: 15 } }, tooltip: { enabled: hasData, backgroundColor: isDarkMode ? '#374151' : '#fff', titleColor: isDarkMode ? '#f3f4f6' : '#1f2937', bodyColor: isDarkMode ? '#d1d5db' : '#4b5563', callbacks: { label: ctx => `${ctx.label}: $${ctx.raw.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})} (${totalExpenses > 0 ? ((ctx.raw/totalExpenses)*100).toFixed(1) : 0}%)` }} } }
@@ -607,28 +587,20 @@
         maintenance: { name: 'Maintenance', checked: document.getElementById('reportCatMaintenance').checked },
         purchases: { name: 'Vehicle Purchases', checked: document.getElementById('reportCatPurchases').checked }
     };
-
     for (const key in categoryMap) {
-        if (categoryMap[key].checked) {
-            selectedCategoriesInput.push(key);
-        }
+        if (categoryMap[key].checked) { selectedCategoriesInput.push(key); }
     }
-
     if (selectedCategoriesInput.length === 0) {
-        showToast("Please select at least one expense category.", 3000, "error");
-        return;
+        showToast("Please select at least one expense category.", 3000, "error"); return;
     }
 
     const format = document.getElementById('reportFormat').value;
     const periodString = period === 'custom' ?
-        `${range.startDate.toLocaleDateString().replace(/\//g, '-')}_to_${range.endDate.toLocaleDateString().replace(/\//g, '-')}` :
-        period;
+        `${range.startDate.toLocaleDateString().replace(/\//g, '-')}_to_${range.endDate.toLocaleDateString().replace(/\//g, '-')}` : period;
     const fileNameBase = `Detailed_Expense_Report_${periodString}`;
-    const authToken = localStorage.getItem('accessToken'); // CORRECTED KEY
-
+    const authToken = localStorage.getItem('accessToken'); 
     if (!authToken) {
-        showToast("Authentication token not found. Please log in.", 5000, "error");
-        return;
+        showToast("Authentication token not found. Please log in.", 5000, "error"); return;
     }
 
     showToast("Generating detailed report... This may take a moment.", 5000, "info");
@@ -637,177 +609,96 @@
         const startDateString = range.startDate.toISOString().split('T')[0];
         const endDateString = range.endDate.toISOString().split('T')[0];
         const categoryParams = selectedCategoriesInput.map(cat => `categories=${encodeURIComponent(cat)}`).join('&');
-
         const response = await fetch(
-            `/analytics-data/detailed-expense-records?start_date=${startDateString}&end_date=${endDateString}&${categoryParams}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                }
-            });
-
+            `/analytics-data/detailed-expense-records?start_date=${startDateString}&end_date=${endDateString}&${categoryParams}`, 
+            { method: 'GET', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` } }
+        );
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({ detail: `HTTP error! Status: ${response.status}` }));
-            console.error('Error fetching detailed report data:', response.status, errorData);
             throw new Error(`Error fetching detailed report: ${errorData.detail || response.statusText}`);
         }
-
         const detailedData = await response.json();
 
         if (format === 'excel') {
-            const wb = XLSX.utils.book_new();
-            let sheetsAdded = 0;
-
+            const wb = XLSX.utils.book_new(); let sheetsAdded = 0;
             if (categoryMap.fuel.checked && detailedData.fuel_records && detailedData.fuel_records.length > 0) {
-                const fuelSheetData = detailedData.fuel_records.map(r => ({
-                    ID: r.id, Vehicle: r.vehicle_plate, Date: new Date(r.date).toLocaleDateString(), Time: new Date(r.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), Quantity: r.quantity, Cost: r.cost, Notes: r.notes
-                }));
-                const wsFuel = XLSX.utils.json_to_sheet(fuelSheetData);
-                XLSX.utils.book_append_sheet(wb, wsFuel, "Fuel Details");
-                sheetsAdded++;
+                const fuelSheetData = detailedData.fuel_records.map(r => ({ ID: r.id, Vehicle: r.vehicle_plate, Date: new Date(r.date).toLocaleDateString(), Time: new Date(r.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), Quantity: r.quantity, Cost: r.cost, Notes: r.notes }));
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(fuelSheetData), "Fuel Details"); sheetsAdded++;
             }
             if (categoryMap.reparation.checked && detailedData.reparation_records && detailedData.reparation_records.length > 0) {
-                const reparationSheetData = detailedData.reparation_records.map(r => ({
-                    ID: r.id, Vehicle: r.vehicle_plate, Date: new Date(r.repair_date).toLocaleDateString(), Description: r.description, Provider: r.provider, Cost: r.cost
-                }));
-                const wsRep = XLSX.utils.json_to_sheet(reparationSheetData);
-                XLSX.utils.book_append_sheet(wb, wsRep, "Reparation Details");
-                sheetsAdded++;
+                const reparationSheetData = detailedData.reparation_records.map(r => ({ ID: r.id, Vehicle: r.vehicle_plate, Date: r.repair_date ? new Date(r.repair_date).toLocaleDateString() : "N/A", Description: r.description, Provider: r.provider, Cost: r.cost }));
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(reparationSheetData), "Reparation Details"); sheetsAdded++;
             }
             if (categoryMap.maintenance.checked && detailedData.maintenance_records && detailedData.maintenance_records.length > 0) {
-                 const maintenanceSheetData = detailedData.maintenance_records.map(r => ({
-                    ID: r.id, Vehicle: r.vehicle_plate, Date: new Date(r.maintenance_date).toLocaleDateString(), Description: r.description, Provider: r.provider, Cost: r.cost
-                }));
-                const wsMaint = XLSX.utils.json_to_sheet(maintenanceSheetData);
-                XLSX.utils.book_append_sheet(wb, wsMaint, "Maintenance Details");
-                sheetsAdded++;
+                 const maintenanceSheetData = detailedData.maintenance_records.map(r => ({ ID: r.id, Vehicle: r.vehicle_plate, Date: r.maintenance_date ? new Date(r.maintenance_date).toLocaleDateString() : "N/A", Description: r.description, Provider: r.provider, Cost: r.maintenance_cost /* Use maintenance_cost */ }));
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(maintenanceSheetData), "Maintenance Details"); sheetsAdded++;
             }
             if (categoryMap.purchases.checked && detailedData.purchase_records && detailedData.purchase_records.length > 0) {
-                 const purchaseSheetData = detailedData.purchase_records.map(r => ({
-                    ID: r.id, 'Plate Number': r.plate_number, Make: r.make, Model: r.model, 'Purchase Date': r.purchase_date ? new Date(r.purchase_date).toLocaleDateString() : "N/A", 'Purchase Price': r.purchase_price
-                }));
-                const wsPurchase = XLSX.utils.json_to_sheet(purchaseSheetData);
-                XLSX.utils.book_append_sheet(wb, wsPurchase, "Vehicle Purchases");
-                sheetsAdded++;
+                 const purchaseSheetData = detailedData.purchase_records.map(r => ({ ID: r.id, 'Plate Number': r.plate_number, Make: r.make, Model: r.model, 'Purchase Date': r.purchase_date ? new Date(r.purchase_date).toLocaleDateString() : "N/A", 'Purchase Price': r.purchase_price }));
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(purchaseSheetData), "Vehicle Purchases"); sheetsAdded++;
             }
-
-            if (sheetsAdded === 0) {
-                showToast("No detailed records found for the selected categories and period.", 3000, "info");
-                return;
-            }
+            if (sheetsAdded === 0) { showToast("No detailed records found for the selected categories and period.", 3000, "info"); return; }
             XLSX.writeFile(wb, `${fileNameBase}.xlsx`);
             showToast("Excel report generated and download started.", 3000, "success");
-
         } else { // PDF
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            let yPos = 20;
-            const pageHeight = doc.internal.pageSize.height;
-            const bottomMargin = 20;
+            const { jsPDF } = window.jspdf; const doc = new jsPDF(); let yPos = 20;
+            const pageHeight = doc.internal.pageSize.height; const bottomMargin = 20;
+            doc.setFontSize(16); doc.text(`Detailed Expense Report`, 14, yPos); yPos += 8;
+            doc.setFontSize(10); doc.text(`Period: ${period === 'custom' ? `${range.startDate.toLocaleDateString()} to ${range.endDate.toLocaleDateString()}` : period}`, 14, yPos); yPos += 12;
 
-            doc.setFontSize(16);
-            doc.text(`Detailed Expense Report`, 14, yPos);
-            yPos += 8;
-            doc.setFontSize(10);
-            doc.text(`Period: ${period === 'custom' ? `${range.startDate.toLocaleDateString()} to ${range.endDate.toLocaleDateString()}` : period}`, 14, yPos);
-            yPos += 12;
-
-            const addCategoryToPdf = (title, headers, data, grandTotalAmountKey, isCurrency=true) => {
-                if (!data || data.length === 0) return false;
-
-                if (yPos > pageHeight - bottomMargin - 30) { 
-                    doc.addPage(); yPos = 20;
-                }
-                doc.setFontSize(12); doc.setFont(undefined, 'bold');
-                doc.text(title, 14, yPos); yPos += 6;
-                doc.setFont(undefined, 'normal');
+            const addCategoryToPdf = (title, headers, dataRows, grandTotalKey) => {
+                if (!dataRows || dataRows.length === 0) return false;
+                if (yPos > pageHeight - bottomMargin - 30) { doc.addPage(); yPos = 20; }
+                doc.setFontSize(12); doc.setFont(undefined, 'bold'); doc.text(title, 14, yPos); yPos += 6; doc.setFont(undefined, 'normal');
+                
+                const tableBody = dataRows.map(row => headers.map(header => {
+                    const value = row[header.key];
+                    return header.format ? header.format(value) : (value !== undefined && value !== null ? value : '');
+                }));
 
                 let footData;
-                if (grandTotalAmountKey !== undefined) {
-                    const totalAmount = data.reduce((sum, row) => sum + (parseFloat(row[grandTotalAmountKey]) || 0), 0);
-                    const formattedTotal = isCurrency 
-                        ? totalAmount.toLocaleString(undefined, { style:'currency', currency:'USD' }) 
-                        : totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-                    
-                    let emptyCells = headers.map(()=>'');
-                    emptyCells[1] = 'Total:'; 
-                    emptyCells[grandTotalAmountKey] = formattedTotal; 
+                if (grandTotalKey !== undefined) {
+                    const totalAmount = dataRows.reduce((sum, row) => sum + (parseFloat(row[grandTotalKey]) || 0), 0);
+                    const formattedTotal = totalAmount.toLocaleString(undefined, { style:'currency', currency:'USD' }); // Assuming USD
+                    let emptyCells = headers.map(() => '');
+                    const totalLabelIndex = Math.max(0, headers.findIndex(h => h.key === grandTotalKey) -1); // Place 'Total:' before cost column if possible
+                    emptyCells[totalLabelIndex] = 'Total:';
+                    emptyCells[headers.findIndex(h => h.key === grandTotalKey)] = formattedTotal;
                     footData = [emptyCells];
                 }
 
-
                 doc.autoTable({
-                    head: [headers.map(h => h.label || h)], 
-                    body: data.map(row => headers.map(header => row[header.key || header] !== undefined ? (header.format ? header.format(row[header.key || header]) : row[header.key || header]) : '')),
-                    startY: yPos, theme: 'grid',
+                    head: [headers.map(h => h.label)], body: tableBody, startY: yPos, theme: 'grid',
                     headStyles: { fillColor: [59, 130, 246], textColor: 255, fontSize: 8 },
-                    bodyStyles: { fontSize: 7 },
-                    foot: footData,
+                    bodyStyles: { fontSize: 7 }, foot: footData,
                     footStyles: { fontStyle: 'bold', fillColor: [230, 230, 230], textColor: 20, fontSize: 8 },
                     didDrawPage: function (data) { yPos = data.cursor.y + 10; },
                 });
-                yPos = doc.autoTable.previous.finalY + 10;
-                return true;
+                yPos = doc.autoTable.previous.finalY + 10; return true;
             };
             
             let reportHasData = false;
-
             if (categoryMap.fuel.checked && detailedData.fuel_records && detailedData.fuel_records.length > 0) {
-                const fuelTableHeaders = [
-                    {label: 'Vehicle', key: 'vehicle_plate'}, 
-                    {label: 'Date/Time', key: 'date', format: (d) => new Date(d).toLocaleString()}, 
-                    {label: 'Qty', key: 'quantity', format: (q) => q.toFixed(2)}, 
-                    {label: 'Cost ($)', key: 'cost', format: (c) => c.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})},
-                    {label: 'Notes', key: 'notes'}
-                ];
-                const costKeyIndexFuel = fuelTableHeaders.findIndex(h => h.label === 'Cost ($)');
-                if (addCategoryToPdf('Fuel Records', fuelTableHeaders, detailedData.fuel_records, costKeyIndexFuel)) reportHasData = true;
+                const headers = [ {label: 'Vehicle', key: 'vehicle_plate'}, {label: 'Date/Time', key: 'date', format: (d) => d ? new Date(d).toLocaleString() : "N/A"},  {label: 'Qty', key: 'quantity', format: (q) => (q || 0).toFixed(2)}, {label: 'Cost ($)', key: 'cost', format: (c) => (c || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}, {label: 'Notes', key: 'notes'} ];
+                if (addCategoryToPdf('Fuel Records', headers, detailedData.fuel_records, 'cost')) reportHasData = true;
             }
             if (categoryMap.reparation.checked && detailedData.reparation_records && detailedData.reparation_records.length > 0) {
-                const repTableHeaders = [
-                    {label:'Vehicle', key:'vehicle_plate'}, 
-                    {label:'Date', key:'repair_date', format: (d) => new Date(d).toLocaleDateString()}, 
-                    {label:'Description', key:'description'}, 
-                    {label:'Provider', key:'provider'}, 
-                    {label:'Cost ($)', key:'cost', format: (c) => c.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}
-                ];
-                const costKeyIndexRep = repTableHeaders.findIndex(h => h.label === 'Cost ($)');
-                if (addCategoryToPdf('Reparation Records', repTableHeaders, detailedData.reparation_records, costKeyIndexRep)) reportHasData = true;
+                const headers = [ {label:'Vehicle', key:'vehicle_plate'}, {label:'Date', key:'repair_date', format: (d) => d ? new Date(d).toLocaleDateString() : "N/A"}, {label:'Description', key:'description'}, {label:'Provider', key:'provider'}, {label:'Cost ($)', key:'cost', format: (c) => (c || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})} ];
+                if (addCategoryToPdf('Reparation Records', headers, detailedData.reparation_records, 'cost')) reportHasData = true;
             }
             if (categoryMap.maintenance.checked && detailedData.maintenance_records && detailedData.maintenance_records.length > 0) {
-                const maintTableHeaders = [
-                    {label:'Vehicle', key:'vehicle_plate'}, 
-                    {label:'Date', key:'maintenance_date', format: (d) => new Date(d).toLocaleDateString()}, 
-                    {label:'Description', key:'description'}, 
-                    {label:'Provider', key:'provider'}, 
-                    {label:'Cost ($)', key:'cost', format: (c) => c.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}
-                ];
-                const costKeyIndexMaint = maintTableHeaders.findIndex(h => h.label === 'Cost ($)');
-                if (addCategoryToPdf('Maintenance Records', maintTableHeaders, detailedData.maintenance_records, costKeyIndexMaint)) reportHasData = true;
+                const headers = [ {label:'Vehicle', key:'vehicle_plate'}, {label:'Date', key:'maintenance_date', format: (d) => d ? new Date(d).toLocaleDateString() : "N/A"}, {label:'Description', key:'description'}, {label:'Provider', key:'provider'}, {label:'Cost ($)', key:'maintenance_cost', format: (c) => (c || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})} ];
+                if (addCategoryToPdf('Maintenance Records', headers, detailedData.maintenance_records, 'maintenance_cost')) reportHasData = true; // CORRECTED KEY FOR TOTAL
             }
-             if (categoryMap.purchases.checked && detailedData.purchase_records && detailedData.purchase_records.length > 0) {
-                const purchaseTableHeaders = [
-                    {label:'Plate #', key:'plate_number'}, 
-                    {label:'Make', key:'make'}, 
-                    {label:'Model', key:'model'}, 
-                    {label:'Purchase Date', key:'purchase_date', format: (d) => d ? new Date(d).toLocaleDateString() : "N/A"}, 
-                    {label:'Price ($)', key:'purchase_price', format: (p) => (p || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}
-                ];
-                const priceKeyIndexPurch = purchaseTableHeaders.findIndex(h => h.label === 'Price ($)');
-                if (addCategoryToPdf('Vehicle Purchases', purchaseTableHeaders, detailedData.purchase_records, priceKeyIndexPurch)) reportHasData = true;
+            if (categoryMap.purchases.checked && detailedData.purchase_records && detailedData.purchase_records.length > 0) {
+                const headers = [ {label:'Plate #', key:'plate_number'}, {label:'Make', key:'make'}, {label:'Model', key:'model'}, {label:'Purchase Date', key:'purchase_date', format: (d) => d ? new Date(d).toLocaleDateString() : "N/A"}, {label:'Price ($)', key:'purchase_price', format: (p) => (p || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})} ];
+                if (addCategoryToPdf('Vehicle Purchases', headers, detailedData.purchase_records, 'purchase_price')) reportHasData = true;
             }
 
-
-            if (!reportHasData) {
-                showToast("No detailed records found for the selected categories and period to generate PDF.", 3000, "info");
-                return;
-            }
-
+            if (!reportHasData) { showToast("No detailed records found for PDF.", 3000, "info"); return; }
             doc.save(`${fileNameBase}.pdf`);
             showToast("PDF report generated and download started.", 3000, "success");
         }
-
     } catch (error) {
         console.error('Failed to generate detailed report:', error);
         showToast(`Report Generation Error: ${error.message}`, 5000, "error");

@@ -182,6 +182,10 @@ async def get_expense_summary_data(
     )
 
 
+# analytics_api.py
+
+# ... (other code) ...
+
 @router.get("/detailed-expense-records", response_model=schemas.DetailedReportDataResponse)
 async def get_detailed_expense_records(
     start_date: DateType, 
@@ -190,15 +194,13 @@ async def get_detailed_expense_records(
     db: Session = Depends(get_db)
 ):
     response_data = schemas.DetailedReportDataResponse()
-    # Convert query date parameters to datetime for full day coverage in filters
     start_datetime = datetime.combine(start_date, datetime.min.time())
     end_datetime = datetime.combine(end_date, datetime.max.time())
 
-    if not categories: # If no categories specified, include all
+    if not categories:
         categories = ["fuel", "reparation", "maintenance", "purchases"]
 
     if "fuel" in categories:
-        # Assuming models.Fuel.created_at is DATETIME
         fuel_q = db.query(models.Fuel).options(
             joinedload(models.Fuel.vehicle)
         ).filter(
@@ -206,40 +208,61 @@ async def get_detailed_expense_records(
             models.Fuel.created_at <= end_datetime
         ).order_by(models.Fuel.created_at.asc()).all()
         
-        response_data.fuel_records = [
-            schemas.FuelRecordDetail(
+        temp_fuel_records = []
+        for f in fuel_q:
+            temp_fuel_records.append(schemas.FuelRecordDetail(
                 id=f.id,
                 vehicle_plate=f.vehicle.plate_number if f.vehicle and hasattr(f.vehicle, 'plate_number') else "N/A",
-                date=f.created_at,
-                quantity=f.quantity,
-                cost=f.cost,
-                notes=f.notes
-            ) for f in fuel_q
-        ]
+                date=f.created_at, # Schema expects datetime
+                quantity=f.quantity if hasattr(f, 'quantity') else 0.0,
+                cost=f.cost if hasattr(f, 'cost') else 0.0,
+                notes=f.notes if hasattr(f, 'notes') else None
+            ))
+        response_data.fuel_records = temp_fuel_records
+
+   
 
     if "reparation" in categories:
-        # Assuming models.Reparation.repair_date is DATETIME
         reparation_q = db.query(models.Reparation).options(
-            joinedload(models.Reparation.vehicle),
-            joinedload(models.Reparation.panne) # If you need panne description for reparation
+            # Load the 'panne' relationship, and from 'panne', load its 'vehicle' relationship
+            joinedload(models.Reparation.panne).joinedload(models.Panne.vehicle), 
+            joinedload(models.Reparation.garage) 
         ).filter(
             models.Reparation.repair_date >= start_datetime,
             models.Reparation.repair_date <= end_datetime
         ).order_by(models.Reparation.repair_date.asc()).all()
         
-        response_data.reparation_records = [
-            schemas.ReparationRecordDetail(
+        temp_reparation_records = []
+        for r in reparation_q:
+            vehicle_plate_for_reparation = "N/A"
+            if r.panne and r.panne.vehicle and hasattr(r.panne.vehicle, 'plate_number'):
+                vehicle_plate_for_reparation = r.panne.vehicle.plate_number
+
+            reparation_description = "N/A"
+            if r.panne and hasattr(r.panne, 'description') and r.panne.description:
+                reparation_description = r.panne.description
+            elif hasattr(r, 'description') and r.description: 
+                 reparation_description = r.description
+
+            provider_name = None
+            if r.garage and hasattr(r.garage, 'nom_garage'):
+                provider_name = r.garage.nom_garage
+            elif hasattr(r, 'provider') and r.provider: 
+                provider_name = r.provider
+
+            temp_reparation_records.append(schemas.ReparationRecordDetail(
                 id=r.id,
-                vehicle_plate=r.vehicle.plate_number if r.vehicle and hasattr(r.vehicle, 'plate_number') else "N/A",
-                repair_date=r.repair_date.date(), # Convert datetime to date for schema
-                description=r.panne.description if r.panne and hasattr(r.panne, 'description') else "N/A", # Example if description comes from Panne
-                cost=r.cost,
-                provider=r.garage.nom_garage if r.garage and hasattr(r.garage, 'nom_garage') else (r.provider if hasattr(r, 'provider') else None) # Example using garage name as provider
-            ) for r in reparation_q
-        ]
+                vehicle_plate=vehicle_plate_for_reparation, # Use the derived plate number
+                repair_date=r.repair_date.date() if r.repair_date else None,
+                description=reparation_description,
+                cost=r.cost if hasattr(r, 'cost') else 0.0,
+                provider=provider_name
+            ))
+        response_data.reparation_records = temp_reparation_records
+
+
 
     if "maintenance" in categories:
-        # Assuming models.Maintenance.maintenance_date is DATETIME
         maintenance_q = db.query(models.Maintenance).options(
             joinedload(models.Maintenance.vehicle),
             joinedload(models.Maintenance.category_maintenance),
@@ -249,21 +272,33 @@ async def get_detailed_expense_records(
             models.Maintenance.maintenance_date <= end_datetime
         ).order_by(models.Maintenance.maintenance_date.asc()).all()
 
-        response_data.maintenance_records = [
-            schemas.MaintenanceRecordDetail(
+        temp_maintenance_records = []
+        for m in maintenance_q:
+            maintenance_description = "N/A"
+            if m.category_maintenance and hasattr(m.category_maintenance, 'cat_maintenance') and m.category_maintenance.cat_maintenance:
+                maintenance_description = m.category_maintenance.cat_maintenance
+            elif hasattr(m, 'description') and m.description: # Fallback if Maintenance model has its own description
+                maintenance_description = m.description
+            
+            provider_name = None
+            if m.garage and hasattr(m.garage, 'nom_garage'):
+                provider_name = m.garage.nom_garage
+            elif hasattr(m, 'provider') and m.provider: # Fallback if Maintenance model has its own provider
+                provider_name = m.provider
+
+
+            temp_maintenance_records.append(schemas.MaintenanceRecordDetail(
                 id=m.id,
                 vehicle_plate=m.vehicle.plate_number if m.vehicle and hasattr(m.vehicle, 'plate_number') else "N/A",
-                maintenance_date=m.maintenance_date.date(), # Convert datetime to date for schema
-                description=(m.category_maintenance.cat_maintenance 
-                             if m.category_maintenance and hasattr(m.category_maintenance, 'cat_maintenance') 
-                             else (m.description if hasattr(m, 'description') else "N/A")), # Assuming 'description' field exists on Maintenance model as a fallback
-                maintenance_cost=m.maintenance_cost, # Using the correct field name from model and schema
-                provider=m.garage.nom_garage if m.garage and hasattr(m.garage, 'nom_garage') else (m.provider if hasattr(m, 'provider') else None) # Example
-            ) for m in maintenance_q
-        ]
+                maintenance_date=m.maintenance_date.date() if m.maintenance_date else None, # Schema expects date
+                description=maintenance_description,
+                # Ensure schema field name is 'maintenance_cost' if model is 'maintenance_cost'
+                maintenance_cost=m.maintenance_cost if hasattr(m, 'maintenance_cost') else 0.0, 
+                provider=provider_name
+            ))
+        response_data.maintenance_records = temp_maintenance_records
 
     if "purchases" in categories:
-        # Assuming models.Vehicle.purchase_date is DATETIME
         purchase_q = db.query(models.Vehicle).options(
             joinedload(models.Vehicle.make_ref), 
             joinedload(models.Vehicle.model_ref) 
@@ -273,15 +308,16 @@ async def get_detailed_expense_records(
             models.Vehicle.purchase_price > 0 
         ).order_by(models.Vehicle.purchase_date.asc()).all()
 
-        response_data.purchase_records = [
-            schemas.PurchaseRecordDetail(
+        temp_purchase_records = []
+        for v in purchase_q:
+            temp_purchase_records.append(schemas.PurchaseRecordDetail(
                 id=v.id, 
-                plate_number=v.plate_number,
+                plate_number=v.plate_number if hasattr(v, 'plate_number') else "N/A",
                 make=v.make_ref.vehicle_make if v.make_ref and hasattr(v.make_ref, 'vehicle_make') else "N/A",
                 model=v.model_ref.vehicle_model if v.model_ref and hasattr(v.model_ref, 'vehicle_model') else "N/A",
-                purchase_date=v.purchase_date.date() if v.purchase_date else None, # Convert datetime to date
-                purchase_price=v.purchase_price
-            ) for v in purchase_q
-        ]
+                purchase_date=v.purchase_date.date() if v.purchase_date else None, # Schema expects date
+                purchase_price=v.purchase_price if hasattr(v, 'purchase_price') else 0.0
+            ))
+        response_data.purchase_records = temp_purchase_records
         
     return response_data

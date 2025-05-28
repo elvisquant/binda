@@ -91,6 +91,9 @@ class Fuel(Base):
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
     # updated_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'), onupdate=text('now()'))
 
+    vehicle = relationship("Vehicle")
+    #fuel_type=relationship("fuel_type")
+
 #########################################################################################################################
 class Vehicle(Base):
     __tablename__ = "vehicle"
@@ -188,8 +191,8 @@ class Panne(Base):
     # Define relationships for joinedload to work effectively for PanneOut
     # Ensure 'Vehicle' and 'CategoryPanne' are the correct class names of your SQLAlchemy models
     # and that they have corresponding 'pannes' back_populates if you want bi-directional.
-    vehicle = relationship("Vehicle", lazy="joined") # lazy="joined" can also work like joinedload by default
-    category_panne = relationship("CategoryPanne", lazy="joined")
+    vehicle = relationship("Vehicle") # lazy="joined" can also work like joinedload by default
+    category_panne = relationship("CategoryPanne")
 
 
 ##################################################################################################################
