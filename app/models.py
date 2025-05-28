@@ -1,6 +1,9 @@
 from sqlalchemy import Column, DateTime, Integer, String,Float, ForeignKey, TIMESTAMP, text, Enum as DBEnum # Added DBEnum
 from datetime import datetime # For default values or type hinting if needed
 import enum # For Python enum
+from typing import List, Optional
+from datetime import datetime, date , timedelta
+from pydantic import BaseModel
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from sqlalchemy.sql.expression import text
@@ -238,6 +241,63 @@ class Trip(Base):
 
 
 
+# In your Pydantic Schemas for Analytics API
 
 
-  
+
+# Add these to your analytics_api.py, likely near other Pydantic models
+
+class FuelRecordDetail(BaseModel):
+    id: int
+    vehicle_plate: Optional[str] = "N/A" # Assuming you can join to Vehicle
+    date: datetime # Or date_type depending on your model.Fuel.created_at
+    quantity: float
+    cost: float
+    notes: Optional[str] = None
+
+    class Config:
+        orm_mode = True # For Pydantic V1
+        # from_attributes = True # For Pydantic V2
+
+class ReparationRecordDetail(BaseModel):
+    id: int
+    vehicle_plate: Optional[str] = "N/A"
+    repair_date: date
+    description: str
+    cost: float
+    provider: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+        # from_attributes = True
+
+class MaintenanceRecordDetail(BaseModel):
+    id: int
+    vehicle_plate: Optional[str] = "N/A"
+    maintenance_date: date
+    description: str # Or category name
+    cost: float
+    provider: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+        # from_attributes = True
+
+class PurchaseRecordDetail(BaseModel): # For vehicle purchases
+    id: int # Vehicle ID
+    plate_number: str
+    make: Optional[str] = "N/A"
+    model: Optional[str] = "N/A"
+    purchase_date: Optional[date] = None
+    purchase_price: Optional[float] = 0.0
+
+    class Config:
+        orm_mode = True
+        # from_attributes = True
+
+
+class DetailedReportDataResponse(BaseModel):
+    fuel_records: List[FuelRecordDetail] = []
+    reparation_records: List[ReparationRecordDetail] = []
+    maintenance_records: List[MaintenanceRecordDetail] = []
+    purchase_records: List[PurchaseRecordDetail] = [] # Vehicle purchases  

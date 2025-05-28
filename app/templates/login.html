@@ -1,253 +1,252 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Login - FleetDash</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        :root {
+            color-scheme: dark;
+        }
         
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+            margin: 0;
+            padding: 16px;
+            background: #0f172a;
+            background-image: 
+                radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 0.15) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(355, 100%, 93%, 0.1) 0px, transparent 50%);
         }
-        
-        .error-message { 
-            color: #FCA5A5 !important; /* text-red-300 */
-            background-color: #7F1D1D !important; /* bg-red-900 */
-            border-color: #B91C1C !important; /* border-red-700 */
-            padding: 0.75rem 1rem;
-            border-radius: 0.375rem; /* rounded-md */
-            font-size: 0.875rem; /* text-sm */
-            margin-top: 1rem; 
-            text-align: left;
+
+        @media (max-height: 600px) {
+            body {
+                align-items: flex-start;
+                padding-top: 32px;
+            }
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 
+                        0 8px 10px -6px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 24px;
+                border-radius: 12px;
+            }
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(71, 85, 105, 0.5);
+            border-radius: 8px;
+            color: white;
+            font-size: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            justify-content: center;
+            gap: 8px;
         }
-        
-        .login-container {
-            transition: all 0.3s ease;
-            background-color: #1e293b !important; /* bg-slate-800 */
-            border-color: #334155 !important; /* border-slate-700 */
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
         }
-        
-        @media (max-width: 640px) {
-            .login-container { margin: 1rem; padding: 1.5rem; }
-        }
-        
-        .input-field {
-            transition: all 0.2s ease;
-            background-color: #1e293b !important; /* bg-slate-800 */
-            border-color: #334155 !important; /* border-slate-700 */
-            color: white !important;
-        }
-        
-        .input-field:focus {
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); /* ring-blue-500 ring-opacity-30 */
-        }
-        
-        .login-btn {
-            transition: all 0.2s ease;
+
+        .btn-primary:active {
             transform: translateY(0);
         }
-        .login-btn:hover { transform: translateY(-1px); }
-        .login-btn:active { transform: translateY(0); }
+
+        .error-message {
+            padding: 12px;
+            background: rgba(127, 29, 29, 0.5);
+            border: 1px solid rgba(185, 28, 28, 0.5);
+            border-radius: 8px;
+            color: #fca5a5;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .icon-input {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+        }
     </style>
 </head>
-<body class="bg-slate-900"> {/* Changed from bg-gray-900 to match theme better */}
-
-    <div class="login-container bg-slate-800 p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-700">
+<body>
+    <div class="login-card">
         <div class="text-center mb-8">
-            <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-blue-900/30 flex items-center justify-center">
-                <i data-lucide="log-in" class="w-10 h-10 text-blue-400"></i>
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-900/20 flex items-center justify-center">
+                <i data-lucide="log-in" class="w-8 h-8 text-blue-400"></i>
             </div>
-            <h1 class="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-            <p class="text-slate-400">Sign in to access your FleetDash account</p> {/* Changed from text-gray-400 */}
+            <h1 class="text-2xl font-bold text-white mb-2">Welcome Back</h1>
+            <p class="text-slate-400">Sign in to access your account</p>
         </div>
 
-        <form id="loginForm" class="space-y-6">
-            <div class="space-y-2">
-                <label for="username_identifier" class="block text-sm font-medium text-slate-300">Username or Email</label> {/* Changed from text-gray-300 */}
+        <form id="loginForm" class="space-y-5">
+            <div class="space-y-3">
+                <label for="username" class="block text-sm font-medium text-slate-300">Username or Email</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-lucide="user" class="h-5 w-5 text-slate-400"></i>
+                    <div class="icon-input">
+                        <i data-lucide="user" class="w-5 h-5"></i>
                     </div>
-                    <input type="text" id="username_identifier" name="username" required
-                           class="input-field pl-10 w-full px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           placeholder="yourname or user@example.com">
+                    <input type="text" id="username" name="username" required
+                           class="input-field"
+                           placeholder="Enter your username or email">
                 </div>
             </div>
             
-            <div class="space-y-2">
-                <label for="password" class="block text-sm font-medium text-slate-300">Password</label> {/* Changed from text-gray-300 */}
+            <div class="space-y-3">
+                <label for="password" class="block text-sm font-medium text-slate-300">Password</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-lucide="lock" class="h-5 w-5 text-slate-400"></i>
+                    <div class="icon-input">
+                        <i data-lucide="lock" class="w-5 h-5"></i>
                     </div>
                     <input type="password" id="password" name="password" required
-                           class="input-field pl-10 w-full px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           class="input-field"
                            placeholder="Enter your password">
                 </div>
             </div>
             
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
-                    <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-600 rounded bg-slate-700"> {/* Changed border/bg */}
-                    <label for="remember-me" class="ml-2 block text-sm text-slate-300">Remember me</label> {/* Changed from text-gray-300 */}
+                    <input id="remember" name="remember" type="checkbox" 
+                           class="w-4 h-4 rounded border-slate-600 bg-slate-700 text-blue-600 focus:ring-blue-500">
+                    <label for="remember" class="ml-2 text-sm text-slate-300">Remember me</label>
                 </div>
-                <div class="text-sm">
-                    <a href="#" class="font-medium text-blue-400 hover:text-blue-300">Forgot password?</a>
-                </div>
+                <a href="#" class="text-sm text-blue-400 hover:text-blue-300">Forgot password?</a>
             </div>
             
-            <div id="errorMessageContainer" class="hidden">
-                <div id="errorMessage" class="error-message">
-                    <i data-lucide="alert-circle" class="w-5 h-5"></i>
-                    <span id="errorText"></span>
-                </div>
+            <div id="errorMessage" class="error-message hidden">
+                <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                <span id="errorText"></span>
             </div>
             
-            <div>
-                <button type="submit" id="loginButton"
-                        class="login-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-800 flex items-center justify-center shadow-md hover:shadow-lg"> {/* Added focus:ring-offset-slate-800 */}
-                    <span id="loginButtonText">Sign In</span>
-                    <i id="loginSpinner" data-lucide="loader-2" class="w-5 h-5 ml-2 animate-spin hidden"></i>
-                </button>
-            </div>
+            <button type="submit" id="loginButton" class="btn-primary">
+                <span id="loginButtonText">Sign In</span>
+                <i id="loginSpinner" data-lucide="loader-2" class="w-5 h-5 animate-spin hidden"></i>
+            </button>
         </form>
         
         <div class="mt-6">
             <div class="relative">
                 <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-slate-700"></div> {/* Changed border-gray-700 */}
+                    <div class="w-full border-t border-slate-700"></div>
                 </div>
                 <div class="relative flex justify-center text-sm">
-                    <span class="px-2 bg-slate-800 text-slate-400">Or continue with</span> {/* Changed bg/text */}
+                    <span class="px-2 bg-slate-900 text-slate-400">Or continue with</span>
                 </div>
             </div>
 
             <div class="mt-6 grid grid-cols-2 gap-3">
-                <a href="#" class="w-full inline-flex justify-center py-2 px-4 border border-slate-700 rounded-lg shadow-sm bg-slate-700 text-sm font-medium text-slate-300 hover:bg-slate-600">
-                    <i data-lucide="github" class="h-5 w-5"></i>
-                </a>
-                <a href="#" class="w-full inline-flex justify-center py-2 px-4 border border-slate-700 rounded-lg shadow-sm bg-slate-700 text-sm font-medium text-slate-300 hover:bg-slate-600">
-                    <i data-lucide="facebook" class="h-5 w-5"></i>
-                </a>
+                <button class="flex items-center justify-center py-2 px-4 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700">
+                    <i data-lucide="github" class="w-5 h-5"></i>
+                </button>
+                <button class="flex items-center justify-center py-2 px-4 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700">
+                    <i data-lucide="facebook" class="w-5 h-5"></i>
+                </button>
             </div>
         </div>
         
-        <p class="text-center text-sm text-slate-400 mt-6"> {/* Changed text-gray-400 */}
+        <p class="text-center text-sm text-slate-400 mt-6">
             Don't have an account? <a href="#" class="font-medium text-blue-400 hover:text-blue-300">Sign up</a>
         </p>
     </div>
 
     <script>
+        // Force dark theme always
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.documentElement.style.colorScheme = 'dark';
+
+        // Initialize icons
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
-        } else {
-            console.warn("Lucide script not loaded or failed to initialize before use.");
         }
 
         const loginForm = document.getElementById('loginForm');
-        const errorMessageContainer = document.getElementById('errorMessageContainer');
+        const errorMessage = document.getElementById('errorMessage');
         const errorText = document.getElementById('errorText');
         const loginButton = document.getElementById('loginButton');
         const loginButtonText = document.getElementById('loginButtonText');
         const loginSpinner = document.getElementById('loginSpinner');
 
-        // API_BASE_URL: Empty if API is on the same origin (e.g., http://localhost:8000/login/)
-        // Or set to 'http://your-backend-domain.com' if different.
-        const API_BASE_URL = ''; 
-        const API_LOGIN_ENDPOINT = '/login/'; // Path to your FastAPI login endpoint (usually ends with a slash for POST)
-        const DASHBOARD_REDIRECT_URL = '/dashboard'; // Path to redirect to after successful login
-
-        loginForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            errorMessageContainer.classList.add('hidden');
-            errorText.textContent = '';
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Show loading state
+            errorMessage.classList.add('hidden');
             loginButton.disabled = true;
             loginButtonText.classList.add('hidden');
             loginSpinner.classList.remove('hidden');
-            if (typeof lucide !== 'undefined') lucide.createIcons(); // Ensure spinner icon is rendered
-
-            const formData = new FormData(loginForm);
-            // Your backend's OAuth2PasswordRequestForm expects 'username' and 'password'.
-            // Ensure your input field names are `name="username"` and `name="password"`.
-            // Your `username_identifier` input has name="username", which is fine for the 'username' part.
-            
-            let responseBodyForDebug = ""; // To store raw response text
+            lucide.createIcons();
 
             try {
-                const fullApiLoginUrl = API_BASE_URL + API_LOGIN_ENDPOINT;
-                console.log('Attempting login to:', fullApiLoginUrl);
-
-                const response = await fetch(fullApiLoginUrl, {
+                const formData = new FormData(loginForm);
+                const response = await fetch('/login/', {
                     method: 'POST',
-                    body: formData, 
-                    // For FormData, fetch usually sets 'Content-Type': 'application/x-www-form-urlencoded'
-                    // or 'multipart/form-data' automatically. FastAPI's OAuth2PasswordRequestForm expects
-                    // 'application/x-www-form-urlencoded'.
+                    body: formData
                 });
 
-                responseBodyForDebug = await response.text(); // Get raw text first for robust error logging
-                console.log(`Login API Raw Response (Status ${response.status}):\n${responseBodyForDebug.substring(0,500)}`);
-
                 if (!response.ok) {
-                    let errorDetail = `Login attempt failed. Status: ${response.status}.`;
-                    try {
-                        // Try to parse as JSON if possible, as FastAPI often returns JSON errors
-                        const errorData = JSON.parse(responseBodyForDebug); 
-                        errorDetail = errorData.detail || JSON.stringify(errorData);
-                    } catch (e) {
-                        // If not JSON, use the raw text (might be HTML error page from server)
-                        errorDetail = responseBodyForDebug.substring(0, 200) || `Server error (status ${response.status}). Please try again.`;
-                    }
-                    console.error('Login failed:', response.status, errorDetail);
-                    errorText.textContent = `${errorDetail}`;
-                    errorMessageContainer.classList.remove('hidden');
-                    if (typeof lucide !== 'undefined') lucide.createIcons(); // Ensure error icon is rendered
-                    return; 
+                    const error = await response.json().catch(() => ({ detail: 'Login failed' }));
+                    throw new Error(error.detail || 'Invalid credentials');
                 }
 
-                const data = JSON.parse(responseBodyForDebug); // Now parse the successful JSON response
-                console.log('Login successful, API response data:', data);
+                const data = await response.json();
                 
                 if (data.access_token) {
-                    // CRITICAL: Storing the token with the key 'accessToken'
                     localStorage.setItem('accessToken', data.access_token);
-                    console.log("Token stored in localStorage as 'accessToken'.");
-
-                    // Optional: Store other user details if your dashboard needs them without re-decoding JWT often
-                    if(data.username) localStorage.setItem('username', data.username); 
-                    if(data.user_id) localStorage.setItem('userId', String(data.user_id));
-                    if(data.status) localStorage.setItem('userStatus', data.status);
-                    
-                    // Check user status if relevant
-                    if (data.status && data.status !== 'active') {
-                         alert(`Login successful, but account status is '${data.status}'. You may have limited access.`);
-                    }
-                    
-                    console.log('Redirecting to:', DASHBOARD_REDIRECT_URL);
-                    window.location.href = DASHBOARD_REDIRECT_URL; 
+                    window.location.href = '/dashboard';
                 } else {
-                    console.error('Login OK, but no access_token in response data:', data);
-                    errorText.textContent = 'Login successful, but token was not provided by the server. Please contact support.';
-                    errorMessageContainer.classList.remove('hidden');
-                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                    throw new Error('No access token received');
                 }
-
-            } catch (error) { // Catches network errors or if JSON.parse fails on a 2xx response (shouldn't happen if API is correct)
-                console.error('Network error or error during login processing:', error);
-                errorText.textContent = 'An unexpected error occurred. Please check your connection and try again. Details: ' + error.message;
-                errorMessageContainer.classList.remove('hidden');
-                if (typeof lucide !== 'undefined') lucide.createIcons();
+            } catch (err) {
+                errorText.textContent = err.message;
+                errorMessage.classList.remove('hidden');
+                lucide.createIcons();
             } finally {
                 loginButton.disabled = false;
                 loginButtonText.classList.remove('hidden');
@@ -255,10 +254,18 @@
             }
         });
 
-        // Ensure lucide icons are created on initial load if not already by main script
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
+        // Handle viewport scaling on mobile
+        function handleViewport() {
+            const viewport = document.querySelector('meta[name="viewport"]');
+            if (window.innerWidth <= 480 || window.innerHeight <= 480) {
+                viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
+            } else {
+                viewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
+            }
         }
+
+        window.addEventListener('resize', handleViewport);
+        handleViewport();
     </script>
 </body>
 </html>

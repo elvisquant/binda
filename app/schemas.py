@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field, validator, computed_field
 from typing import Optional,List
-from datetime import datetime, time
+from datetime import datetime, date
 import enum # For Python enum
 from enum import Enum
 
@@ -580,3 +580,98 @@ class ReparationResponse(ReparationBase): # Your existing base
         from_attributes = True
 
 
+
+# Add these to your analytics_api.py, likely near other Pydantic models
+
+
+# --- Pydantic Schemas for Analytics API ---
+class MonthlyExpenseItem(BaseModel):
+    month_year: str  # e.g., "Jan '23"
+    fuel_cost: float = 0.0
+    reparation_cost: float = 0.0
+    maintenance_cost: float = 0.0
+    purchase_cost: float = 0.0
+
+class AnalyticsExpenseSummaryResponse(BaseModel):
+    total_fuel_cost: float
+    total_reparation_cost: float
+    total_maintenance_cost: float
+    total_vehicle_purchase_cost: float
+    monthly_breakdown: List[MonthlyExpenseItem]
+    # You could add other overall metrics here if needed, e.g., cost_per_mile for the period
+
+
+
+# --- Pydantic Schemas for Analytics API ---
+
+# --- Schemas for /expense-summary endpoint ---
+class MonthlyExpenseItem(BaseModel):
+    month_year: str
+    fuel_cost: float = 0.0
+    reparation_cost: float = 0.0
+    maintenance_cost: float = 0.0
+    purchase_cost: float = 0.0
+
+class AnalyticsExpenseSummaryResponse(BaseModel):
+    total_fuel_cost: float
+    total_reparation_cost: float
+    total_maintenance_cost: float
+    total_vehicle_purchase_cost: float
+    monthly_breakdown: List[MonthlyExpenseItem]
+
+    
+
+# --- Schemas for /detailed-expense-records endpoint ---
+class FuelRecordDetail(BaseModel):
+    id: int
+    vehicle_plate: Optional[str] = "N/A"
+    date: datetime # This is the log entry time, so datetime is appropriate
+    quantity: float
+    cost: float
+    notes: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+        # from_attributes = True # For Pydantic V2
+
+class ReparationRecordDetail(BaseModel):
+    id: int
+    vehicle_plate: Optional[str] = "N/A"
+    repair_date: date # Repair usually happens on a specific date
+    description: str
+    cost: float
+    provider: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+        # from_attributes = True
+
+class MaintenanceRecordDetail(BaseModel):
+    id: int
+    vehicle_plate: Optional[str] = "N/A"
+    maintenance_date: date # Maintenance usually on a specific date
+    description: str
+    cost: float
+    provider: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+        # from_attributes = True
+
+class PurchaseRecordDetail(BaseModel):
+    id: int # Vehicle ID
+    plate_number: str
+    make: Optional[str] = "N/A"
+    model: Optional[str] = "N/A"
+    purchase_date: Optional[date] = None # Purchase on a specific date
+    purchase_price: Optional[float] = 0.0
+
+    class Config:
+        orm_mode = True
+        # from_attributes = True
+
+class DetailedReportDataResponse(BaseModel):
+    fuel_records: List[FuelRecordDetail] = []
+    reparation_records: List[ReparationRecordDetail] = []
+    maintenance_records: List[MaintenanceRecordDetail] = []
+    purchase_records: List[PurchaseRecordDetail] = []

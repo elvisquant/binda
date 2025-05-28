@@ -484,40 +484,233 @@
     }
   }
 
-  function generateReport() { 
-      const period = document.getElementById('reportPeriod').value;
-      const range = getPeriodDateRange(period); if (!range) return;
-      const categories = [];
-      if (document.getElementById('reportCatFuel').checked) categories.push('Fuel');
-      if (document.getElementById('reportCatReparation').checked) categories.push('Reparations');
-      if (document.getElementById('reportCatMaintenance').checked) categories.push('Maintenance');
-      if (document.getElementById('reportCatPurchases').checked) categories.push('Vehicle Purchases');
-      if (categories.length === 0) { alert("Please select at least one expense category."); return; }
-      const format = document.getElementById('reportFormat').value;
-      const reportData = []; let grandTotal = 0;
-      if (categories.includes('Fuel')) { reportData.push({ Category: 'Fuel', Total: currentExpenseData.fuel.total, Details: `${currentExpenseData.fuel.trend.filter(t=>t>0).length} months data` }); grandTotal += currentExpenseData.fuel.total; }
-      if (categories.includes('Reparations')) { reportData.push({ Category: 'Reparations', Total: currentExpenseData.reparation.total, Details: `${currentExpenseData.reparation.trend.filter(t=>t>0).length} months data` }); grandTotal += currentExpenseData.reparation.total; }
-      if (categories.includes('Maintenance')) { reportData.push({ Category: 'Maintenance', Total: currentExpenseData.maintenance.total, Details: `${currentExpenseData.maintenance.trend.filter(t=>t>0).length} months data` }); grandTotal += currentExpenseData.maintenance.total; }
-      if (categories.includes('Vehicle Purchases')) { reportData.push({ Category: 'Vehicle Purchases', Total: currentExpenseData.purchases.total, Details: `${currentExpenseData.purchases.trend.filter(t=>t>0).length} months data` }); grandTotal += currentExpenseData.purchases.total; }
-      if (reportData.length > 0) { reportData.push({ Category: 'GRAND TOTAL', Total: grandTotal, Details: '' }); }
-      const periodString = period === 'custom' ? `${range.startDate.toLocaleDateString().replace(/\//g,'-')}_to_${range.endDate.toLocaleDateString().replace(/\//g,'-')}` : period;
-      if (format === 'excel') {
-          const ws = XLSX.utils.json_to_sheet(reportData); const wb = XLSX.utils.book_new();
-          XLSX.utils.book_append_sheet(wb, ws, "Expense Report"); XLSX.writeFile(wb, `Expense_Report_${periodString}.xlsx`);
-      } else { 
-          const { jsPDF } = window.jspdf; const doc = new jsPDF();
-          doc.setFontSize(18); doc.text(`Expense Report (${period === 'custom' ? `${range.startDate.toLocaleDateString()} to ${range.endDate.toLocaleDateString()}` : period})`, 14, 20);
-          doc.setFontSize(12); doc.text(`Categories: ${categories.join(', ')}`, 14, 30);
-          doc.autoTable({ 
-              startY: 40, head: [['Category', 'Total ($)', 'Details']], 
-              body: reportData.map(item => [item.Category, item.Total.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), item.Details]),
-              foot: reportData.length > 1 ? [['GRAND TOTAL', grandTotal.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), '']] : undefined, 
-              footStyles: { fontStyle: 'bold', fillColor: [230,230,230], textColor: 20 }, theme: 'grid', headStyles: { fillColor: [59,130,246], textColor: 255 } 
-          });
-          doc.save(`Expense_Report_${periodString}.pdf`);
-      }
-      alert(format === 'excel' ? "Excel report generated (mock)!" : "PDF report generated (mock)!");
-  }
+  async function generateReport() { // Make it async
+    const period = document.getElementById('reportPeriod').value;
+    const range = getPeriodDateRange(period);
+    if (!range) return;
+
+    const selectedCategoriesInput = [];
+    const categoryMap = { // Maps UI checkbox value to API category name
+        fuel: { name: 'Fuel', checked: document.getElementById('reportCatFuel').checked },
+        reparation: { name: 'Reparations', checked: document.getElementById('reportCatReparation').checked },
+        maintenance: { name: 'Maintenance', checked: document.getElementById('reportCatMaintenance').checked },
+        purchases: { name: 'Vehicle Purchases', checked: document.getElementById('reportCatPurchases').checked }
+    };
+
+    for (const key in categoryMap) {
+        if (categoryMap[key].checked) {
+            selectedCategoriesInput.push(key); // e.g., 'fuel', 'reparation'
+        }
+    }
+
+    if (selectedCategoriesInput.length === 0) {
+        alert("Please select at least one expense category.");
+        return;
+    }
+
+    const format = document.getElementById('reportFormat').value;
+    const periodString = period === 'custom' ?
+        `${range.startDate.toLocaleDateString().replace(/\//g, '-')}_to_${range.endDate.toLocaleDateString().replace(/\//g, '-')}` :
+        period;
+    const fileNameBase = `Detailed_Expense_Report_${periodString}`;
+    const authToken = localStorage.getItem('access_token');
+
+    showToast("Generating detailed report... This may take a moment.", 5000); // Longer toast
+
+    try {
+        const startDateString = range.startDate.toISOString().split('T')[0];
+        const endDateString = range.endDate.toISOString().split('T')[0];
+
+        // Construct query parameters for categories
+        const categoryParams = selectedCategoriesInput.map(cat => `categories=${encodeURIComponent(cat)}`).join('&');
+
+        const response = await fetch(
+            `/analytics-data/detailed-expense-records?start_date=${startDateString}&end_date=${endDateString}&${categoryParams}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                }
+            });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Error fetching detailed report data:', response.status, errorData);
+            alert(`Error fetching detailed report: ${errorData.detail || response.statusText}`);
+            return;
+        }
+
+        const detailedData = await response.json();
+        // console.log("Detailed Data for report:", detailedData);
+
+        if (format === 'excel') {
+            const wb = XLSX.utils.book_new();
+
+            if (categoryMap.fuel.checked && detailedData.fuel_records && detailedData.fuel_records.length > 0) {
+                const fuelSheetData = detailedData.fuel_records.map(r => ({
+                    ID: r.id,
+                    Vehicle: r.vehicle_plate,
+                    Date: new Date(r.date).toLocaleDateString(), // Format date
+                    Time: new Date(r.date).toLocaleTimeString(), // Format time
+                    Quantity: r.quantity,
+                    Cost: r.cost,
+                    Notes: r.notes
+                }));
+                const wsFuel = XLSX.utils.json_to_sheet(fuelSheetData);
+                XLSX.utils.book_append_sheet(wb, wsFuel, "Fuel Details");
+            }
+
+            if (categoryMap.reparation.checked && detailedData.reparation_records && detailedData.reparation_records.length > 0) {
+                const reparationSheetData = detailedData.reparation_records.map(r => ({
+                    ID: r.id,
+                    Vehicle: r.vehicle_plate,
+                    Date: new Date(r.repair_date).toLocaleDateString(),
+                    Description: r.description,
+                    Provider: r.provider,
+                    Cost: r.cost
+                }));
+                const wsRep = XLSX.utils.json_to_sheet(reparationSheetData);
+                XLSX.utils.book_append_sheet(wb, wsRep, "Reparation Details");
+            }
+            if (categoryMap.maintenance.checked && detailedData.maintenance_records && detailedData.maintenance_records.length > 0) {
+                 const maintenanceSheetData = detailedData.maintenance_records.map(r => ({
+                    ID: r.id,
+                    Vehicle: r.vehicle_plate,
+                    Date: new Date(r.maintenance_date).toLocaleDateString(),
+                    Description: r.description,
+                    Provider: r.provider,
+                    Cost: r.cost
+                }));
+                const wsMaint = XLSX.utils.json_to_sheet(maintenanceSheetData);
+                XLSX.utils.book_append_sheet(wb, wsMaint, "Maintenance Details");
+            }
+            if (categoryMap.purchases.checked && detailedData.purchase_records && detailedData.purchase_records.length > 0) {
+                 const purchaseSheetData = detailedData.purchase_records.map(r => ({
+                    ID: r.id,
+                    'Plate Number': r.plate_number,
+                    Make: r.make,
+                    Model: r.model,
+                    'Purchase Date': r.purchase_date ? new Date(r.purchase_date).toLocaleDateString() : "N/A",
+                    'Purchase Price': r.purchase_price
+                }));
+                const wsPurchase = XLSX.utils.json_to_sheet(purchaseSheetData);
+                XLSX.utils.book_append_sheet(wb, wsPurchase, "Vehicle Purchases");
+            }
+
+            if (wb.SheetNames.length === 0) {
+                alert("No detailed records found for the selected categories and period.");
+                return;
+            }
+            XLSX.writeFile(wb, `${fileNameBase}.xlsx`);
+            showToast("Excel report generated and download started.");
+
+        } else { // PDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            let yPos = 20;
+            const pageHeight = doc.internal.pageSize.height;
+            const bottomMargin = 20;
+
+            doc.setFontSize(16);
+            doc.text(`Detailed Expense Report`, 14, yPos);
+            yPos += 8;
+            doc.setFontSize(10);
+            doc.text(`Period: ${period === 'custom' ? `${range.startDate.toLocaleDateString()} to ${range.endDate.toLocaleDateString()}` : period}`, 14, yPos);
+            yPos += 12;
+
+            const addCategoryToPdf = (title, headers, data, grandTotalAmount) => {
+                if (!data || data.length === 0) return false;
+
+                if (yPos > pageHeight - bottomMargin - 30) { // Check if new page needed for title
+                    doc.addPage();
+                    yPos = 20;
+                }
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text(title, 14, yPos);
+                yPos += 6;
+                doc.setFont(undefined, 'normal');
+
+                doc.autoTable({
+                    head: [headers],
+                    body: data,
+                    startY: yPos,
+                    theme: 'grid',
+                    headStyles: { fillColor: [59, 130, 246], textColor: 255, fontSize: 8 },
+                    bodyStyles: { fontSize: 7 },
+                    didDrawPage: function (data) { // Handle page breaks within table
+                        yPos = data.cursor.y + 10; // Update yPos after table
+                    },
+                    // Add foot if grandTotalAmount is provided
+                    foot: grandTotalAmount !== undefined ? [['', 'Total', grandTotalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }), '']] : undefined,
+                    footStyles: { fontStyle: 'bold', fillColor: [230, 230, 230], textColor: 20, fontSize: 8 },
+                });
+                yPos = doc.autoTable.previous.finalY + 10; // Update yPos after table
+                return true;
+            };
+            
+            let reportHasData = false;
+
+            if (categoryMap.fuel.checked && detailedData.fuel_records && detailedData.fuel_records.length > 0) {
+                const totalFuelCost = detailedData.fuel_records.reduce((sum, r) => sum + r.cost, 0);
+                const fuelTableData = detailedData.fuel_records.map(r => [
+                    r.vehicle_plate,
+                    new Date(r.date).toLocaleString(), // Date and Time
+                    r.quantity.toFixed(2),
+                    r.cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                    r.notes || ''
+                ]);
+                if (addCategoryToPdf('Fuel Records', ['Vehicle', 'Date/Time', 'Quantity', 'Cost ($)', 'Notes'], fuelTableData, totalFuelCost)) reportHasData = true;
+            }
+
+            if (categoryMap.reparation.checked && detailedData.reparation_records && detailedData.reparation_records.length > 0) {
+                const totalRepCost = detailedData.reparation_records.reduce((sum, r) => sum + r.cost, 0);
+                const repTableData = detailedData.reparation_records.map(r => [
+                    r.vehicle_plate,
+                    new Date(r.repair_date).toLocaleDateString(),
+                    r.description,
+                    r.provider || '',
+                    r.cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                ]);
+                if (addCategoryToPdf('Reparation Records', ['Vehicle', 'Date', 'Description', 'Provider', 'Cost ($)'], repTableData, totalRepCost)) reportHasData = true;
+            }
+            if (categoryMap.maintenance.checked && detailedData.maintenance_records && detailedData.maintenance_records.length > 0) {
+                const totalMaintCost = detailedData.maintenance_records.reduce((sum, r) => sum + r.cost, 0);
+                const maintTableData = detailedData.maintenance_records.map(r => [
+                    r.vehicle_plate,
+                    new Date(r.maintenance_date).toLocaleDateString(),
+                    r.description,
+                    r.provider || '',
+                    r.cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                ]);
+                if (addCategoryToPdf('Maintenance Records', ['Vehicle', 'Date', 'Description', 'Provider', 'Cost ($)'], maintTableData, totalMaintCost)) reportHasData = true;
+            }
+            if (categoryMap.purchases.checked && detailedData.purchase_records && detailedData.purchase_records.length > 0) {
+                const totalPurchaseCost = detailedData.purchase_records.reduce((sum, r) => sum + (r.purchase_price || 0), 0);
+                const purchaseTableData = detailedData.purchase_records.map(r => [
+                    r.plate_number,
+                    r.make,
+                    r.model,
+                    r.purchase_date ? new Date(r.purchase_date).toLocaleDateString() : "N/A",
+                    (r.purchase_price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                ]);
+                 if (addCategoryToPdf('Vehicle Purchases', ['Plate #', 'Make', 'Model', 'Purchase Date', 'Price ($)'], purchaseTableData, totalPurchaseCost)) reportHasData = true;
+            }
+
+            if (!reportHasData) {
+                alert("No detailed records found for the selected categories and period to generate PDF.");
+                return;
+            }
+
+            doc.save(`${fileNameBase}.pdf`);
+            showToast("PDF report generated and download started.");
+        }
+
+    } catch (error) {
+        console.error('Failed to generate detailed report:', error);
+        alert('An error occurred while generating the detailed report. Please check console.');
+    }
+}
 </script>
 <!-- The global_logout.js is not standard, assuming its functionality is handled within this page or it's not critical for this example -->
 <!-- <script src="/static/js/global_logout.js" defer></script> --> 
