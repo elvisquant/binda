@@ -296,42 +296,39 @@ async def get_monthly_activity_chart_data(db: Session = Depends(get_db), months_
 # --- Endpoint for Vehicle Status Chart Data ---
 @router.get("/charts/vehicle-status", response_model=schemas.VehicleStatusChartData)
 async def get_vehicle_status_chart_data(db: Session = Depends(get_db)):
-    # Assuming models.Vehicle has a 'status' column
-    # Ensure these status strings EXACTLY match what's in your database
-    # and what you want to display on the chart.
-    
     status_counts_query = db.query(
         models.Vehicle.status, 
-        func.count(models.Vehicle.id).label("count") # Use .label for clarity if needed
-    ).group_by(models.Vehicle.status).all()
+        func.count(models.Vehicle.id).label("count")
+    ).group_by(models.Vehicle.status).order_by(models.Vehicle.status).all() # Optional: order for consistency
 
-    # Define the desired order and display names for your chart
-    # The keys should match the values stored in your vehicle.status column
-    status_order_and_display = {
-        "available": "Available",
-        "in_use": "In Use",       # Or "On Trip"
-        "in_repair": "In Repair",   # Or "Maintenance"
-        "decommissioned": "Decommissioned",
-        # Add any other statuses you have and want to display
-    }
-    
     labels = []
     counts = []
-    
-    # Convert query result to a dictionary for easy lookup
-    db_counts_map = {status: count for status, count in status_counts_query}
 
-    for status_key, display_name in status_order_and_display.items():
-        labels.append(display_name)
-        counts.append(db_counts_map.get(status_key, 0)) # Get count or default to 0 if status not in DB results
+    # Pre-defined display names for common statuses (optional, for nicer labels)
+    display_name_map = {
+        "available": "Available",
+        "in_use": "In Use",
+        "in_repair": "In Repair",
+        "decommissioned": "Decommissioned",
+        "sold": "Sold" 
+        # Add others if you want specific display names
+    }
+
+    for status_from_db, count in status_counts_query:
+        if status_from_db is None: # Handle potential NULL statuses if they exist
+            display_label = "Unknown"
+        else:
+            # Use pre-defined display name if available, otherwise format the DB status
+            display_label = display_name_map.get(status_from_db, status_from_db.replace('_', ' ').title())
+        
+        labels.append(display_label)
+        counts.append(count)
             
     return schemas.VehicleStatusChartData(labels=labels, counts=counts)
 
+    
 
 
-
-# In app/routers/dashboard_data_api.py
-# ... (other imports) ...
 
 @router.get("/top-performing-drivers", response_model=List[schemas.TopDriver])
 async def get_top_performing_drivers(
