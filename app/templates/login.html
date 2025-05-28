@@ -197,11 +197,9 @@
     </div>
 
     <script>
-        // Force dark theme always
         document.documentElement.setAttribute('data-theme', 'dark');
         document.documentElement.style.colorScheme = 'dark';
 
-        // Initialize icons
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
         }
@@ -216,37 +214,58 @@
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Show loading state
             errorMessage.classList.add('hidden');
             loginButton.disabled = true;
             loginButtonText.classList.add('hidden');
             loginSpinner.classList.remove('hidden');
-            lucide.createIcons();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
 
             try {
                 const formData = new FormData(loginForm);
-                const response = await fetch('/login/', {
+                // The name 'username' for the input field corresponds to 
+                // OAuth2PasswordRequestForm's 'username' parameter.
+                const response = await fetch('/login/', { // Path matches your auth.py router prefix
                     method: 'POST',
-                    body: formData
+                    body: formData 
                 });
 
-                if (!response.ok) {
-                    const error = await response.json().catch(() => ({ detail: 'Login failed' }));
-                    throw new Error(error.detail || 'Invalid credentials');
-                }
+                const data = await response.json(); 
 
-                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Login failed. Please check your credentials.');
+                }
                 
                 if (data.access_token) {
                     localStorage.setItem('accessToken', data.access_token);
-                    window.location.href = '/dashboard';
+                    
+                    // Store additional user details if returned by the API
+                    if (data.username) {
+                        localStorage.setItem('username', data.username);
+                    } else {
+                        console.warn("Username not found in login response data.");
+                        // Fallback or attempt to decode from token if absolutely necessary,
+                        // but server should ideally send it.
+                        // For now, we'll rely on server sending it.
+                    }
+                    if (data.user_id) {
+                        localStorage.setItem('user_id', data.user_id.toString()); 
+                    }
+                    if (data.status) {
+                        localStorage.setItem('user_status', data.status);
+                    }
+
+                    // Optionally show a success toast
+                    // showToast("Login successful! Redirecting...", 2000, "success"); 
+                    // If you have a showToast function available globally or defined here.
+
+                    window.location.href = '/dashboard'; // Redirect to dashboard
                 } else {
-                    throw new Error('No access token received');
+                    throw new Error('Login successful, but no access token was received.');
                 }
             } catch (err) {
                 errorText.textContent = err.message;
                 errorMessage.classList.remove('hidden');
-                lucide.createIcons();
+                if (typeof lucide !== 'undefined') lucide.createIcons();
             } finally {
                 loginButton.disabled = false;
                 loginButtonText.classList.remove('hidden');
@@ -254,7 +273,6 @@
             }
         });
 
-        // Handle viewport scaling on mobile
         function handleViewport() {
             const viewport = document.querySelector('meta[name="viewport"]');
             if (window.innerWidth <= 480 || window.innerHeight <= 480) {

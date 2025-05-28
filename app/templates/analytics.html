@@ -363,14 +363,13 @@
             <span>Cost per Mile (Est.): <span class="font-medium" id="insightCostPerMile">$0.00</span></span>
         </li>`;
     
-    // Update the insight's cost per mile from the main section's calculation if available
     const insightCostEl = document.getElementById('insightCostPerMile');
-    const mainCostPerMileEl = document.getElementById('quickStatCostPerMile'); // Element in main section
+    const mainCostPerMileEl = document.getElementById('quickStatCostPerMile');
     if(insightCostEl && mainCostPerMileEl && mainCostPerMileEl.textContent) {
         insightCostEl.textContent = mainCostPerMileEl.textContent;
     }
 
-    lucide.createIcons(); // Call Lucide after updating this section
+    lucide.createIcons();
   }
 
   async function fetchAlertsAndNotifications() {
@@ -435,23 +434,23 @@
     }
     notificationsList.innerHTML = alertItemsHtml;
     notificationCountSpan.textContent = data.total_alerts || 0; 
-    lucide.createIcons(); // Call Lucide after updating this section
+    lucide.createIcons();
   }
 
   document.addEventListener('DOMContentLoaded', () => { 
-      lucide.createIcons(); // Initial call for static icons
+      lucide.createIcons(); 
       updateUserInfoDisplay(); 
-      initializeStatisticsPage(); // This will eventually call updateQuickStats
+      initializeStatisticsPage(); 
       fetchPerformanceInsights(); 
       fetchAlertsAndNotifications(); 
       
       themeToggleButtonHeader?.addEventListener('click', () => { 
           document.documentElement.classList.toggle('dark'); 
-          setInitialThemeIcon(); // This calls lucide.createIcons()
+          setInitialThemeIcon(); 
           const currentLabels = monthlyExpenseChartInstance?.config.data.labels || generateDynamicMonthLabels(12); 
           initializeStatisticsCharts(currentExpenseData, currentLabels); 
       });
-      setInitialThemeIcon(); // Initial theme icon (calls lucide.createIcons())
+      setInitialThemeIcon(); 
       
       mobileMenuButton?.addEventListener('click', openMobileMenu);
       sidebarCloseButton?.addEventListener('click', closeMobileMenu);
@@ -493,8 +492,14 @@
           localStorage.removeItem('accessToken'); 
           localStorage.removeItem('refreshToken'); 
           localStorage.removeItem('username'); 
-          showToast("Logged out successfully.", 2000, "success"); 
-          setTimeout(() => window.location.href = "/static/login.html", 1000); 
+          showToast("Logged out successfully. Redirecting...", 2000, "success"); 
+          setTimeout(() => {
+              // **** IMPORTANT: Verify this path to your login.html ****
+              // If login.html is at the root of your site (e.g. http://localhost:8000/ or http://localhost:8000/login.html)
+              // use "/" or "/login.html".
+              // If it's under /static/, use "/static/login.html".
+              window.location.href = "/"; // Assuming login.html is served at the root
+          }, 1500); 
       });
   }); 
 
@@ -582,7 +587,7 @@
           currentExpenseData = transformedData; 
           updateExpenseKPIs(currentExpenseData); 
           initializeStatisticsCharts(currentExpenseData, chartLabels); 
-          updateQuickStats(currentExpenseData); // Call after main data is processed
+          updateQuickStats(currentExpenseData); 
           showToast("Data updated successfully.", 2000, "success"); 
       } catch (error) { 
           console.error('Error fetching or processing expense summary data:', error); 
@@ -604,10 +609,10 @@
   }
   
   function updateQuickStats(data = currentExpenseData) { 
-      const quickStatCostPerMileEl = document.getElementById('quickStatCostPerMile'); // Main section element
+      const quickStatCostPerMileEl = document.getElementById('quickStatCostPerMile');
       if (!quickStatCostPerMileEl) {
           console.warn("Element with ID 'quickStatCostPerMile' not found in updateQuickStats.");
-          return; // Exit if the main element isn't found
+          return; 
       }
 
       const totalFuelCostsForPeriod = data.fuel.total; 
@@ -618,12 +623,10 @@
       
       quickStatCostPerMileEl.textContent = costPerMileValue;
       
-      // Update the insight sidebar's cost per mile if its UI has been rendered
       const insightCostEl = document.getElementById('insightCostPerMile'); 
       if (insightCostEl) {
           insightCostEl.textContent = costPerMileValue;
       }
-      // lucide.createIcons(); // Not strictly needed here unless new icons are added in this function
   }
 
   function initializeStatisticsCharts(data = currentExpenseData, labels = generateDynamicMonthLabels(12)) { 
@@ -696,7 +699,7 @@
               } 
           }); 
       } 
-      lucide.createIcons(); // Call after charts are initialized, especially if tooltips or legends might use them.
+      lucide.createIcons();
   }
 
   async function generateReport() { 

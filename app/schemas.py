@@ -112,6 +112,8 @@ class Token(BaseModel):
     username: str
     status: str
 
+
+
 class TokenData(BaseModel):
     sub: str        
     user_id: int
