@@ -20,7 +20,7 @@
               warning: { DEFAULT: '#f59e0b', hover: '#d97706', dark: '#fbbf24', 'dark-hover': '#f59e0b', light: '#fef3c7' },
               danger: { DEFAULT: '#ef4444', hover: '#dc2626', dark: '#f87171', 'dark-hover': '#ef4444', light: '#fee2e2' },
               info: { DEFAULT: '#3b82f6', light: '#dbeafe', dark: '#60a5fa' },
-              gray: { // Added for chart defaults if needed, tailwind provides these by default but good for explicitness
+              gray: { 
                 50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db', 400: '#9ca3af',
                 500: '#6b7280', 600: '#4b5563', 700: '#374151', 800: '#1f2937', 900: '#111827'
               }
@@ -52,7 +52,7 @@
 <!-- Main application wrapper -->
 <div class="flex h-screen">
 
-    <!-- Sidebar (Left) - From your provided HTML -->
+    <!-- Sidebar (Left) -->
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg 
                              transform -translate-x-full transition-transform duration-300 ease-in-out 
                              md:relative md:translate-x-0 md:shadow-lg md:border-r dark:border-gray-700 
@@ -93,10 +93,7 @@
           <div class="hidden md:block text-xl font-semibold text-gray-700 dark:text-gray-200">Dashboard Overview</div>
           <div class="flex items-center space-x-3">
               <button id="theme-toggle-header" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"></button>
-              <div class="hidden md:flex items-center space-x-2">
-                  <div class="text-sm font-semibold" id="userDisplayNameHeader">User</div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400" id="userRoleDisplayHeader">Fleet Manager</div>
-              </div>
+              <!-- Simpler text-only user info removed from here as per Option 1 -->
           </div>
       </header>
 
@@ -119,7 +116,7 @@
               </div>
           </header>
 
-          <!-- KPI Cards Section - Original Structure -->
+          <!-- KPI Cards Section -->
           <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               <div class="kpi-card bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg flex items-start justify-between">
                   <div>
@@ -159,6 +156,7 @@
               </div>
           </section>
 
+          <!-- Charts Section -->
           <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
               <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
                   <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Monthly Activity Summary</h3>
@@ -170,6 +168,7 @@
               </div>
           </section>
           
+          <!-- System Health & Top Drivers -->
           <section class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
               <div class="md:col-span-1 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
                   <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">System Health</h3>
@@ -180,16 +179,15 @@
                        <div class="flex items-center justify-between"><span class="text-sm text-gray-600 dark:text-gray-300">Notification Service</span><span class="text-sm font-medium text-green-500 dark:text-green-400 flex items-center"><i data-lucide="check-circle" class="w-4 h-4 mr-1"></i> Active</span></div>
                   </div>
               </div>
-              <!-- In dashboard.html, main content area -->
               <div class="md:col-span-2 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
                     <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Top Performing Drivers (Last 30 Days)</h3>
                     <ul id="topPerformingDriversList" class="space-y-3">
-                        <!-- JavaScript will populate this -->
                         <li class="p-2 text-sm text-gray-500">Loading...</li>
                     </ul>
               </div>
           </section>
 
+          <!-- Recent Pannes & Upcoming Trips -->
           <section class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
                   <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Recent Pannes</h3>
@@ -205,15 +203,17 @@
               </div>
           </section>
         </main>
-<aside class="w-1/5 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden lg:block flex-shrink-0 border-l dark:border-gray-700 overflow-y-auto">
-    <div class="flex justify-end items-center">
-        <div class="text-right">
-            <div class="text-sm font-semibold" id="userDisplayNameRightSidebar">User</div>
-            <div class="text-xs text-gray-500 dark:text-gray-400" id="userRoleDisplayRightSidebar">Role</div>
-        </div>
-        <img id="rightSidebarAdminAvatar" src="https://i.pravatar.cc/40?u=admin_stats_page" alt="Admin" class="w-10 h-10 rounded-full ml-2 object-cover">
-    </div>
-    <hr class="dark:border-gray-700/50">
+
+        <!-- Right Sidebar -->
+        <aside class="w-1/5 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden lg:block flex-shrink-0 border-l dark:border-gray-700 overflow-y-auto">
+            <div class="flex justify-end items-center">
+                <div class="text-right">
+                    <div class="text-sm font-semibold" id="userDisplayNameRightSidebar">User</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400" id="userRoleDisplayRightSidebar">Role</div>
+                </div>
+                <img id="rightSidebarAdminAvatar" src="https://i.pravatar.cc/40?u=admin_stats_page" alt="Admin" class="w-10 h-10 rounded-full ml-2 object-cover">
+            </div>
+            <hr class="dark:border-gray-700/50">
             <div>
                 <h4 class="font-semibold mb-3">Key Performance Insights</h4>
                 <ul class="text-xs space-y-2.5 text-gray-600 dark:text-gray-300">
@@ -223,7 +223,7 @@
                     </li>
                     <li class="flex items-start space-x-2"><i data-lucide="trending-down" class="w-4 h-4 text-red-500 mt-0.5 shrink-0"></i><span>Idle Time: <span class="font-medium">Up 7%</span> (Mock)</span></li>
                     <li class="flex items-start space-x-2">
-                        <i id="maintenanceTotalIcon" data-lucide="tools" class="w-4 h-4 text-blue-500 mt-0.5 shrink-0"></i> <!-- Corrected Icon -->
+                        <i id="maintenanceTotalIcon" data-lucide="tools" class="w-4 h-4 text-blue-500 mt-0.5 shrink-0"></i>
                         <span>Total Maintenance: <span class="font-medium" id="maintenanceTotalStatText">Calculating...</span></span>
                     </li>
                 </ul>
@@ -267,15 +267,11 @@
   </div>
 </div>
 
-
-
-
 <script>
   const DASH_API_PAGE_BASE_URL = 'http://localhost:8000'; 
   const DASH_API_DATA_NAMESPACE = '/dashboard-data'; 
   const LOGIN_PAGE_URL = '/login';
 
-  // --- UI Helper Functions (Sidebar, Theme, Modals - Assume these are fully defined based on previous versions) ---
   const dashboardSidebar = document.getElementById('sidebar');
   const dashboardMobileMenuButton = document.getElementById('mobile-menu-button');
   const dashboardSidebarCloseButton = document.getElementById('sidebar-close-button');
@@ -329,7 +325,6 @@
     document.body.style.overflow = '';
   }
 
-  // --- Authentication & API Helper ---
   function getDashboardAuthToken() { return localStorage.getItem('accessToken'); } 
   function parseDashboardJwt(token) { try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { console.error("JWT Parse Error:", e); return null; }}
 
@@ -341,10 +336,11 @@
     const roleFromToken = decodedToken?.role || decodedToken?.status || 'User'; 
     const role = roleFromToken.charAt(0).toUpperCase() + roleFromToken.slice(1);
 
-    const userDisplayNameHeaderEl = document.getElementById('userDisplayNameHeader');
-    const userRoleDisplayHeaderEl = document.getElementById('userRoleDisplayHeader');
-    if (userDisplayNameHeaderEl) userDisplayNameHeaderEl.textContent = username;
-    if (userRoleDisplayHeaderEl) userRoleDisplayHeaderEl.textContent = role;
+    // Removed updates for userDisplayNameHeader and userRoleDisplayHeader as per Option 1
+    // const userDisplayNameHeaderEl = document.getElementById('userDisplayNameHeader');
+    // const userRoleDisplayHeaderEl = document.getElementById('userRoleDisplayHeader');
+    // if (userDisplayNameHeaderEl) userDisplayNameHeaderEl.textContent = username;
+    // if (userRoleDisplayHeaderEl) userRoleDisplayHeaderEl.textContent = role;
 
     const userDisplayNameRightSidebarEl = document.getElementById('userDisplayNameRightSidebar');
     const userRoleDisplayRightSidebarEl = document.getElementById('userRoleDisplayRightSidebar');
@@ -382,7 +378,7 @@
       responseBodyText = await response.text();
       if (response.status === 401) {
         openInfoStatusModalOnDashboard("Authentication Error", "Session expired or unauthorized. Please log in again.", "error", 3000);
-        localStorage.removeItem('accessToken'); // Clear invalid token
+        localStorage.removeItem('accessToken'); 
         setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 2500);
         return null;
       }
@@ -403,7 +399,6 @@
     }
   }
   
-  // --- Dashboard Specific Data Loading & Rendering ---
   async function loadDashboardData() {
     const kpiData = await apiRequestDashboard('/kpis'); 
     if (kpiData) {
@@ -516,22 +511,17 @@
     if (typeof lucide !== 'undefined') lucide.createIcons();
   }
 
-
-  // --- Chart Initialization ---
   let monthlyActivityChartInstance = null;
   let vehicleStatusChartInstance = null;
   
-  // Helper to get Tailwind colors or fallbacks more robustly
   const getChartColorTailwind = (colorName, variant = 'DEFAULT', fallbackColor) => {
     let color = fallbackColor;
     try {
         if (window.tailwind && window.tailwind.config && window.tailwind.config.theme) {
-            let twColorConfig = window.tailwind.config.theme.colors || {}; // Standard Tailwind colors
+            let twColorConfig = window.tailwind.config.theme.colors || {}; 
             if (window.tailwind.config.theme.extend && window.tailwind.config.theme.extend.colors) {
-                 // Merge extended colors, extended take precedence
                 twColorConfig = { ...twColorConfig, ...window.tailwind.config.theme.extend.colors };
             }
-
             if (twColorConfig[colorName]) {
                 if (typeof twColorConfig[colorName] === 'object' && twColorConfig[colorName][variant]) {
                     color = twColorConfig[colorName][variant];
@@ -540,9 +530,7 @@
                 }
             }
         }
-    } catch (e) {
-        console.warn("Error accessing Tailwind config for chart colors:", e);
-    }
+    } catch (e) { console.warn("Error accessing Tailwind config for chart colors:", e); }
     return color;
   };
   
@@ -560,104 +548,45 @@
 
   function initializeDashboardCharts(isThemeChange = false, monthlyData, statusData) { 
     const isDark = document.documentElement.classList.contains('dark');
-
     const gridColor = isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.08)';
     const tickColor = getChartColorTailwind('gray', isDark ? '400' : '600', isDark ? '#9ca3af' : '#4b5563');
     const legendLabelColor = getChartColorTailwind('gray', isDark ? '300' : '700', isDark ? '#d1d5db' : '#374151');
     const tooltipTitleColor = getChartColorTailwind('gray', isDark ? '100' : '900', isDark ? '#f3f4f6' : '#111827');
     const tooltipBodyColor = getChartColorTailwind('gray', isDark ? '200' : '700', isDark ? '#e5e7eb' : '#374151');
-    const tooltipBgColor = isDark ? 'rgba(55, 65, 81, 0.9)' : 'rgba(255, 255, 255, 0.95)'; // gray-700 vs white
+    const tooltipBgColor = isDark ? 'rgba(55, 65, 81, 0.9)' : 'rgba(255, 255, 255, 0.95)';
     const tooltipBorderColor = isDark ? getChartColorTailwind('gray', '600', '#4b5563') : getChartColorTailwind('gray', '300', '#d1d5db');
 
     Chart.defaults.font.family = '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"';
     Chart.defaults.color = tickColor;
 
-    // Monthly Activity Chart
     const monthlyCtx = document.getElementById('monthlyActivityChart')?.getContext('2d');
     if (monthlyCtx) {
-        if (monthlyActivityChartInstance) {
-            monthlyActivityChartInstance.destroy();
-        }
+        if (monthlyActivityChartInstance) { monthlyActivityChartInstance.destroy(); }
         monthlyActivityChartInstance = new Chart(monthlyCtx, {
             type: 'bar',
             data: {
                 labels: monthlyData.labels,
                 datasets: [
-                    {
-                        label: 'Trips',
-                        data: monthlyData.trips,
-                        backgroundColor: getChartColorTailwind('primary', isDark ? 'dark' : 'DEFAULT', '#3b82f6'),
-                        borderColor: getChartColorTailwind('primary', isDark ? 'dark' : 'DEFAULT', '#3b82f6'),
-                        borderWidth: 1,
-                        borderRadius: 3,
-                        barPercentage: 0.6,
-                        categoryPercentage: 0.7
-                    },
-                    {
-                        label: 'Maintenances',
-                        data: monthlyData.maintenances,
-                        backgroundColor: getChartColorTailwind('warning', isDark ? 'dark' : 'DEFAULT', '#f59e0b'),
-                        borderColor: getChartColorTailwind('warning', isDark ? 'dark' : 'DEFAULT', '#f59e0b'),
-                        borderWidth: 1,
-                        borderRadius: 3,
-                        barPercentage: 0.6,
-                        categoryPercentage: 0.7
-                    },
-                    {
-                        label: 'Pannes',
-                        data: monthlyData.pannes,
-                        backgroundColor: getChartColorTailwind('danger', isDark ? 'dark' : 'DEFAULT', '#ef4444'),
-                        borderColor: getChartColorTailwind('danger', isDark ? 'dark' : 'DEFAULT', '#ef4444'),
-                        borderWidth: 1,
-                        borderRadius: 3,
-                        barPercentage: 0.6,
-                        categoryPercentage: 0.7
-                    }
+                    { label: 'Trips', data: monthlyData.trips, backgroundColor: getChartColorTailwind('primary', isDark ? 'dark' : 'DEFAULT', '#3b82f6'), borderColor: getChartColorTailwind('primary', isDark ? 'dark' : 'DEFAULT', '#3b82f6'), borderWidth: 1, borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.7 },
+                    { label: 'Maintenances', data: monthlyData.maintenances, backgroundColor: getChartColorTailwind('warning', isDark ? 'dark' : 'DEFAULT', '#f59e0b'), borderColor: getChartColorTailwind('warning', isDark ? 'dark' : 'DEFAULT', '#f59e0b'), borderWidth: 1, borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.7 },
+                    { label: 'Pannes', data: monthlyData.pannes, backgroundColor: getChartColorTailwind('danger', isDark ? 'dark' : 'DEFAULT', '#ef4444'), borderColor: getChartColorTailwind('danger', isDark ? 'dark' : 'DEFAULT', '#ef4444'), borderWidth: 1, borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.7 }
                 ]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                },
+            options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false, },
                 scales: {
-                    x: {
-                        stacked: false, 
-                        grid: { display: false },
-                        ticks: { color: tickColor, font: { size: 11 } }
-                    },
-                    y: {
-                        stacked: false,
-                        beginAtZero: true,
-                        grid: { color: gridColor, borderColor: gridColor, drawBorder: false },
-                        ticks: { color: tickColor, font: { size: 11 }, padding: 8, 
-                            callback: function(value) { if (Number.isInteger(value)) { return value; } }
-                        }
-                    }
+                    x: { stacked: false, grid: { display: false }, ticks: { color: tickColor, font: { size: 11 } } },
+                    y: { stacked: false, beginAtZero: true, grid: { color: gridColor, borderColor: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 }, padding: 8, callback: function(value) { if (Number.isInteger(value)) { return value; } } } }
                 },
-                plugins: {
-                    legend: {
-                        position: 'top', align: 'end',
-                        labels: { color: legendLabelColor, usePointStyle: true, boxWidth: 8, font: { size: 12 }, padding: 15 }
-                    },
-                    tooltip: {
-                        backgroundColor: tooltipBgColor, titleColor: tooltipTitleColor, titleFont: { weight: '600', size: 13 },
-                        bodyColor: tooltipBodyColor, bodyFont: { size: 12 }, borderColor: tooltipBorderColor,
-                        borderWidth: 1, cornerRadius: 4, padding: 10, displayColors: true, boxPadding: 4
-                    }
+                plugins: { legend: { position: 'top', align: 'end', labels: { color: legendLabelColor, usePointStyle: true, boxWidth: 8, font: { size: 12 }, padding: 15 } },
+                    tooltip: { backgroundColor: tooltipBgColor, titleColor: tooltipTitleColor, titleFont: { weight: '600', size: 13 }, bodyColor: tooltipBodyColor, bodyFont: { size: 12 }, borderColor: tooltipBorderColor, borderWidth: 1, cornerRadius: 4, padding: 10, displayColors: true, boxPadding: 4 }
                 }
             }
         });
     } else { console.warn("Monthly activity chart canvas not found"); }
 
-    // Vehicle Status Chart
     const statusCtx = document.getElementById('vehicleStatusChart')?.getContext('2d');
     if (statusCtx) {
-        if (vehicleStatusChartInstance) {
-            vehicleStatusChartInstance.destroy();
-        }
+        if (vehicleStatusChartInstance) { vehicleStatusChartInstance.destroy(); }
         const statusColors = [
             getChartColorTailwind('primary', isDark ? 'dark' : 'DEFAULT', '#3b82f6'),    
             getChartColorTailwind('secondary', isDark ? 'dark' : 'DEFAULT', '#10b981'), 
@@ -668,38 +597,13 @@
         ];
         vehicleStatusChartInstance = new Chart(statusCtx, {
             type: 'doughnut',
-            data: {
-                labels: statusData.labels,
-                datasets: [{
-                    label: 'Vehicle Status',
-                    data: statusData.data,
-                    backgroundColor: statusData.labels.map((_, i) => statusColors[i % statusColors.length]),
-                    borderColor: isDark ? getChartColorTailwind('gray','800', '#1f2937') : '#ffffff',
-                    borderWidth: 2,
-                    hoverOffset: 8
-                }]
+            data: { labels: statusData.labels,
+                datasets: [{ label: 'Vehicle Status', data: statusData.data, backgroundColor: statusData.labels.map((_, i) => statusColors[i % statusColors.length]), borderColor: isDark ? getChartColorTailwind('gray','800', '#1f2937') : '#ffffff', borderWidth: 2, hoverOffset: 8 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '65%',
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { color: legendLabelColor, usePointStyle: true, boxWidth: 8, font: { size: 12 }, padding: 15 }
-                    },
-                    tooltip: {
-                        backgroundColor: tooltipBgColor, titleColor: tooltipTitleColor, titleFont: { weight: '600', size: 13 },
-                        bodyColor: tooltipBodyColor, bodyFont: { size: 12 }, borderColor: tooltipBorderColor,
-                        borderWidth: 1, cornerRadius: 4, padding: 10, displayColors: true,
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.label || '';
-                                if (label) { label += ': '; }
-                                if (context.parsed !== null) { label += context.parsed; }
-                                return label;
-                            }
-                        }
+            options: { responsive: true, maintainAspectRatio: false, cutout: '65%',
+                plugins: { legend: { position: 'bottom', labels: { color: legendLabelColor, usePointStyle: true, boxWidth: 8, font: { size: 12 }, padding: 15 } },
+                    tooltip: { backgroundColor: tooltipBgColor, titleColor: tooltipTitleColor, titleFont: { weight: '600', size: 13 }, bodyColor: tooltipBodyColor, bodyFont: { size: 12 }, borderColor: tooltipBorderColor, borderWidth: 1, cornerRadius: 4, padding: 10, displayColors: true,
+                        callbacks: { label: function(context) { let label = context.label || ''; if (label) { label += ': '; } if (context.parsed !== null) { label += context.parsed; } return label; } }
                     }
                 }
             }
@@ -707,11 +611,14 @@
     } else { console.warn("Vehicle status chart canvas not found"); }
   }
 
-  // --- DOMContentLoaded for dashboard.html ---
   document.addEventListener('DOMContentLoaded', async () => {
       if (typeof lucide !== 'undefined') lucide.createIcons();
-      updateDashboardUserInfo(); 
-      setDashboardInitialThemeIcon();
+      
+      if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+      } else { document.documentElement.classList.remove('dark'); }
+      setDashboardInitialThemeIcon(); 
+      updateDashboardUserInfo(); // Call this after theme is set and before other data loads
 
       if (dashboardMobileMenuButton) dashboardMobileMenuButton.addEventListener('click', openDashboardMobileMenu);
       if (dashboardSidebarCloseButton) dashboardSidebarCloseButton.addEventListener('click', closeDashboardMobileMenu);
@@ -724,14 +631,7 @@
               await fetchAndInitializeCharts(true); 
           });
       }
-       // Apply stored theme on load
-      if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-          document.documentElement.classList.add('dark');
-      } else {
-          document.documentElement.classList.remove('dark');
-      }
-      setDashboardInitialThemeIcon(); // Set icon after applying theme
-
+      
       document.querySelectorAll('#sidebar nav a').forEach(link => { 
           link.addEventListener('click', (e) => { if (window.innerWidth < 768 && link.getAttribute('href') && !link.getAttribute('href').startsWith('#')) closeDashboardMobileMenu(); }); 
       });
@@ -750,10 +650,6 @@
       if (dashboardDateFilter) { 
           dashboardDateFilter.addEventListener('change', async (e) => {
               console.log("Date filter changed to:", e.target.value);
-              // Add logic to refetch data based on date if your APIs support it
-              // For now, it just logs. You might need to pass this date to API calls.
-              // Example: await loadDashboardData(e.target.value);
-              // await fetchAndInitializeCharts(false, e.target.value); // Potentially refetch charts
           });
       }
       document.getElementById('global-logout-btn')?.addEventListener('click', (e) => { 
