@@ -141,6 +141,17 @@ class DriverOut(DriverBase):
 
     class Config:
         from_attributes = True
+
+
+class TopDriver(BaseModel):
+    driver_id: int
+    first_name: str
+    last_name: str
+    # profile_image_url: Optional[str] = None # If you store profile images
+    performance_metric: str # e.g., "X Trips Completed", "Y% On-Time"
+    
+    class Config:
+        from_attributes = True
 ##################################################################################################################
 
 class CategoryFuelBase(BaseModel):

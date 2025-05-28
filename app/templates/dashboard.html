@@ -19,7 +19,11 @@
               secondary: { DEFAULT: '#10b981', hover: '#059669', dark: '#34d399', 'dark-hover': '#10b981', light: '#d1fae5' },
               warning: { DEFAULT: '#f59e0b', hover: '#d97706', dark: '#fbbf24', 'dark-hover': '#f59e0b', light: '#fef3c7' },
               danger: { DEFAULT: '#ef4444', hover: '#dc2626', dark: '#f87171', 'dark-hover': '#ef4444', light: '#fee2e2' },
-              info: { DEFAULT: '#3b82f6', light: '#dbeafe', dark: '#60a5fa' } 
+              info: { DEFAULT: '#3b82f6', light: '#dbeafe', dark: '#60a5fa' },
+              gray: { // Added for chart defaults if needed, tailwind provides these by default but good for explicitness
+                50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db', 400: '#9ca3af',
+                500: '#6b7280', 600: '#4b5563', 700: '#374151', 800: '#1f2937', 900: '#111827'
+              }
             }
           }
         }
@@ -27,6 +31,7 @@
     };
   </script>
   <style>
+    body { font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; }
     .kpi-card { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
     .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
     .dark .kpi-card:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3), 0 4px 6px -2px rgba(0,0,0,0.25); }
@@ -175,12 +180,13 @@
                        <div class="flex items-center justify-between"><span class="text-sm text-gray-600 dark:text-gray-300">Notification Service</span><span class="text-sm font-medium text-green-500 dark:text-green-400 flex items-center"><i data-lucide="check-circle" class="w-4 h-4 mr-1"></i> Active</span></div>
                   </div>
               </div>
+              <!-- In dashboard.html, main content area -->
               <div class="md:col-span-2 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
-                   <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Top Performing Drivers (Last 30 Days)</h3>
-                   <ul class="space-y-3">
-                      <li class="flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md"><div class="flex items-center space-x-3"><img src="https://i.pravatar.cc/40?u=driver1" alt="Driver" class="w-8 h-8 rounded-full"><span class="font-medium text-sm text-gray-700 dark:text-gray-200">Alice Smith</span></div><span class="text-sm text-green-500 dark:text-green-400">98% On-Time</span></li>
-                      <li class="flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md"><div class="flex items-center space-x-3"><img src="https://i.pravatar.cc/40?u=driver2" alt="Driver" class="w-8 h-8 rounded-full"><span class="font-medium text-sm text-gray-700 dark:text-gray-200">Bob Johnson</span></div><span class="text-sm text-green-500 dark:text-green-400">25 Trips Completed</span></li>
-                   </ul>
+                    <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Top Performing Drivers (Last 30 Days)</h3>
+                    <ul id="topPerformingDriversList" class="space-y-3">
+                        <!-- JavaScript will populate this -->
+                        <li class="p-2 text-sm text-gray-500">Loading...</li>
+                    </ul>
               </div>
           </section>
 
@@ -199,16 +205,15 @@
               </div>
           </section>
         </main>
-
-        <aside class="w-1/5 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden lg:block flex-shrink-0 border-l dark:border-gray-700 overflow-y-auto">
-            <div class="flex justify-end items-center">
-                <div class="text-right">
-                    <div class="text-sm font-semibold" id="userDisplayNameRightSidebar">User</div>
-                    <div class="text-xs text-gray-500 dark:text-gray-400" id="userRoleDisplayRightSidebar">Role</div>
-                </div>
-                <img src="https://i.pravatar.cc/40?u=admin_stats_page" alt="Admin" class="w-10 h-10 rounded-full ml-2 object-cover">
-            </div>
-            <hr class="dark:border-gray-700/50">
+<aside class="w-1/5 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden lg:block flex-shrink-0 border-l dark:border-gray-700 overflow-y-auto">
+    <div class="flex justify-end items-center">
+        <div class="text-right">
+            <div class="text-sm font-semibold" id="userDisplayNameRightSidebar">User</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400" id="userRoleDisplayRightSidebar">Role</div>
+        </div>
+        <img id="rightSidebarAdminAvatar" src="https://i.pravatar.cc/40?u=admin_stats_page" alt="Admin" class="w-10 h-10 rounded-full ml-2 object-cover">
+    </div>
+    <hr class="dark:border-gray-700/50">
             <div>
                 <h4 class="font-semibold mb-3">Key Performance Insights</h4>
                 <ul class="text-xs space-y-2.5 text-gray-600 dark:text-gray-300">
@@ -263,13 +268,14 @@
 </div>
 
 
+
+
 <script>
-  // --- Global Config for Dashboard Page ---
   const DASH_API_PAGE_BASE_URL = 'http://localhost:8000'; 
   const DASH_API_DATA_NAMESPACE = '/dashboard-data'; 
-  const LOGIN_PAGE_URL = '/login'; 
+  const LOGIN_PAGE_URL = '/login';
 
-  // --- UI Helper Functions (Sidebar, Theme, Modals) ---
+  // --- UI Helper Functions (Sidebar, Theme, Modals - Assume these are fully defined based on previous versions) ---
   const dashboardSidebar = document.getElementById('sidebar');
   const dashboardMobileMenuButton = document.getElementById('mobile-menu-button');
   const dashboardSidebarCloseButton = document.getElementById('sidebar-close-button');
@@ -325,18 +331,33 @@
 
   // --- Authentication & API Helper ---
   function getDashboardAuthToken() { return localStorage.getItem('accessToken'); } 
-  function parseDashboardJwt(token) { try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { return null; }}
+  function parseDashboardJwt(token) { try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { console.error("JWT Parse Error:", e); return null; }}
 
   function updateDashboardUserInfo() {
-    const token = getDashboardAuthToken();
-    const decoded = token ? parseDashboardJwt(token) : null;
-    const username = decoded?.sub || 'Guest';
-    const role = (decoded?.status || 'User').charAt(0).toUpperCase() + (decoded?.status || 'User').slice(1); // Use status from token if available
+    const token = getDashboardAuthToken(); 
+    const decodedToken = token ? parseDashboardJwt(token) : null; 
 
-    document.getElementById('userDisplayNameHeader').textContent = username;
-    document.getElementById('userRoleDisplayHeader').textContent = role;
-    document.getElementById('userDisplayNameRightSidebar').textContent = username;
-    document.getElementById('userRoleDisplayRightSidebar').textContent = role;
+    const username = decodedToken?.sub || 'Guest';
+    const roleFromToken = decodedToken?.role || decodedToken?.status || 'User'; 
+    const role = roleFromToken.charAt(0).toUpperCase() + roleFromToken.slice(1);
+
+    const userDisplayNameHeaderEl = document.getElementById('userDisplayNameHeader');
+    const userRoleDisplayHeaderEl = document.getElementById('userRoleDisplayHeader');
+    if (userDisplayNameHeaderEl) userDisplayNameHeaderEl.textContent = username;
+    if (userRoleDisplayHeaderEl) userRoleDisplayHeaderEl.textContent = role;
+
+    const userDisplayNameRightSidebarEl = document.getElementById('userDisplayNameRightSidebar');
+    const userRoleDisplayRightSidebarEl = document.getElementById('userRoleDisplayRightSidebar');
+    if (userDisplayNameRightSidebarEl) userDisplayNameRightSidebarEl.textContent = username;
+    if (userRoleDisplayRightSidebarEl) userRoleDisplayRightSidebarEl.textContent = role;
+
+    const adminAvatarImg = document.getElementById('rightSidebarAdminAvatar'); 
+    if (adminAvatarImg) {
+        const avatarSeed = username !== 'Guest' ? username.replace(/\s+/g, '').toLowerCase() : 'default_admin_seed';
+        adminAvatarImg.src = `https://i.pravatar.cc/40?u=${encodeURIComponent(avatarSeed)}`;
+    } else {
+        console.warn("Could not find element with ID 'rightSidebarAdminAvatar' to update avatar.");
+    }
   }
 
   async function apiRequestDashboard(endpointSubPath, method = 'GET', body = null) {
@@ -348,7 +369,7 @@
       headers['Authorization'] = `Bearer ${token}`;
     } else {
       console.warn(`Auth token needed for ${method} ${fullApiPath} but not found.`);
-      openInfoStatusModalOnDashboard("Authentication Required", "Please log in to view dashboard data.", "error", 0);
+      openInfoStatusModalOnDashboard("Authentication Required", "Please log in to view data.", "error", 0);
       return Promise.resolve(null); 
     }
     
@@ -360,7 +381,9 @@
       const response = await fetch(fullApiPath, config);
       responseBodyText = await response.text();
       if (response.status === 401) {
-        openInfoStatusModalOnDashboard("Authentication Error", "Session expired or unauthorized for dashboard data. Please log in again.", "error", 3000);
+        openInfoStatusModalOnDashboard("Authentication Error", "Session expired or unauthorized. Please log in again.", "error", 3000);
+        localStorage.removeItem('accessToken'); // Clear invalid token
+        setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 2500);
         return null;
       }
       if (!response.ok) {
@@ -382,7 +405,6 @@
   
   // --- Dashboard Specific Data Loading & Rendering ---
   async function loadDashboardData() {
-    console.log("Fetching dashboard KPI data...");
     const kpiData = await apiRequestDashboard('/kpis'); 
     if (kpiData) {
         document.getElementById('kpiTotalVehicles').textContent = kpiData.total_vehicles ?? '0';
@@ -391,7 +413,6 @@
         document.getElementById('kpiFuelCostWeek').textContent = `$${(kpiData.fuel_cost_this_week ?? 0).toFixed(2)}`;
     }
 
-    console.log("Fetching performance insights...");
     const insightsData = await apiRequestDashboard('/performance-insights');
     if (insightsData && insightsData.fuel_efficiency && insightsData.maintenance_compliance) {
         const fe = insightsData.fuel_efficiency;
@@ -408,7 +429,6 @@
         document.getElementById('maintenanceTotalIcon').setAttribute('data-lucide', 'tools');
     }
 
-    console.log("Fetching alerts...");
     const alertsData = await apiRequestDashboard('/alerts');
     let activeAlertsCount = 0;
     const noAlertsEl = document.getElementById('noAlerts');
@@ -448,7 +468,6 @@
     const upcomingTripsListEl = document.getElementById('upcomingTripsListDashboard');
 
     if (pannesListEl) {
-        console.log("Fetching recent pannes for dashboard list...");
         const recentPannes = await apiRequestDashboard('/recent-pannes'); 
         if (recentPannes && Array.isArray(recentPannes)) {
             pannesListEl.innerHTML = recentPannes.length > 0 ? recentPannes.map(p => 
@@ -458,11 +477,10 @@
     }
 
     if (upcomingTripsListEl) {
-        console.log("Fetching upcoming trips for dashboard list...");
         const upcomingTrips = await apiRequestDashboard('/upcoming-trips'); 
         if (upcomingTrips && Array.isArray(upcomingTrips)) {
             upcomingTripsListEl.innerHTML = upcomingTrips.length > 0 ? upcomingTrips.map(trip => {
-                const vehiclePlate = trip.vehicle && trip.vehicle.plate_number ? trip.vehicle.plate_number : `Vehicle ID ${trip.vehicle_id || 'Unknown'}`;
+                const vehiclePlate = trip.vehicle && trip.vehicle.plate_number ? trip.vehicle.plate_number : `Veh.ID ${trip.vehicle_id || 'Unknown'}`;
                 const tripPurpose = trip.purpose || 'General Trip';
                 const startTime = trip.start_time ? new Date(trip.start_time).toLocaleString() : 'N/A';
                 return `<li class="flex justify-between items-center p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md"><div><p class="font-medium">${vehiclePlate}: ${tripPurpose}</p><p class="text-xs text-gray-500 dark:text-gray-400">Starts: ${startTime}</p></div><a href="/trip#${trip.id}" class="text-sm text-primary dark:text-primary-light hover:underline">Details</a></li>`;
@@ -472,17 +490,68 @@
     if (typeof lucide !== 'undefined') lucide.createIcons();
   }
 
+  async function loadTopPerformingDrivers() {
+    const topDriversListEl = document.getElementById('topPerformingDriversList'); 
+    if (!topDriversListEl) {
+        console.warn("Element with ID 'topPerformingDriversList' not found for dashboard.");
+        return;
+    }
+    topDriversListEl.innerHTML = '<li class="p-2 text-sm text-gray-500">Loading top drivers...</li>';
+    const topDrivers = await apiRequestDashboard('/top-performing-drivers?limit=3'); 
+    if (topDrivers && Array.isArray(topDrivers) && topDrivers.length > 0) {
+        topDriversListEl.innerHTML = topDrivers.map((driver, index) => `
+            <li class="flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md">
+                <div class="flex items-center space-x-3">
+                    <img src="https://i.pravatar.cc/40?u=driver${driver.driver_id || index}" alt="Driver ${driver.first_name}" class="w-8 h-8 rounded-full object-cover">
+                    <span class="font-medium text-sm text-gray-700 dark:text-gray-200">${driver.first_name} ${driver.last_name}</span>
+                </div>
+                <span class="text-sm text-green-500 dark:text-green-400">${driver.performance_metric}</span>
+            </li>
+        `).join('');
+    } else if (topDrivers && topDrivers.length === 0) {
+        topDriversListEl.innerHTML = '<li class="p-2 text-sm text-gray-500">No driver performance data available.</li>';
+    } else {
+        topDriversListEl.innerHTML = '<li class="p-2 text-sm text-red-500">Could not load top drivers.</li>';
+    }
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+
+
   // --- Chart Initialization ---
   let monthlyActivityChartInstance = null;
   let vehicleStatusChartInstance = null;
   
+  // Helper to get Tailwind colors or fallbacks more robustly
+  const getChartColorTailwind = (colorName, variant = 'DEFAULT', fallbackColor) => {
+    let color = fallbackColor;
+    try {
+        if (window.tailwind && window.tailwind.config && window.tailwind.config.theme) {
+            let twColorConfig = window.tailwind.config.theme.colors || {}; // Standard Tailwind colors
+            if (window.tailwind.config.theme.extend && window.tailwind.config.theme.extend.colors) {
+                 // Merge extended colors, extended take precedence
+                twColorConfig = { ...twColorConfig, ...window.tailwind.config.theme.extend.colors };
+            }
+
+            if (twColorConfig[colorName]) {
+                if (typeof twColorConfig[colorName] === 'object' && twColorConfig[colorName][variant]) {
+                    color = twColorConfig[colorName][variant];
+                } else if (typeof twColorConfig[colorName] === 'string' && variant === 'DEFAULT') {
+                    color = twColorConfig[colorName];
+                }
+            }
+        }
+    } catch (e) {
+        console.warn("Error accessing Tailwind config for chart colors:", e);
+    }
+    return color;
+  };
+  
   async function fetchAndInitializeCharts(isThemeChange = false) {
-    console.log("Fetching chart data...");
     const monthlyActivityData = await apiRequestDashboard('/charts/monthly-activity?months_to_display=12');
     const vehicleStatusDataFromApi = await apiRequestDashboard('/charts/vehicle-status');
-
+    
     const finalMonthlyData = monthlyActivityData || { labels: [], trips: [], maintenances: [], pannes: [] };
-    const finalVehicleStatusData = vehicleStatusDataFromApi 
+    const finalVehicleStatusData = vehicleStatusDataFromApi && vehicleStatusDataFromApi.labels && vehicleStatusDataFromApi.counts
         ? { labels: vehicleStatusDataFromApi.labels, data: vehicleStatusDataFromApi.counts } 
         : { labels: [], data: [] }; 
     
@@ -490,52 +559,157 @@
   }
 
   function initializeDashboardCharts(isThemeChange = false, monthlyData, statusData) { 
-    if (!window.tailwind || !window.tailwind.config || !window.tailwind.config.theme) {
-        console.warn("Tailwind config not fully available for charts.");
-    }
-    const C = (path, fallback = '#CCCCCC') => { 
-        if (!window.tailwind || !window.tailwind.config || !window.tailwind.config.theme?.extend?.colors) return fallback;
-        const parts = path.split('.'); let obj = window.tailwind.config.theme.extend.colors;
-        try { parts.forEach(p => { obj = obj?.[p]; }); return obj || fallback; }
-        catch (e) { return fallback;}
-    };
-    const isDarkMode = document.documentElement.classList.contains('dark');
-    const gridColor = isDarkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)';
-    const labelColor = isDarkMode ? 'rgba(229,231,235,0.8)' : 'rgba(55,65,81,0.8)';
-    const tooltipBgColor = isDarkMode ? 'rgba(31, 41, 55, 0.9)' : 'rgba(255, 255, 255, 0.9)';
-    const tooltipTitleColor = isDarkMode ? '#f3f4f6' : '#1f2937'; 
-    const tooltipBodyColor = isDarkMode ? '#d1d5db' : '#4b5563';
-    
+    const isDark = document.documentElement.classList.contains('dark');
+
+    const gridColor = isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.08)';
+    const tickColor = getChartColorTailwind('gray', isDark ? '400' : '600', isDark ? '#9ca3af' : '#4b5563');
+    const legendLabelColor = getChartColorTailwind('gray', isDark ? '300' : '700', isDark ? '#d1d5db' : '#374151');
+    const tooltipTitleColor = getChartColorTailwind('gray', isDark ? '100' : '900', isDark ? '#f3f4f6' : '#111827');
+    const tooltipBodyColor = getChartColorTailwind('gray', isDark ? '200' : '700', isDark ? '#e5e7eb' : '#374151');
+    const tooltipBgColor = isDark ? 'rgba(55, 65, 81, 0.9)' : 'rgba(255, 255, 255, 0.95)'; // gray-700 vs white
+    const tooltipBorderColor = isDark ? getChartColorTailwind('gray', '600', '#4b5563') : getChartColorTailwind('gray', '300', '#d1d5db');
+
+    Chart.defaults.font.family = '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"';
+    Chart.defaults.color = tickColor;
+
+    // Monthly Activity Chart
     const monthlyCtx = document.getElementById('monthlyActivityChart')?.getContext('2d');
     if (monthlyCtx) {
-        if (monthlyActivityChartInstance) monthlyActivityChartInstance.destroy();
-        if (monthlyData && monthlyData.labels && monthlyData.labels.length > 0) { // Only render if data is valid
-            monthlyActivityChartInstance = new Chart(monthlyCtx, {
-                type: 'bar', data: { labels: monthlyData.labels, datasets: [ 
-                    { label: 'Trips', data: monthlyData.trips, backgroundColor: C('primary.DEFAULT'), borderRadius: 4 }, 
-                    { label: 'Maintenance', data: monthlyData.maintenances, backgroundColor: C('secondary.DEFAULT'), borderRadius: 4 }, 
-                    { label: 'Pannes', data: monthlyData.pannes, backgroundColor: C('warning.DEFAULT'), borderRadius: 4 } ] },
-                options: { responsive: true, maintainAspectRatio: false, animation: !isThemeChange, scales: { y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: labelColor, precision: 0 } }, x: { grid: { display: false }, ticks: { color: labelColor } } }, plugins: { legend: { position: 'top', labels: { color: labelColor, boxWidth:12, padding:15 } }, tooltip: { mode: 'index', intersect: false, backgroundColor: tooltipBgColor, titleColor: tooltipTitleColor, bodyColor: tooltipBodyColor, borderColor: gridColor, borderWidth: 1, padding: 10, callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}` }} } }
-            });
-        } else { console.log("No data or invalid data for Monthly Activity Chart.");}
-    } else { console.warn("monthlyActivityChart canvas not found"); }
+        if (monthlyActivityChartInstance) {
+            monthlyActivityChartInstance.destroy();
+        }
+        monthlyActivityChartInstance = new Chart(monthlyCtx, {
+            type: 'bar',
+            data: {
+                labels: monthlyData.labels,
+                datasets: [
+                    {
+                        label: 'Trips',
+                        data: monthlyData.trips,
+                        backgroundColor: getChartColorTailwind('primary', isDark ? 'dark' : 'DEFAULT', '#3b82f6'),
+                        borderColor: getChartColorTailwind('primary', isDark ? 'dark' : 'DEFAULT', '#3b82f6'),
+                        borderWidth: 1,
+                        borderRadius: 3,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.7
+                    },
+                    {
+                        label: 'Maintenances',
+                        data: monthlyData.maintenances,
+                        backgroundColor: getChartColorTailwind('warning', isDark ? 'dark' : 'DEFAULT', '#f59e0b'),
+                        borderColor: getChartColorTailwind('warning', isDark ? 'dark' : 'DEFAULT', '#f59e0b'),
+                        borderWidth: 1,
+                        borderRadius: 3,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.7
+                    },
+                    {
+                        label: 'Pannes',
+                        data: monthlyData.pannes,
+                        backgroundColor: getChartColorTailwind('danger', isDark ? 'dark' : 'DEFAULT', '#ef4444'),
+                        borderColor: getChartColorTailwind('danger', isDark ? 'dark' : 'DEFAULT', '#ef4444'),
+                        borderWidth: 1,
+                        borderRadius: 3,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.7
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    x: {
+                        stacked: false, 
+                        grid: { display: false },
+                        ticks: { color: tickColor, font: { size: 11 } }
+                    },
+                    y: {
+                        stacked: false,
+                        beginAtZero: true,
+                        grid: { color: gridColor, borderColor: gridColor, drawBorder: false },
+                        ticks: { color: tickColor, font: { size: 11 }, padding: 8, 
+                            callback: function(value) { if (Number.isInteger(value)) { return value; } }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top', align: 'end',
+                        labels: { color: legendLabelColor, usePointStyle: true, boxWidth: 8, font: { size: 12 }, padding: 15 }
+                    },
+                    tooltip: {
+                        backgroundColor: tooltipBgColor, titleColor: tooltipTitleColor, titleFont: { weight: '600', size: 13 },
+                        bodyColor: tooltipBodyColor, bodyFont: { size: 12 }, borderColor: tooltipBorderColor,
+                        borderWidth: 1, cornerRadius: 4, padding: 10, displayColors: true, boxPadding: 4
+                    }
+                }
+            }
+        });
+    } else { console.warn("Monthly activity chart canvas not found"); }
 
+    // Vehicle Status Chart
     const statusCtx = document.getElementById('vehicleStatusChart')?.getContext('2d');
     if (statusCtx) {
-        if (vehicleStatusChartInstance) vehicleStatusChartInstance.destroy();
-        if (statusData && statusData.labels && statusData.labels.length > 0 && statusData.data && statusData.data.length > 0) { // Only render if data is valid
-            const totalStatus = statusData.data.reduce((a,b) => a+b, 0);
-            vehicleStatusChartInstance = new Chart(statusCtx, {
-                type: 'doughnut', data: { labels: statusData.labels, datasets: [{ label: 'Vehicle Status', data: statusData.data, backgroundColor: [C('secondary.DEFAULT'), C('primary.DEFAULT'), C('warning.DEFAULT'), '#6b7280', C('info.DEFAULT'), C('danger.light')], borderColor: isDarkMode ? '#1f2937' : '#fff', borderWidth: 3, hoverOffset: 8 }] },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '65%', animation: !isThemeChange, plugins: { legend: { position: 'bottom', labels: { color: labelColor, boxWidth:12, padding:15 } }, tooltip: { backgroundColor: tooltipBgColor, titleColor: tooltipTitleColor, bodyColor: tooltipBodyColor, borderColor: gridColor, borderWidth: 1, padding: 10, callbacks: { label: ctx => `${ctx.label}: ${ctx.parsed} (${totalStatus > 0 ? ((ctx.parsed / totalStatus) * 100).toFixed(1) : 0}%)` }} } }
-            });
-        } else { console.log("No data or invalid data for Vehicle Status Chart.");}
-    } else { console.warn("vehicleStatusChart canvas not found"); }
+        if (vehicleStatusChartInstance) {
+            vehicleStatusChartInstance.destroy();
+        }
+        const statusColors = [
+            getChartColorTailwind('primary', isDark ? 'dark' : 'DEFAULT', '#3b82f6'),    
+            getChartColorTailwind('secondary', isDark ? 'dark' : 'DEFAULT', '#10b981'), 
+            getChartColorTailwind('warning', isDark ? 'dark' : 'DEFAULT', '#f59e0b'),   
+            getChartColorTailwind('danger', isDark ? 'dark' : 'DEFAULT', '#ef4444'),     
+            getChartColorTailwind('gray', isDark ? '500' : '400', '#6b7280'), 
+            getChartColorTailwind('info', isDark ? 'dark' : 'DEFAULT', '#3b82f6') 
+        ];
+        vehicleStatusChartInstance = new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: statusData.labels,
+                datasets: [{
+                    label: 'Vehicle Status',
+                    data: statusData.data,
+                    backgroundColor: statusData.labels.map((_, i) => statusColors[i % statusColors.length]),
+                    borderColor: isDark ? getChartColorTailwind('gray','800', '#1f2937') : '#ffffff',
+                    borderWidth: 2,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: legendLabelColor, usePointStyle: true, boxWidth: 8, font: { size: 12 }, padding: 15 }
+                    },
+                    tooltip: {
+                        backgroundColor: tooltipBgColor, titleColor: tooltipTitleColor, titleFont: { weight: '600', size: 13 },
+                        bodyColor: tooltipBodyColor, bodyFont: { size: 12 }, borderColor: tooltipBorderColor,
+                        borderWidth: 1, cornerRadius: 4, padding: 10, displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) { label += ': '; }
+                                if (context.parsed !== null) { label += context.parsed; }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } else { console.warn("Vehicle status chart canvas not found"); }
   }
 
   // --- DOMContentLoaded for dashboard.html ---
   document.addEventListener('DOMContentLoaded', async () => {
-      if (typeof lucide !== 'undefined') { lucide.createIcons(); } else { console.warn("Lucide icons not loaded."); }
+      if (typeof lucide !== 'undefined') lucide.createIcons();
       updateDashboardUserInfo(); 
       setDashboardInitialThemeIcon();
 
@@ -545,36 +719,49 @@
       if (dashboardThemeToggleButton) {
           dashboardThemeToggleButton.addEventListener('click', async () => { 
               document.documentElement.classList.toggle('dark'); 
+              localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
               setDashboardInitialThemeIcon(); 
               await fetchAndInitializeCharts(true); 
           });
       }
+       // Apply stored theme on load
+      if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+      } else {
+          document.documentElement.classList.remove('dark');
+      }
+      setDashboardInitialThemeIcon(); // Set icon after applying theme
+
       document.querySelectorAll('#sidebar nav a').forEach(link => { 
-          link.addEventListener('click', (e) => { 
-            // Allow default navigation, only close sidebar on mobile
-            if (window.innerWidth < 768 && link.getAttribute('href') && !link.getAttribute('href').startsWith('#')) {
-                closeDashboardMobileMenu();
-            }
-          }); 
+          link.addEventListener('click', (e) => { if (window.innerWidth < 768 && link.getAttribute('href') && !link.getAttribute('href').startsWith('#')) closeDashboardMobileMenu(); }); 
       });
       
       const quickAddBtn = document.getElementById('quickAddBtn');
       const quickAddDropdown = document.getElementById('quickAddDropdown');
-      if(quickAddBtn && quickAddDropdown) {
-          quickAddBtn.addEventListener('click', (e) => { e.stopPropagation(); quickAddDropdown.classList.toggle('hidden'); });
-          document.addEventListener('click', (event) => { if (quickAddDropdown && !quickAddBtn.contains(event.target) && !quickAddDropdown.contains(event.target)) quickAddDropdown.classList.add('hidden'); });
+      if(quickAddBtn && quickAddDropdown) { 
+        quickAddBtn.addEventListener('click', () => quickAddDropdown.classList.toggle('hidden'));
+        document.addEventListener('click', (event) => {
+            if (!quickAddBtn.contains(event.target) && !quickAddDropdown.contains(event.target)) {
+                quickAddDropdown.classList.add('hidden');
+            }
+        });
       }
       const dashboardDateFilter = document.getElementById('dashboardDateFilter');
       if (dashboardDateFilter) { 
-          dashboardDateFilter.value = new Date().toISOString().split('T')[0]; 
-          dashboardDateFilter.addEventListener('change', (event) => { console.log("Dashboard date filter changed (not currently used for main KPIs):", event.target.value);}); 
+          dashboardDateFilter.addEventListener('change', async (e) => {
+              console.log("Date filter changed to:", e.target.value);
+              // Add logic to refetch data based on date if your APIs support it
+              // For now, it just logs. You might need to pass this date to API calls.
+              // Example: await loadDashboardData(e.target.value);
+              // await fetchAndInitializeCharts(false, e.target.value); // Potentially refetch charts
+          });
       }
       document.getElementById('global-logout-btn')?.addEventListener('click', (e) => { 
-          e.preventDefault(); localStorage.removeItem('accessToken'); 
-          openInfoStatusModalOnDashboard("Logged Out", "You have been successfully logged out.", "success", 2000);
-          setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 2000);
+        e.preventDefault();
+        localStorage.removeItem('accessToken');
+        openInfoStatusModalOnDashboard("Logged Out", "You have been logged out. Redirecting...", "info", 0);
+        setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 2000);
       });
-      
       document.getElementById('infoStatusModalOkButton')?.addEventListener('click', closeInfoStatusModalOnDashboard);
 
       if (!getDashboardAuthToken()) {
@@ -585,6 +772,7 @@
 
       await loadDashboardData();
       await loadRecentActivityListsForDashboard(); 
+      await loadTopPerformingDrivers(); 
       await fetchAndInitializeCharts(); 
   });
 </script>

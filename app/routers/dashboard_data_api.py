@@ -175,22 +175,6 @@ async def get_recent_pannes_for_dashboard(db: Session = Depends(get_db)):
     return pannes
 
 
-
-
-# RENAMED and MODIFIED for Upcoming Trips
-""" @router.get("/upcoming-trips", response_model=List[schemas.TripResponse]) # Response model is key
-async def get_upcoming_trips_for_dashboard(db: Session = Depends(get_db)):
-    today_dt = datetime.utcnow() 
-    trips = db.query(models.Trip).options(
-        joinedload(models.Trip.vehicle), # Assuming you want to show vehicle info
-        joinedload(models.Trip.driver)   # Assuming you want to show driver info
-    ).filter(
-        models.Trip.start_time >= today_dt, # Trips starting from now onwards
-        models.Trip.status == "planned"     # Only planned trips
-    ).order_by(models.Trip.start_time.asc()).limit(3).all() # Show 3 soonest upcoming planned trips
-    return trips """
-
-
 @router.get("/upcoming-trips", response_model=List[schemas.TripResponse])
 async def get_upcoming_trips_for_dashboard(db: Session = Depends(get_db)):
     today_dt = datetime.utcnow() 
@@ -342,3 +326,48 @@ async def get_vehicle_status_chart_data(db: Session = Depends(get_db)):
         counts.append(db_counts_map.get(status_key, 0)) # Get count or default to 0 if status not in DB results
             
     return schemas.VehicleStatusChartData(labels=labels, counts=counts)
+
+
+
+
+# In app/routers/dashboard_data_api.py
+# ... (other imports) ...
+
+@router.get("/top-performing-drivers", response_model=List[schemas.TopDriver])
+async def get_top_performing_drivers(
+    db: Session = Depends(get_db),
+    limit: int = Query(3, ge=1, le=10, description="Number of top drivers to return") # Default to top 3
+):
+    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+
+    # Query to get drivers ordered by the count of their completed trips in the last 30 days
+    # This query assumes models.Trip has 'driver_id', 'status', and 'end_time' (or 'start_time')
+    top_drivers_query = db.query(
+        models.Driver.id,
+        models.Driver.first_name,
+        models.Driver.last_name,
+        func.count(models.Trip.id).label("completed_trips_count")
+    ).join(
+        models.Trip, models.Driver.id == models.Trip.driver_id
+    ).filter(
+        models.Trip.status == "Completed", # Or your equivalent status for a finished trip
+        models.Trip.end_time >= thirty_days_ago # Assuming end_time marks completion within period
+        # If using start_time: models.Trip.start_time >= thirty_days_ago 
+    ).group_by(
+        models.Driver.id,
+        models.Driver.first_name,
+        models.Driver.last_name
+    ).order_by(
+        desc("completed_trips_count")
+    ).limit(limit).all()
+
+    top_drivers_list = []
+    for driver_id, first_name, last_name, trips_count in top_drivers_query:
+        top_drivers_list.append(schemas.TopDriver(
+            driver_id=driver_id,
+            first_name=first_name,
+            last_name=last_name,
+            performance_metric=f"{trips_count} Trips Completed"
+        ))
+        
+    return top_drivers_list
