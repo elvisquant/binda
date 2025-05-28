@@ -88,12 +88,31 @@
     
     <div class="flex-1 flex flex-col overflow-hidden">
       <header class="bg-white dark:bg-gray-800 shadow p-3 flex justify-between items-center flex-shrink-0 h-16">
-          <button id="mobile-menu-button" class="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none p-2"> <i data-lucide="menu" class="w-6 h-6"></i> </button>
-          <div class="text-lg font-bold text-primary dark:text-primary-light md:hidden">FleetDash</div>
-          <div class="hidden md:block text-xl font-semibold text-gray-700 dark:text-gray-200">Dashboard Overview</div>
+          <!-- Left side: Mobile Menu Button & Mobile Title -->
+          <div class="flex items-center">
+            <button id="mobile-menu-button" class="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none p-2 mr-2"> <i data-lucide="menu" class="w-6 h-6"></i> </button>
+            <div class="text-lg font-bold text-primary dark:text-primary-light md:hidden">FleetDash</div>
+          </div>
+
+          <!-- Middle: Desktop Title (can be adjusted/removed) -->
+          <div class="hidden md:block text-xl font-semibold text-gray-700 dark:text-gray-200 flex-grow text-center">
+              Dashboard Overview
+          </div>
+          
+          <!-- Right side: Theme Toggle & User Info -->
           <div class="flex items-center space-x-3">
-              <button id="theme-toggle-header" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"></button>
-              <!-- Simpler text-only user info removed from here as per Option 1 -->
+              <button id="theme-toggle-header" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                  <!-- Icon will be set by JS -->
+              </button>
+              
+              <!-- User Info with Avatar - Moved to main header -->
+              <div class="hidden md:flex items-center space-x-2">
+                  <div class="text-right"> 
+                       <div class="text-sm font-semibold" id="headerUserDisplayName">User</div>
+                       <div class="text-xs text-gray-500 dark:text-gray-400" id="headerUserRoleDisplay">Role</div>
+                  </div>
+                  <img id="headerAdminAvatar" src="https://i.pravatar.cc/32?u=header_admin_default" alt="User" class="w-8 h-8 rounded-full object-cover">
+              </div>
           </div>
       </header>
 
@@ -206,6 +225,7 @@
 
         <!-- Right Sidebar -->
         <aside class="w-1/5 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden lg:block flex-shrink-0 border-l dark:border-gray-700 overflow-y-auto">
+            <!-- User info in right sidebar - you might remove this if the header one is enough -->
             <div class="flex justify-end items-center">
                 <div class="text-right">
                     <div class="text-sm font-semibold" id="userDisplayNameRightSidebar">User</div>
@@ -214,6 +234,7 @@
                 <img id="rightSidebarAdminAvatar" src="https://i.pravatar.cc/40?u=admin_stats_page" alt="Admin" class="w-10 h-10 rounded-full ml-2 object-cover">
             </div>
             <hr class="dark:border-gray-700/50">
+            <!-- Rest of right sidebar content -->
             <div>
                 <h4 class="font-semibold mb-3">Key Performance Insights</h4>
                 <ul class="text-xs space-y-2.5 text-gray-600 dark:text-gray-300">
@@ -336,23 +357,28 @@
     const roleFromToken = decodedToken?.role || decodedToken?.status || 'User'; 
     const role = roleFromToken.charAt(0).toUpperCase() + roleFromToken.slice(1);
 
-    // Removed updates for userDisplayNameHeader and userRoleDisplayHeader as per Option 1
-    // const userDisplayNameHeaderEl = document.getElementById('userDisplayNameHeader');
-    // const userRoleDisplayHeaderEl = document.getElementById('userRoleDisplayHeader');
-    // if (userDisplayNameHeaderEl) userDisplayNameHeaderEl.textContent = username;
-    // if (userRoleDisplayHeaderEl) userRoleDisplayHeaderEl.textContent = role;
+    // Update new header elements
+    const headerUserDisplayNameEl = document.getElementById('headerUserDisplayName');
+    const headerUserRoleDisplayEl = document.getElementById('headerUserRoleDisplay');
+    const headerAvatarImgEl = document.getElementById('headerAdminAvatar');
+    const headerAvatarSeed = username !== 'Guest' ? username.replace(/\s+/g, '').toLowerCase() : 'default_admin_seed_header';
 
+    if (headerUserDisplayNameEl) headerUserDisplayNameEl.textContent = username;
+    if (headerUserRoleDisplayEl) headerUserRoleDisplayEl.textContent = role;
+    if (headerAvatarImgEl) {
+        headerAvatarImgEl.src = `https://i.pravatar.cc/32?u=${encodeURIComponent(headerAvatarSeed)}`;
+    }
+
+    // Update right sidebar elements (if you choose to keep them)
     const userDisplayNameRightSidebarEl = document.getElementById('userDisplayNameRightSidebar');
     const userRoleDisplayRightSidebarEl = document.getElementById('userRoleDisplayRightSidebar');
+    const rightSidebarAdminAvatarImg = document.getElementById('rightSidebarAdminAvatar');
+    const rightSidebarAvatarSeed = username !== 'Guest' ? username.replace(/\s+/g, '').toLowerCase() : 'default_admin_seed_sidebar';
+
     if (userDisplayNameRightSidebarEl) userDisplayNameRightSidebarEl.textContent = username;
     if (userRoleDisplayRightSidebarEl) userRoleDisplayRightSidebarEl.textContent = role;
-
-    const adminAvatarImg = document.getElementById('rightSidebarAdminAvatar'); 
-    if (adminAvatarImg) {
-        const avatarSeed = username !== 'Guest' ? username.replace(/\s+/g, '').toLowerCase() : 'default_admin_seed';
-        adminAvatarImg.src = `https://i.pravatar.cc/40?u=${encodeURIComponent(avatarSeed)}`;
-    } else {
-        console.warn("Could not find element with ID 'rightSidebarAdminAvatar' to update avatar.");
+    if (rightSidebarAdminAvatarImg) {
+        rightSidebarAdminAvatarImg.src = `https://i.pravatar.cc/40?u=${encodeURIComponent(rightSidebarAvatarSeed)}`;
     }
   }
 
@@ -618,7 +644,7 @@
           document.documentElement.classList.add('dark');
       } else { document.documentElement.classList.remove('dark'); }
       setDashboardInitialThemeIcon(); 
-      updateDashboardUserInfo(); // Call this after theme is set and before other data loads
+      updateDashboardUserInfo();
 
       if (dashboardMobileMenuButton) dashboardMobileMenuButton.addEventListener('click', openDashboardMobileMenu);
       if (dashboardSidebarCloseButton) dashboardSidebarCloseButton.addEventListener('click', closeDashboardMobileMenu);
