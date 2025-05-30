@@ -8,6 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
+    // Ensure tailwind.config is globally available before any script tries to use it
     window.tailwind = {
       config: {
         darkMode: 'class',
@@ -18,7 +19,7 @@
               secondary: { DEFAULT: '#10b981', hover: '#059669', dark: '#34d399', 'dark-hover': '#10b981', light: '#d1fae5' },
               warning: { DEFAULT: '#f59e0b', hover: '#d97706', dark: '#fbbf24', 'dark-hover': '#f59e0b', light: '#fef3c7' },
               danger: { DEFAULT: '#ef4444', hover: '#dc2626', dark: '#f87171', 'dark-hover': '#ef4444', light: '#fee2e2' },
-              info: { DEFAULT: '#3b82f6', light: '#dbeafe', dark: '#60a5fa' }, // Adjusted info to match others
+              info: { DEFAULT: '#3b82f6', light: '#dbeafe', dark: '#60a5fa' },
               gray: { 
                 50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db', 400: '#9ca3af',
                 500: '#6b7280', 600: '#4b5563', 700: '#374151', 800: '#1f2937', 900: '#111827'
@@ -44,53 +45,9 @@
     .kpi-value { font-size: 1.625rem; line-height: 2.125rem; word-break: break-all; }
      @media (min-width: 1024px) { .kpi-value { font-size: 1.75rem; line-height: 2.25rem; } }
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
-    /* Toast Styling */
-    #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 0.5rem; }
-    .toast-message { background-color: #333; color: white; padding: 10px 15px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); font-size: 0.875rem; opacity: 0; transition: opacity 0.3s ease-in-out; }
-    .toast-message.show { opacity: 1; }
-    .toast-message.success { background-color: #10b981; }
-    .toast-message.error { background-color: #ef4444; }
-    .toast-message.info { background-color: #3b82f6; }
-     /* Modal Styling */
-    .modal.hidden { display: none; }
-    .modal { transition: opacity 0.25s ease; }
-    .modal-content { transition: transform 0.25s ease; transform: scale(0.95); }
-    .modal:not(.hidden) .modal-content { transform: scale(1); }
-    /* Mobile optimizations */
-    @media (max-width: 640px) {
-      .kpi-card { padding: 1rem; }
-      .kpi-value { font-size: 1.5rem; line-height: 2rem; }
-      main { padding: 1rem; }
-      section { gap: 0.75rem; }
-    }
-    /* Improved quick add dropdown */
-    #quickAddDropdown {
-      animation: fadeIn 0.2s ease-out;
-      min-width: 200px;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    #quickAddDropdown a {
-      transition: all 0.2s ease;
-      padding: 0.5rem 1rem;
-    }
-    #quickAddDropdown a:hover {
-      transform: translateX(2px);
-    }
-    /* Theme toggle button */
-    .theme-toggle {
-      transition: all 0.3s ease;
-    }
-    .theme-toggle:hover {
-      transform: rotate(15deg) scale(1.1);
-    }
   </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white antialiased">
-
-<div id="toast-container"></div>
 
 <!-- Main application wrapper -->
 <div class="flex h-screen">
@@ -112,7 +69,7 @@
         <ul class="space-y-2">
             <li class="flex items-center space-x-3 text-blue-600 dark:text-blue-400 font-semibold bg-blue-50 dark:bg-gray-700 p-2 rounded-md transition-colors"> <i data-lucide="layout-dashboard" class="w-5 h-5"></i><a href="/dashboard">Dashboard</a> </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"> <i data-lucide="pie-chart" class="w-5 h-5"></i><a href="/analytics">Analytics</a> </li>
-            <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"> <i data-lucide="users" class="w-5 h-5"></i><a href="/driver">Driver</a> </li>
+            <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"> <i data-lucide="driver" class="w-5 h-5"></i><a href="/driver">Driver</a> </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"> <i data-lucide="alert-triangle" class="w-5 h-5"></i><a href="/panne">Pannes</a> </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"> <i data-lucide="car" class="w-5 h-5"></i><a href="/vehicle">Vehicles</a> </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"> <i data-lucide="wrench" class="w-5 h-5"></i><a href="/reparation">Reparation</a> </li>
@@ -131,15 +88,24 @@
     
     <div class="flex-1 flex flex-col overflow-hidden">
       <header class="bg-white dark:bg-gray-800 shadow p-3 flex justify-between items-center flex-shrink-0 h-16">
+          <!-- Left side: Mobile Menu Button & Mobile Title -->
           <div class="flex items-center">
             <button id="mobile-menu-button" class="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none p-2 mr-2"> <i data-lucide="menu" class="w-6 h-6"></i> </button>
             <div class="text-lg font-bold text-primary dark:text-primary-light md:hidden">FleetDash</div>
           </div>
+
+          <!-- Middle: Desktop Title (can be adjusted/removed) -->
           <div class="hidden md:block text-xl font-semibold text-gray-700 dark:text-gray-200 flex-grow text-center">
               Dashboard Overview
           </div>
+          
+          <!-- Right side: Theme Toggle & User Info -->
           <div class="flex items-center space-x-3">
-              <button id="theme-toggle-header" class="theme-toggle text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"></button>
+              <button id="theme-toggle-header" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                  <!-- Icon will be set by JS -->
+              </button>
+              
+              <!-- User Info with Avatar - Moved to main header -->
               <div class="hidden md:flex items-center space-x-2">
                   <div class="text-right"> 
                        <div class="text-sm font-semibold" id="headerUserDisplayName">User</div>
@@ -151,68 +117,79 @@
       </header>
 
       <div class="flex-1 flex overflow-hidden">
-        <main class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-4 md:space-y-6 lg:space-y-8">
+        <main class="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 md:space-y-8">
           <header class="flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
               <div></div> 
-              <div class="flex items-center space-x-3 w-full sm:w-auto">
-                  <div class="relative flex-1 sm:flex-none">
-                       <button id="quickAddBtn" class="bg-primary text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg hover:bg-primary-hover dark:bg-primary-dark dark:hover:bg-primary-dark-hover flex items-center gap-2 shadow-sm transition-colors w-full justify-center sm:w-auto">
-                          <i data-lucide="plus-circle" class="w-5 h-5"></i> <span class="hidden sm:inline">Quick Add</span>
+              <div class="flex items-center space-x-3">
+                  <div class="relative">
+                       <button id="quickAddBtn" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-hover dark:bg-primary-dark dark:hover:bg-primary-dark-hover flex items-center gap-2 shadow-sm transition-colors">
+                          <i data-lucide="plus-circle" class="w-5 h-5"></i> Quick Add
                       </button>
-                      <div id="quickAddDropdown" class="absolute right-0 mt-2 w-full sm:w-48 bg-white dark:bg-gray-700 rounded-md shadow-xl z-10 hidden border dark:border-gray-600">
-                          <a href="/vehicle" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center gap-2"><i data-lucide="car" class="w-4 h-4"></i> New Vehicle</a>
-                          <a href="/fuel" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center gap-2"><i data-lucide="fuel" class="w-4 h-4"></i> Log Fuel</a>
-                          <a href="/panne" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4 h-4"></i> Report Panne</a>
+                      <div id="quickAddDropdown" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-xl z-10 hidden">
+                          <a href="/vehicle" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">New Vehicle</a>
+                          <a href="/fuel" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">Log Fuel</a>
+                          <a href="/panne" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">Report Panne</a>
                       </div>
                   </div>
-                  <input type="date" id="dashboardDateFilter" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent appearance-none w-full sm:w-auto">
+                  <input type="date" id="dashboardDateFilter" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent appearance-none">
               </div>
           </header>
 
-          <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
-              <div class="kpi-card bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl shadow-lg flex items-start justify-between">
+          <!-- KPI Cards Section -->
+          <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              <div class="kpi-card bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg flex items-start justify-between">
                   <div>
                       <p class="text-sm text-gray-500 dark:text-gray-400">Total Vehicles</p>
                       <p id="kpiTotalVehicles" class="kpi-value font-bold text-gray-800 dark:text-white mt-1">0</p>
                   </div>
-                  <div class="p-2 sm:p-3 rounded-full bg-primary-light dark:bg-primary/20 text-primary dark:text-primary-light"><i data-lucide="truck" class="w-5 sm:w-6 h-5 sm:h-6"></i></div>
+                  <div class="p-3 rounded-full bg-primary-light dark:bg-primary/20 text-primary dark:text-primary-light">
+                      <i data-lucide="truck" class="w-6 h-6"></i>
+                  </div>
               </div>
-              <div class="kpi-card bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl shadow-lg flex items-start justify-between">
+              <div class="kpi-card bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg flex items-start justify-between">
                   <div>
                       <p class="text-sm text-gray-500 dark:text-gray-400">Planned Trips</p>
                       <p id="kpiPlannedTrips" class="kpi-value font-bold text-gray-800 dark:text-white mt-1">0</p>
                   </div>
-                  <div class="p-2 sm:p-3 rounded-full bg-secondary-light dark:bg-secondary/20 text-secondary dark:text-secondary-light"><i data-lucide="route" class="w-5 sm:w-6 h-5 sm:h-6"></i></div>
+                  <div class="p-3 rounded-full bg-secondary-light dark:bg-secondary/20 text-secondary dark:text-secondary-light">
+                      <i data-lucide="route" class="w-6 h-6"></i>
+                  </div>
               </div>
-              <div class="kpi-card bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl shadow-lg flex items-start justify-between">
+              <div class="kpi-card bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg flex items-start justify-between">
                    <div>
                       <p class="text-sm text-gray-500 dark:text-gray-400">Repairs (This Month)</p>
                       <p id="kpiRepairsMonth" class="kpi-value font-bold text-gray-800 dark:text-white mt-1">0</p>
                   </div>
-                  <div class="p-2 sm:p-3 rounded-full bg-warning-light dark:bg-warning/20 text-warning dark:text-warning-light"><i data-lucide="wrench" class="w-5 sm:w-6 h-5 sm:h-6"></i></div>
+                  <div class="p-3 rounded-full bg-warning-light dark:bg-warning/20 text-warning dark:text-warning-light">
+                      <i data-lucide="wrench" class="w-6 h-6"></i>
+                  </div>
               </div>
-              <div class="kpi-card bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl shadow-lg flex items-start justify-between">
+              <div class="kpi-card bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg flex items-start justify-between">
                   <div>
                       <p class="text-sm text-gray-500 dark:text-gray-400">Fuel Cost (This Week)</p>
                       <p id="kpiFuelCostWeek" class="kpi-value font-bold text-gray-800 dark:text-white mt-1">$0</p>
                   </div>
-                  <div class="p-2 sm:p-3 rounded-full bg-danger-light dark:bg-danger/20 text-danger dark:text-danger-light"><i data-lucide="fuel" class="w-5 sm:w-6 h-5 sm:h-6"></i></div>
+                  <div class="p-3 rounded-full bg-danger-light dark:bg-danger/20 text-danger dark:text-danger-light">
+                      <i data-lucide="fuel" class="w-6 h-6"></i>
+                  </div>
               </div>
           </section>
 
+          <!-- Charts Section -->
           <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-              <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl shadow-lg">
+              <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
                   <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Monthly Activity Summary</h3>
-                  <div class="h-64 sm:h-72 md:h-80"><canvas id="monthlyActivityChart"></canvas></div>
+                  <div class="h-72 md:h-80"><canvas id="monthlyActivityChart"></canvas></div>
               </div>
-              <div class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl shadow-lg">
+              <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
                   <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Vehicle Status</h3>
-                  <div class="h-64 sm:h-72 md:h-80 flex items-center justify-center"><canvas id="vehicleStatusChart"></canvas></div>
+                  <div class="h-72 md:h-80 flex items-center justify-center"><canvas id="vehicleStatusChart"></canvas></div>
               </div>
           </section>
           
+          <!-- System Health & Top Drivers -->
           <section class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-              <div class="md:col-span-1 bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl shadow-lg">
+              <div class="md:col-span-1 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
                   <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">System Health</h3>
                   <div class="space-y-3">
                       <div class="flex items-center justify-between"><span class="text-sm text-gray-600 dark:text-gray-300">API Server</span><span class="text-sm font-medium text-green-500 dark:text-green-400 flex items-center"><i data-lucide="check-circle" class="w-4 h-4 mr-1"></i> Operational</span></div>
@@ -221,7 +198,7 @@
                        <div class="flex items-center justify-between"><span class="text-sm text-gray-600 dark:text-gray-300">Notification Service</span><span class="text-sm font-medium text-green-500 dark:text-green-400 flex items-center"><i data-lucide="check-circle" class="w-4 h-4 mr-1"></i> Active</span></div>
                   </div>
               </div>
-              <div class="md:col-span-2 bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl shadow-lg">
+              <div class="md:col-span-2 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
                     <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Top Performing Drivers (Last 30 Days)</h3>
                     <ul id="topPerformingDriversList" class="space-y-3">
                         <li class="p-2 text-sm text-gray-500">Loading...</li>
@@ -229,14 +206,15 @@
               </div>
           </section>
 
+          <!-- Recent Pannes & Upcoming Trips -->
           <section class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <div class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl shadow-lg">
+              <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
                   <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Recent Pannes</h3>
                   <ul id="recentPannesListDashboard" class="space-y-3 max-h-60 overflow-y-auto">
                        <li class="p-3"><div><p class="font-medium">Loading...</p></div></li>
                   </ul>
               </div>
-              <div class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl shadow-lg">
+              <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
                   <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Upcoming Trips</h3> 
                    <ul id="upcomingTripsListDashboard" class="space-y-3 max-h-60 overflow-y-auto">
                        <li class="p-3"><div><p class="font-medium">Loading...</p></div></li>
@@ -245,7 +223,9 @@
           </section>
         </main>
 
+        <!-- Right Sidebar -->
         <aside class="w-1/5 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden lg:block flex-shrink-0 border-l dark:border-gray-700 overflow-y-auto">
+            <!-- User info in right sidebar - you might remove this if the header one is enough -->
             <div class="flex justify-end items-center">
                 <div class="text-right">
                     <div class="text-sm font-semibold" id="userDisplayNameRightSidebar">User</div>
@@ -254,20 +234,41 @@
                 <img id="rightSidebarAdminAvatar" src="https://i.pravatar.cc/40?u=admin_stats_page" alt="Admin" class="w-10 h-10 rounded-full ml-2 object-cover">
             </div>
             <hr class="dark:border-gray-700/50">
+            <!-- Rest of right sidebar content -->
             <div>
-                <h4 class="font-semibold mb-3 text-gray-700 dark:text-gray-200">Key Performance Insights</h4>
-                <ul id="keyPerformanceInsightsList" class="text-xs space-y-2.5 text-gray-600 dark:text-gray-300">
-                    <li class="flex items-start space-x-2"><i data-lucide="loader-2" class="w-4 h-4 text-gray-400 animate-spin mt-0.5 shrink-0"></i><span>Loading insights...</span></li>
+                <h4 class="font-semibold mb-3">Key Performance Insights</h4>
+                <ul class="text-xs space-y-2.5 text-gray-600 dark:text-gray-300">
+                    <li class="flex items-start space-x-2">
+                        <i id="fuelEfficiencyIcon" data-lucide="help-circle" class="w-4 h-4 text-gray-500 mt-0.5 shrink-0"></i>
+                        <span>Fuel Efficiency: <span class="font-medium" id="fuelEfficiencyStatText">Calculating...</span></span>
+                    </li>
+                    <li class="flex items-start space-x-2"><i data-lucide="trending-down" class="w-4 h-4 text-red-500 mt-0.5 shrink-0"></i><span>Idle Time: <span class="font-medium">Up 7%</span> (Mock)</span></li>
+                    <li class="flex items-start space-x-2">
+                        <i id="maintenanceTotalIcon" data-lucide="tools" class="w-4 h-4 text-blue-500 mt-0.5 shrink-0"></i>
+                        <span>Total Maintenance: <span class="font-medium" id="maintenanceTotalStatText">Calculating...</span></span>
+                    </li>
                 </ul>
             </div>
             <hr class="dark:border-gray-700/50">
             <div>
                 <div class="flex justify-between items-center mb-3">
-                    <h4 class="font-semibold text-gray-700 dark:text-gray-200">Alerts & Notifications</h4>
-                    <a href="#" id="viewAllNotificationsLink" class="text-xs text-primary dark:text-primary-light hover:underline">View All (<span id="notificationCount">0</span>)</a>
+                    <h4 class="font-semibold">Alerts & Notifications</h4>
+                    <a href="#" class="text-xs text-primary hover:underline">View All (<span id="notificationCount">0</span>)</a>
                 </div>
-                <div id="notificationsList" class="space-y-3 max-h-40 overflow-y-auto pr-1">
-                     <div class="flex items-start space-x-2 p-2.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><i data-lucide="loader-2" class="w-5 h-5 text-gray-400 animate-spin mt-0.5 flex-shrink-0"></i><p class="text-xs text-gray-700 dark:text-gray-300">Loading alerts...</p></div>
+                <div class="space-y-3 max-h-40 overflow-y-auto pr-1">
+                    <div id="alertCriticalPanne" class="hidden items-start space-x-2 p-2.5 bg-danger-light dark:bg-danger/20 rounded-lg">
+                        <i data-lucide="alert-octagon" class="w-5 h-5 text-danger dark:text-danger-light mt-0.5 shrink-0"></i>
+                        <p class="text-xs">Critical: Vehicle <span class="font-medium" id="criticalPannePlate">N/A</span>: <span id="criticalPanneType">N/A</span>.</p>
+                    </div>
+                    <div id="alertMaintenance" class="hidden items-start space-x-2 p-2.5 bg-warning-light dark:bg-warning/20 rounded-lg">
+                        <i data-lucide="clock" class="w-5 h-5 text-warning dark:text-warning-light mt-0.5 shrink-0"></i>
+                        <p class="text-xs">Maint. for <span class="font-medium" id="maintAlertPlate">N/A</span>: <span id="maintAlertStatusText">N/A</span>.</p>
+                    </div>
+                    <div id="alertTrip" class="hidden items-start space-x-2 p-2.5 bg-info-light dark:bg-info/20 rounded-lg">
+                        <i data-lucide="check-circle-2" class="w-5 h-5 text-info dark:text-info-light mt-0.5 shrink-0"></i>
+                        <p class="text-xs">Trip update for <span class="font-medium" id="tripAlertPlate">N/A</span>: <span id="tripAlertStatusText">N/A</span>.</p>
+                    </div>
+                    <div id="noAlerts" class="text-xs text-gray-500 dark:text-gray-400 p-2.5">No new alerts.</div>
                 </div>
             </div>
         </aside>
@@ -288,31 +289,10 @@
 </div>
 
 <script>
-  // Global constants for API and navigation
-  const DASH_API_DATA_NAMESPACE = '/dashboard-data'; // Namespace for dashboard specific API calls
-  const LOGIN_PAGE_URL = "/"; // **** IMPORTANT: Verify this is the correct path to your login page ****
+  const DASH_API_PAGE_BASE_URL = ''; 
+  const DASH_API_DATA_NAMESPACE = '/dashboard-data'; 
+  const LOGIN_PAGE_URL = '/login';
 
-  // --- Toast Notification System (Self-contained) ---
-  function showToast(message, duration = 3000, type = 'info') {
-    let container = document.getElementById('toast-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'toast-container';
-        document.body.appendChild(container);
-    }
-    const toastElement = document.createElement('div');
-    toastElement.textContent = message;
-    toastElement.className = `toast-message ${type}`; // Use CSS classes for styling
-    toastElement.classList.add('show'); // For fade-in
-    container.appendChild(toastElement);
-    setTimeout(() => {
-        toastElement.classList.remove('show');
-        toastElement.style.opacity = '0'; // Start fade out
-        setTimeout(() => { toastElement.remove(); }, 300); 
-    }, duration);
-  }
-  
-  // --- Sidebar Toggle Functionality ---
   const dashboardSidebar = document.getElementById('sidebar');
   const dashboardMobileMenuButton = document.getElementById('mobile-menu-button');
   const dashboardSidebarCloseButton = document.getElementById('sidebar-close-button');
@@ -321,7 +301,6 @@
   function openDashboardMobileMenu() { if (dashboardSidebar && dashboardSidebarOverlay) { dashboardSidebar.classList.remove('-translate-x-full'); dashboardSidebar.classList.add('translate-x-0'); dashboardSidebarOverlay.classList.remove('hidden'); document.body.classList.add('overflow-hidden', 'md:overflow-auto'); } }
   function closeDashboardMobileMenu() { if (dashboardSidebar && dashboardSidebarOverlay) { dashboardSidebar.classList.add('-translate-x-full'); dashboardSidebar.classList.remove('translate-x-0'); dashboardSidebarOverlay.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); } }
   
-  // --- Theme Toggle ---
   const dashboardThemeToggleButton = document.getElementById('theme-toggle-header');
   function setDashboardInitialThemeIcon() { 
     if (dashboardThemeToggleButton) { 
@@ -330,7 +309,6 @@
     }
   }
 
-  // --- Info/Status Modal (Self-contained) ---
   let infoStatusModalTimeoutDashboard;
   function openInfoStatusModalOnDashboard(title, message, type = 'info', autoCloseDelay = 3000) {
     const modal = document.getElementById('infoStatusModal');
@@ -357,7 +335,7 @@
     
     if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [iconContainer] });
     modal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden'; // Prevent background scroll when modal is open
+    document.body.style.overflow = 'hidden';
     if (autoCloseDelay > 0 && type !== 'error') { 
         infoStatusModalTimeoutDashboard = setTimeout(() => closeInfoStatusModalOnDashboard(), autoCloseDelay);
     }
@@ -365,50 +343,55 @@
   function closeInfoStatusModalOnDashboard() { 
     if(infoStatusModalTimeoutDashboard) clearTimeout(infoStatusModalTimeoutDashboard); 
     document.getElementById('infoStatusModal')?.classList.add('hidden'); 
-    document.body.style.overflow = ''; // Restore background scroll
+    document.body.style.overflow = '';
   }
 
-  // --- Authentication & User Info ---
   function getDashboardAuthToken() { return localStorage.getItem('accessToken'); } 
   function parseDashboardJwt(token) { try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { console.error("JWT Parse Error:", e); return null; }}
 
   function updateDashboardUserInfo() {
     const token = getDashboardAuthToken(); 
     const decodedToken = token ? parseDashboardJwt(token) : null; 
-    const username = localStorage.getItem('username') || decodedToken?.sub || 'Guest'; // Prefer username from localStorage
-    const roleFromToken = decodedToken?.status || 'User'; // Assuming 'status' field in token can be used as role
+
+    const username = decodedToken?.sub || 'Guest';
+    const roleFromToken = decodedToken?.role || decodedToken?.status || 'User'; 
     const role = roleFromToken.charAt(0).toUpperCase() + roleFromToken.slice(1);
 
-    const elementsToUpdate = [
-        { id: 'headerUserDisplayName', text: username },
-        { id: 'headerUserRoleDisplay', text: role },
-        { id: 'userDisplayNameRightSidebar', text: username },
-        { id: 'userRoleDisplayRightSidebar', text: role }
-    ];
-    elementsToUpdate.forEach(item => {
-        const el = document.getElementById(item.id);
-        if (el) el.textContent = item.text;
-    });
-
+    // Update new header elements
+    const headerUserDisplayNameEl = document.getElementById('headerUserDisplayName');
+    const headerUserRoleDisplayEl = document.getElementById('headerUserRoleDisplay');
     const headerAvatarImgEl = document.getElementById('headerAdminAvatar');
+    const headerAvatarSeed = username !== 'Guest' ? username.replace(/\s+/g, '').toLowerCase() : 'default_admin_seed_header';
+
+    if (headerUserDisplayNameEl) headerUserDisplayNameEl.textContent = username;
+    if (headerUserRoleDisplayEl) headerUserRoleDisplayEl.textContent = role;
+    if (headerAvatarImgEl) {
+        headerAvatarImgEl.src = `https://i.pravatar.cc/32?u=${encodeURIComponent(headerAvatarSeed)}`;
+    }
+
+    // Update right sidebar elements (if you choose to keep them)
+    const userDisplayNameRightSidebarEl = document.getElementById('userDisplayNameRightSidebar');
+    const userRoleDisplayRightSidebarEl = document.getElementById('userRoleDisplayRightSidebar');
     const rightSidebarAdminAvatarImg = document.getElementById('rightSidebarAdminAvatar');
-    const avatarSeedBase = username !== 'Guest' ? username.replace(/\s+/g, '').toLowerCase() : 'default_user';
-    if (headerAvatarImgEl) headerAvatarImgEl.src = `https://i.pravatar.cc/32?u=${encodeURIComponent(avatarSeedBase + '_header')}`;
-    if (rightSidebarAdminAvatarImg) rightSidebarAdminAvatarImg.src = `https://i.pravatar.cc/40?u=${encodeURIComponent(avatarSeedBase + '_sidebar')}`;
+    const rightSidebarAvatarSeed = username !== 'Guest' ? username.replace(/\s+/g, '').toLowerCase() : 'default_admin_seed_sidebar';
+
+    if (userDisplayNameRightSidebarEl) userDisplayNameRightSidebarEl.textContent = username;
+    if (userRoleDisplayRightSidebarEl) userRoleDisplayRightSidebarEl.textContent = role;
+    if (rightSidebarAdminAvatarImg) {
+        rightSidebarAdminAvatarImg.src = `https://i.pravatar.cc/40?u=${encodeURIComponent(rightSidebarAvatarSeed)}`;
+    }
   }
 
-  // --- API Request Helper ---
   async function apiRequestDashboard(endpointSubPath, method = 'GET', body = null) {
     const token = getDashboardAuthToken();
     const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
-    const fullApiPath = `${DASH_API_DATA_NAMESPACE}${endpointSubPath}`; // Relative path
+    const fullApiPath = `${DASH_API_PAGE_BASE_URL}${DASH_API_DATA_NAMESPACE}${endpointSubPath}`;
     
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     } else {
       console.warn(`Auth token needed for ${method} ${fullApiPath} but not found.`);
       openInfoStatusModalOnDashboard("Authentication Required", "Please log in to view data.", "error", 0);
-      setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 2500);
       return Promise.resolve(null); 
     }
     
@@ -420,8 +403,8 @@
       const response = await fetch(fullApiPath, config);
       responseBodyText = await response.text();
       if (response.status === 401) {
-        openInfoStatusModalOnDashboard("Authentication Error", "Session expired or unauthorized. Redirecting to login.", "error", 0);
-        localStorage.removeItem('accessToken'); localStorage.removeItem('username');
+        openInfoStatusModalOnDashboard("Authentication Error", "Session expired or unauthorized. Please log in again.", "error", 3000);
+        localStorage.removeItem('accessToken'); 
         setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 2500);
         return null;
       }
@@ -433,7 +416,7 @@
         openInfoStatusModalOnDashboard(`API Error: ${response.status}`, errorDetail, "error", 0);
         return null;
       }
-      if (response.status === 204 || !responseBodyText.trim()) return []; 
+      if (response.status === 204 || !responseBodyText) return []; 
       return JSON.parse(responseBodyText);
     } catch (error) {
       console.error(`Network/Catch Error for ${method} ${fullApiPath}: ${error.message}. Raw Response:`, responseBodyText);
@@ -442,7 +425,6 @@
     }
   }
   
-  // --- Data Loading and UI Update Functions ---
   async function loadDashboardData() {
     const kpiData = await apiRequestDashboard('/kpis'); 
     if (kpiData) {
@@ -452,59 +434,54 @@
         document.getElementById('kpiFuelCostWeek').textContent = `$${(kpiData.fuel_cost_this_week ?? 0).toFixed(2)}`;
     }
 
-    // Update right sidebar insights
     const insightsData = await apiRequestDashboard('/performance-insights');
-    const insightsListEl = document.getElementById('keyPerformanceInsightsList');
-    if (insightsListEl) {
-        if (insightsData && insightsData.fuel_efficiency && insightsData.maintenance_compliance) {
-            insightsListEl.innerHTML = ''; // Clear loading
-            const fe = insightsData.fuel_efficiency;
-            let feText = ``;
-            if (fe.percentage_change !== null && fe.percentage_change !== undefined) { 
-                feText += `${fe.percentage_change > 0 ? '+' : ''}${fe.percentage_change}% efficiency`;
-            } else { feText += "N/A comparison"; }
-            
-            let feIcon = 'minus'; let feColor = 'gray-500';
-            if (fe.trend === "up") { feIcon = 'trending-up'; feColor = 'green-500'; }
-            else if (fe.trend === "down") { feIcon = 'trending-down'; feColor = 'red-500'; }
+    if (insightsData && insightsData.fuel_efficiency && insightsData.maintenance_compliance) {
+        const fe = insightsData.fuel_efficiency;
+        let feText = `${(fe.current_month_volume || 0).toFixed(1)}L (Cur) vs ${(fe.last_month_volume || 0).toFixed(1)}L (Last). `;
+        if (fe.percentage_change !== null && fe.percentage_change !== undefined) { feText += `Eff.Chg: ${fe.percentage_change}%`; }
+        else { feText += "No comparison data." }
+        document.getElementById('fuelEfficiencyStatText').textContent = feText;
+        const feIconEl = document.getElementById('fuelEfficiencyIcon');
+        if (fe.trend === "up") { feIconEl.setAttribute('data-lucide', 'trending-up'); feIconEl.className = 'w-4 h-4 text-green-500 mt-0.5 shrink-0';}
+        else if (fe.trend === "down") { feIconEl.setAttribute('data-lucide', 'trending-down'); feIconEl.className = 'w-4 h-4 text-red-500 mt-0.5 shrink-0'; }
+        else { feIconEl.setAttribute('data-lucide', 'minus'); feIconEl.className = 'w-4 h-4 text-gray-500 mt-0.5 shrink-0'; }
 
-            insightsListEl.innerHTML += `<li class="flex items-start space-x-2"><i data-lucide="${feIcon}" class="w-4 h-4 text-${feColor} mt-0.5 shrink-0"></i><span>Fuel Efficiency: <span class="font-medium">${feText}</span></span></li>`;
-            insightsListEl.innerHTML += `<li class="flex items-start space-x-2"><i data-lucide="shield-check" class="w-4 h-4 text-blue-500 mt-0.5 shrink-0"></i><span>Maintenance: <span class="font-medium">${insightsData.maintenance_compliance.total_maintenance_records ?? 0}</span> logged.</span></li>`;
-            // Add other static or placeholder insights if needed
-            insightsListEl.innerHTML += `<li class="flex items-start space-x-2"><i data-lucide="activity" class="w-4 h-4 text-yellow-500 mt-0.5 shrink-0"></i><span>Idle Time: <span class="font-medium">Data N/A</span></span></li>`;
-            if (typeof lucide !== 'undefined') lucide.createIcons({nodes: insightsListEl.querySelectorAll('[data-lucide]')});
-        } else {
-            insightsListEl.innerHTML = '<li class="p-2 text-sm text-red-500">Could not load insights.</li>';
-        }
+        document.getElementById('maintenanceTotalStatText').textContent = `${insightsData.maintenance_compliance.total_maintenance_records ?? 0} records`;
+        document.getElementById('maintenanceTotalIcon').setAttribute('data-lucide', 'tools');
     }
-    
-    // Update Alerts in right sidebar
+
     const alertsData = await apiRequestDashboard('/alerts');
-    const notificationsListEl = document.getElementById('notificationsList');
-    const notificationCountEl = document.getElementById('notificationCount');
-    if (notificationsListEl && notificationCountEl) {
-        notificationsListEl.innerHTML = ''; // Clear loading
-        let activeAlertsCount = 0;
-        const createAlertHTML = (alert, icon, colorClass, typeName) => {
-            if (!alert) return '';
-            activeAlertsCount++;
-            return `<div class="flex items-start space-x-2 p-2.5 bg-${colorClass}-light dark:bg-${colorClass}/20 rounded-lg">
-                        <i data-lucide="${icon}" class="w-5 h-5 text-${colorClass} dark:text-${colorClass}-light mt-0.5 shrink-0"></i>
-                        <p class="text-xs text-gray-700 dark:text-gray-300">
-                            <span class="font-semibold">${typeName}:</span> Veh <span class="font-medium">${alert.plate_number || 'N/A'}</span> - ${alert.message || 'Details N/A'}. ${alert.status ? `(${alert.status})` : ''}
-                        </p>
-                    </div>`;
-        };
-        notificationsListEl.innerHTML += createAlertHTML(alertsData?.critical_panne, 'alert-octagon', 'danger', 'Critical');
-        notificationsListEl.innerHTML += createAlertHTML(alertsData?.maintenance_alert, 'tool', 'warning', 'Maintenance');
-        notificationsListEl.innerHTML += createAlertHTML(alertsData?.trip_alert, 'route', 'info', 'Trip');
-        
-        if (activeAlertsCount === 0) {
-            notificationsListEl.innerHTML = '<p class="text-xs text-gray-500 dark:text-gray-400 p-2.5">No new alerts.</p>';
+    let activeAlertsCount = 0;
+    const noAlertsEl = document.getElementById('noAlerts');
+    const alertElements = { panne: document.getElementById('alertCriticalPanne'), maintenance: document.getElementById('alertMaintenance'), trip: document.getElementById('alertTrip') };
+    Object.values(alertElements).forEach(el => el?.classList.add('hidden'));
+    if(noAlertsEl) noAlertsEl.classList.remove('hidden');
+
+    if (alertsData) {
+        if (alertsData.critical_panne) {
+            document.getElementById('criticalPannePlate').textContent = alertsData.critical_panne.plate_number;
+            document.getElementById('criticalPanneType').textContent = alertsData.critical_panne.message;
+            if(alertElements.panne) alertElements.panne.classList.remove('hidden'); activeAlertsCount++;
         }
-        notificationCountEl.textContent = alertsData?.total_alerts ?? 0;
-        if (typeof lucide !== 'undefined') lucide.createIcons({nodes: notificationsListEl.querySelectorAll('[data-lucide]')});
+        if (alertsData.maintenance_alert) {
+            document.getElementById('maintAlertPlate').textContent = alertsData.maintenance_alert.plate_number;
+            let maintMsg = alertsData.maintenance_alert.message;
+            if(alertsData.maintenance_alert.status) maintMsg += ` (${alertsData.maintenance_alert.status})`;
+            document.getElementById('maintAlertStatusText').textContent = maintMsg;
+            if(alertElements.maintenance) alertElements.maintenance.classList.remove('hidden'); activeAlertsCount++;
+        }
+        if (alertsData.trip_alert) {
+            document.getElementById('tripAlertPlate').textContent = alertsData.trip_alert.plate_number;
+            let tripMsg = alertsData.trip_alert.message;
+            if(alertsData.trip_alert.status) tripMsg += ` (${alertsData.trip_alert.status})`;
+            document.getElementById('tripAlertStatusText').textContent = tripMsg;
+            if(alertElements.trip) alertElements.trip.classList.remove('hidden'); activeAlertsCount++;
+        }
     }
+    if (activeAlertsCount > 0 && noAlertsEl) noAlertsEl.classList.add('hidden');
+    document.getElementById('notificationCount').textContent = activeAlertsCount;
+    
+    if (typeof lucide !== 'undefined') lucide.createIcons();
   }
   
   async function loadRecentActivityListsForDashboard() {
@@ -531,12 +508,15 @@
             }).join('') : '<li class="p-3 text-sm text-gray-500">No upcoming trips.</li>';
         } else { upcomingTripsListEl.innerHTML = '<li class="p-3 text-sm text-red-500">Error loading upcoming trips.</li>'; }
     }
-    if (typeof lucide !== 'undefined') lucide.createIcons(); // For icons in these lists
+    if (typeof lucide !== 'undefined') lucide.createIcons();
   }
 
   async function loadTopPerformingDrivers() {
     const topDriversListEl = document.getElementById('topPerformingDriversList'); 
-    if (!topDriversListEl) return;
+    if (!topDriversListEl) {
+        console.warn("Element with ID 'topPerformingDriversList' not found for dashboard.");
+        return;
+    }
     topDriversListEl.innerHTML = '<li class="p-2 text-sm text-gray-500">Loading top drivers...</li>';
     const topDrivers = await apiRequestDashboard('/top-performing-drivers?limit=3'); 
     if (topDrivers && Array.isArray(topDrivers) && topDrivers.length > 0) {
@@ -554,10 +534,9 @@
     } else {
         topDriversListEl.innerHTML = '<li class="p-2 text-sm text-red-500">Could not load top drivers.</li>';
     }
-    if (typeof lucide !== 'undefined') lucide.createIcons({nodes: topDriversListEl.querySelectorAll('[data-lucide]')});
+    if (typeof lucide !== 'undefined') lucide.createIcons();
   }
 
-  // --- Chart Initialization ---
   let monthlyActivityChartInstance = null;
   let vehicleStatusChartInstance = null;
   
@@ -588,7 +567,7 @@
     const finalMonthlyData = monthlyActivityData || { labels: [], trips: [], maintenances: [], pannes: [] };
     const finalVehicleStatusData = vehicleStatusDataFromApi && vehicleStatusDataFromApi.labels && vehicleStatusDataFromApi.counts
         ? { labels: vehicleStatusDataFromApi.labels, data: vehicleStatusDataFromApi.counts } 
-        : { labels: ["No Data"], data: [1] }; // Provide default for empty pie chart
+        : { labels: [], data: [] }; 
     
     initializeDashboardCharts(isThemeChange, finalMonthlyData, finalVehicleStatusData);
   }
@@ -642,130 +621,83 @@
             getChartColorTailwind('gray', isDark ? '500' : '400', '#6b7280'), 
             getChartColorTailwind('info', isDark ? 'dark' : 'DEFAULT', '#3b82f6') 
         ];
-        const chartDataProvided = statusData.labels.length > 0 && statusData.data.length > 0;
         vehicleStatusChartInstance = new Chart(statusCtx, {
             type: 'doughnut',
-            data: { 
-                labels: chartDataProvided ? statusData.labels : ["No Data"],
-                datasets: [{ 
-                    label: 'Vehicle Status', 
-                    data: chartDataProvided ? statusData.data : [1], 
-                    backgroundColor: chartDataProvided ? statusData.labels.map((_, i) => statusColors[i % statusColors.length]) : [getChartColorTailwind('gray', isDark ? '700' : '200', '#374151')], 
-                    borderColor: isDark ? getChartColorTailwind('gray','800', '#1f2937') : '#ffffff', 
-                    borderWidth: chartDataProvided ? 2 : 0, 
-                    hoverOffset: 8 
-                }]
+            data: { labels: statusData.labels,
+                datasets: [{ label: 'Vehicle Status', data: statusData.data, backgroundColor: statusData.labels.map((_, i) => statusColors[i % statusColors.length]), borderColor: isDark ? getChartColorTailwind('gray','800', '#1f2937') : '#ffffff', borderWidth: 2, hoverOffset: 8 }]
             },
             options: { responsive: true, maintainAspectRatio: false, cutout: '65%',
-                plugins: { 
-                    legend: { 
-                        display: chartDataProvided, // Only display legend if there's actual data
-                        position: 'bottom', 
-                        labels: { color: legendLabelColor, usePointStyle: true, boxWidth: 8, font: { size: 12 }, padding: 15 } 
-                    },
-                    tooltip: { 
-                        enabled: chartDataProvided, // Only enable tooltip if there's actual data
-                        backgroundColor: tooltipBgColor, titleColor: tooltipTitleColor, titleFont: { weight: '600', size: 13 }, bodyColor: tooltipBodyColor, bodyFont: { size: 12 }, borderColor: tooltipBorderColor, borderWidth: 1, cornerRadius: 4, padding: 10, displayColors: true,
-                        callbacks: { 
-                            label: function(context) { 
-                                let label = context.label || ''; 
-                                if (label) { label += ': '; } 
-                                if (context.parsed !== null) { label += context.parsed; } 
-                                return label; 
-                            } 
-                        }
+                plugins: { legend: { position: 'bottom', labels: { color: legendLabelColor, usePointStyle: true, boxWidth: 8, font: { size: 12 }, padding: 15 } },
+                    tooltip: { backgroundColor: tooltipBgColor, titleColor: tooltipTitleColor, titleFont: { weight: '600', size: 13 }, bodyColor: tooltipBodyColor, bodyFont: { size: 12 }, borderColor: tooltipBorderColor, borderWidth: 1, cornerRadius: 4, padding: 10, displayColors: true,
+                        callbacks: { label: function(context) { let label = context.label || ''; if (label) { label += ': '; } if (context.parsed !== null) { label += context.parsed; } return label; } }
                     }
                 }
             }
         });
     } else { console.warn("Vehicle status chart canvas not found"); }
-    if(typeof lucide !== 'undefined') lucide.createIcons(); // General refresh after charts
   }
-  
-  // --- Main Initialization on DOMContentLoaded ---
+
   document.addEventListener('DOMContentLoaded', async () => {
-      if (typeof lucide !== 'undefined') lucide.createIcons(); // Initial Lucide call for static icons
+      if (typeof lucide !== 'undefined') lucide.createIcons();
       
-      // Theme setup
       if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
           document.documentElement.classList.add('dark');
-      } else { 
-          document.documentElement.classList.remove('dark'); 
-      }
-      setDashboardInitialThemeIcon(); // Sets icon and calls lucide.createIcons()
-      
-      updateDashboardUserInfo(); // Update user names and avatars
+      } else { document.documentElement.classList.remove('dark'); }
+      setDashboardInitialThemeIcon(); 
+      updateDashboardUserInfo();
 
-      // Event Listeners
       if (dashboardMobileMenuButton) dashboardMobileMenuButton.addEventListener('click', openDashboardMobileMenu);
       if (dashboardSidebarCloseButton) dashboardSidebarCloseButton.addEventListener('click', closeDashboardMobileMenu);
       if (dashboardSidebarOverlay) dashboardSidebarOverlay.addEventListener('click', closeDashboardMobileMenu);
-      
       if (dashboardThemeToggleButton) {
           dashboardThemeToggleButton.addEventListener('click', async () => { 
               document.documentElement.classList.toggle('dark'); 
               localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-              setDashboardInitialThemeIcon(); // Updates icon and calls lucide
-              await fetchAndInitializeCharts(true); // Re-fetch/re-init charts for theme
+              setDashboardInitialThemeIcon(); 
+              await fetchAndInitializeCharts(true); 
           });
       }
       
       document.querySelectorAll('#sidebar nav a').forEach(link => { 
-          link.addEventListener('click', (e) => { 
-              if (window.innerWidth < 768 && link.getAttribute('href') && !link.getAttribute('href').startsWith('#')) {
-                  closeDashboardMobileMenu(); 
-              }
-          }); 
+          link.addEventListener('click', (e) => { if (window.innerWidth < 768 && link.getAttribute('href') && !link.getAttribute('href').startsWith('#')) closeDashboardMobileMenu(); }); 
       });
       
       const quickAddBtn = document.getElementById('quickAddBtn');
       const quickAddDropdown = document.getElementById('quickAddDropdown');
       if(quickAddBtn && quickAddDropdown) { 
         quickAddBtn.addEventListener('click', () => quickAddDropdown.classList.toggle('hidden'));
-        document.addEventListener('click', (event) => { // Close dropdown if clicked outside
+        document.addEventListener('click', (event) => {
             if (!quickAddBtn.contains(event.target) && !quickAddDropdown.contains(event.target)) {
                 quickAddDropdown.classList.add('hidden');
             }
         });
       }
-
       const dashboardDateFilter = document.getElementById('dashboardDateFilter');
       if (dashboardDateFilter) { 
-        const today = new Date().toISOString().split('T')[0];
-        dashboardDateFilter.value = today; // Set to today by default
-        dashboardDateFilter.addEventListener('change', async (e) => {
-            console.log("Dashboard date filter changed to:", e.target.value);
-            // Potentially re-fetch some date-sensitive data here if needed for dashboard
-            // For now, just logging. KPIs are generally "this month/week".
-        });
+          dashboardDateFilter.addEventListener('change', async (e) => {
+              console.log("Date filter changed to:", e.target.value);
+          });
       }
-
       document.getElementById('global-logout-btn')?.addEventListener('click', (e) => { 
         e.preventDefault();
         localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('username');
-        localStorage.removeItem('user_id');
-        localStorage.removeItem('user_status');
         openInfoStatusModalOnDashboard("Logged Out", "You have been logged out. Redirecting...", "info", 0);
         setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 2000);
       });
-      
       document.getElementById('infoStatusModalOkButton')?.addEventListener('click', closeInfoStatusModalOnDashboard);
 
-      // Authentication Check before loading data
       if (!getDashboardAuthToken()) {
           openInfoStatusModalOnDashboard("Authentication Required", "Redirecting to login...", "error", 0);
           setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 2500); 
-          return; // Stop further execution if not authenticated
+          return; 
       }
 
-      // Load all dashboard data
-      await loadDashboardData(); // Loads KPIs, Right Sidebar Insights & Alerts
+      await loadDashboardData();
       await loadRecentActivityListsForDashboard(); 
       await loadTopPerformingDrivers(); 
-      await fetchAndInitializeCharts(); // Loads chart data and initializes charts
+      await fetchAndInitializeCharts(); 
   });
 </script>
+<script src="/static/js/global.js"></script> 
 </body>
 </html>
