@@ -1,60 +1,70 @@
 // static/js/global.js
 
 // --- Simple Toast Notification System ---
-function showToast(message, duration = 3000, type = 'info') { // type can be 'info', 'success', 'error'
-    const container = document.getElementById('toast-container');
-    // Create container if it doesn't exist (useful if not all pages have it hardcoded)
+function showToast(message, duration = 3000, type = 'info') {
+    let container = document.getElementById('toast-container');
     if (!container) {
-        const newContainer = document.createElement('div');
-        newContainer.id = 'toast-container';
-        // Basic styling for the container if created dynamically
-        newContainer.style.position = 'fixed';
-        newContainer.style.bottom = '20px';
-        newContainer.style.right = '20px';
-        newContainer.style.zIndex = '10000';
-        newContainer.style.display = 'flex';
-        newContainer.style.flexDirection = 'column';
-        newContainer.style.gap = '0.5rem';
-        document.body.appendChild(newContainer);
-        container = newContainer;
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.style.position = 'fixed';
+        container.style.bottom = '20px';
+        container.style.right = '20px';
+        container.style.zIndex = '10000';
+        container.style.display = 'flex';
+        container.style.flexDirection = 'column';
+        container.style.gap = '0.5rem';
+        document.body.appendChild(container);
     }
 
     const toastElement = document.createElement('div');
     toastElement.textContent = message;
-    // Basic styling for the toast message itself
-    toastElement.style.backgroundColor = '#333';
+    toastElement.style.transition = 'opacity 0.3s ease-out'; // Apply transition before append for show class
+    
+    // Set base styles, then type-specific overrides
     toastElement.style.color = 'white';
     toastElement.style.padding = '10px 15px';
     toastElement.style.borderRadius = '5px';
     toastElement.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
     toastElement.style.fontSize = '0.875rem';
-    toastElement.style.opacity = '1';
-    toastElement.style.transition = 'opacity 0.3s ease-out';
-
+    
     if (type === 'success') {
-        toastElement.style.backgroundColor = '#10b981'; // Tailwind green-500
+        toastElement.style.backgroundColor = '#10b981';
     } else if (type === 'error') {
-        toastElement.style.backgroundColor = '#ef4444'; // Tailwind red-500
+        toastElement.style.backgroundColor = '#ef4444';
     } else if (type === 'info') {
-        toastElement.style.backgroundColor = '#3b82f6'; // Tailwind blue-500
+        toastElement.style.backgroundColor = '#3b82f6';
+    } else {
+        toastElement.style.backgroundColor = '#333'; // Default
     }
     
     container.appendChild(toastElement);
+    
+    // Force reflow for transition to apply on add
+    // We set opacity to 0 initially, then to 1 to trigger fade-in
+    toastElement.style.opacity = '0'; 
+    requestAnimationFrame(() => { // Ensures opacity is applied after element is in DOM
+        toastElement.style.opacity = '1';
+    });
+
     setTimeout(() => {
         toastElement.style.opacity = '0';
         setTimeout(() => {
           toastElement.remove();
-        }, 300); // Allow time for fade out
+        }, 300); 
     }, duration);
 }
 
-
+// --- MAIN DOMContentLoaded ---
 document.addEventListener('DOMContentLoaded', () => {
     // --- Initialize Lucide Icons ---
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
-    } else {
-        console.warn("Lucide library not found. Icons will not be rendered.");
+    try {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        } else {
+            console.warn("Lucide library not found. Icons will not be rendered.");
+        }
+    } catch (e) {
+        console.error("Error initializing Lucide icons:", e);
     }
 
     // --- Sidebar Toggle Functionality ---
@@ -68,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sidebar.classList.remove('-translate-x-full');
             sidebar.classList.add('translate-x-0');
             sidebarOverlay.classList.remove('hidden');
-            document.body.classList.add('overflow-hidden', 'md:overflow-auto'); // Prevent body scroll on mobile
+            document.body.classList.add('overflow-hidden', 'md:overflow-auto');
         }
     }
 
@@ -77,32 +87,32 @@ document.addEventListener('DOMContentLoaded', () => {
             sidebar.classList.add('-translate-x-full');
             sidebar.classList.remove('translate-x-0');
             sidebarOverlay.classList.add('hidden');
-            document.body.classList.remove('overflow-hidden'); // Re-enable body scroll
+            document.body.classList.remove('overflow-hidden');
         }
     }
 
-    mobileMenuButton?.addEventListener('click', openMobileMenu);
-    sidebarCloseButton?.addEventListener('click', closeMobileMenu);
-    sidebarOverlay?.addEventListener('click', closeMobileMenu);
+    if (mobileMenuButton) mobileMenuButton.addEventListener('click', openMobileMenu);
+    if (sidebarCloseButton) sidebarCloseButton.addEventListener('click', closeMobileMenu);
+    if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeMobileMenu);
 
-    // Close mobile sidebar when a nav link is clicked (optional, good UX)
     document.querySelectorAll('#sidebar nav a').forEach(link => {
-        link.addEventListener('click', () => {
-            if (window.innerWidth < 768) { // Only for mobile view
-                closeMobileMenu();
+        link.addEventListener('click', (e) => { // Added 'e' parameter
+            if (window.innerWidth < 768) {
+                // If it's a link to a new page (not an anchor on the same page)
+                if (link.getAttribute('href') && !link.getAttribute('href').startsWith('#')) {
+                    closeMobileMenu();
+                }
             }
         });
     });
     
-    // Adjust body overflow if resizing from mobile with open menu to desktop
     window.addEventListener('resize', () => {
         if (window.innerWidth >= 768) {
             document.body.classList.remove('overflow-hidden');
             if (sidebarOverlay && !sidebarOverlay.classList.contains('hidden')) {
-                sidebarOverlay.classList.add('hidden'); // Ensure overlay is hidden on desktop
+                sidebarOverlay.classList.add('hidden');
             }
         } else {
-            // If sidebar is open on mobile, ensure body overflow is hidden
             if (sidebar && sidebar.classList.contains('translate-x-0') && !sidebar.classList.contains('-translate-x-full')) {
                 if (!document.body.classList.contains('overflow-hidden')) {
                      document.body.classList.add('overflow-hidden', 'md:overflow-auto');
@@ -111,9 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-
     // --- Theme Toggle ---
-    // Assumes button has id 'theme-toggle-header' and uses lucide icons 'sun'/'moon'
     const themeToggleButtonHeader = document.getElementById('theme-toggle-header'); 
     
     function updateThemeIcon() {
@@ -123,79 +131,91 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 themeToggleButtonHeader.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>';
             }
-            if (typeof lucide !== 'undefined') lucide.createIcons(); // Re-render the new icon
+            if (typeof lucide !== 'undefined') lucide.createIcons({nodes: [themeToggleButtonHeader]}); // Target specific node
         }
     }
 
-    // Set initial theme based on localStorage or system preference
+    // Set initial theme
     if (localStorage.getItem('theme') === 'dark' || 
         (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         document.documentElement.classList.add('dark');
     } else {
         document.documentElement.classList.remove('dark');
     }
-    updateThemeIcon(); // Set initial icon
+    updateThemeIcon(); 
 
-    themeToggleButtonHeader?.addEventListener('click', () => {
-        document.documentElement.classList.toggle('dark');
-        if (document.documentElement.classList.contains('dark')) {
-            localStorage.setItem('theme', 'dark');
-        } else {
-            localStorage.setItem('theme', 'light');
-        }
-        updateThemeIcon();
-        // If you have charts that need re-rendering on theme change, dispatch a custom event
-        // window.dispatchEvent(new CustomEvent('themeChanged')); 
-        // And then listen for this event in your chart initialization scripts.
-        // For analytics.html, it already re-initializes charts on theme change.
-    });
+    if (themeToggleButtonHeader) {
+        themeToggleButtonHeader.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+            updateThemeIcon();
+            // Dispatch a custom event that pages can listen to if they need to react (e.g., redraw charts)
+            window.dispatchEvent(new CustomEvent('themeChangedGlobal')); 
+        });
+    } else {
+        console.warn("Theme toggle button #theme-toggle-header not found.");
+    }
 
-
-    // --- User Info Display (Example: updates elements if they exist) ---
-    // This function might be called by individual pages after they ensure elements are ready
-    // or if user info is mostly static after login.
+    // --- User Info Display ---
     function updateGlobalUserInfoDisplay() {
         const storedUsername = localStorage.getItem('username');
         
-        const userNameHeader = document.getElementById('userDisplayNameHeader');
-        const userNameSidebar = document.getElementById('userDisplayNameRightSidebar');
+        const commonUserDisplayElements = [
+            { id: 'userDisplayNameHeader', default: 'User' },
+            { id: 'userDisplayNameRightSidebar', default: 'User' }, // For pages that have this
+            // Add other common user display elements if any
+        ];
 
-        if (userNameHeader && storedUsername) {
-            userNameHeader.textContent = storedUsername;
-        } else if (userNameHeader) {
-            userNameHeader.textContent = "User"; // Default
-        }
+        commonUserDisplayElements.forEach(item => {
+            const el = document.getElementById(item.id);
+            if (el) {
+                el.textContent = storedUsername || item.default;
+            }
+        });
+        // You might have more specific role displays on header vs sidebar, handle them if needed
+        const headerUserRoleEl = document.getElementById('headerUserRoleDisplay');
+        if (headerUserRoleEl) headerUserRoleEl.textContent = "Role"; // Or fetch actual role
 
-        if (userNameSidebar && storedUsername) {
-            userNameSidebar.textContent = storedUsername;
-        } else if (userNameSidebar) {
-             userNameSidebar.textContent = "User"; // Default
-        }
-        // Add more elements to update if needed (e.g., profile picture src)
+        const rightSidebarUserRoleEl = document.getElementById('userRoleDisplayRightSidebar');
+        if (rightSidebarUserRoleEl) rightSidebarUserRoleEl.textContent = "Analyst"; // Or fetch actual role
     }
-    updateGlobalUserInfoDisplay(); // Call it once on load
-
+    updateGlobalUserInfoDisplay();
 
     // --- Global Logout Button Functionality ---
     const logoutButton = document.getElementById('global-logout-btn');
+    const LOGIN_PAGE_URL = "/"; // **** CRITICAL: VERIFY THIS PATH ****
+                               // Examples: "/", "/login.html", "/static/login.html"
+
     if (logoutButton) {
         logoutButton.addEventListener('click', (e) => { 
             e.preventDefault(); 
             console.log("Global logout clicked from page:", window.location.pathname); 
             
-            localStorage.removeItem('accessToken'); 
-            localStorage.removeItem('refreshToken'); // If you use this key
-            localStorage.removeItem('username');     
-            localStorage.removeItem('user_id');      // If you store this
-            localStorage.removeItem('user_status');  // If you store this
-            
-            showToast("Logged out successfully. Redirecting...", 2000, "success"); 
-            
-            setTimeout(() => {
-                // ** IMPORTANT: Verify this path leads to your login page **
-                // Examples: "/", "/login.html", "/static/login.html"
-                window.location.href = "/"; // Assuming login.html is at the root
-            }, 1500); 
+            try {
+                localStorage.removeItem('accessToken'); 
+                localStorage.removeItem('refreshToken'); 
+                localStorage.removeItem('username');     
+                localStorage.removeItem('user_id');      
+                localStorage.removeItem('user_status');  
+                
+                showToast("Logged out successfully. Redirecting...", 1500, "success"); 
+                
+                // Using a try-catch around the redirect in case of very unusual browser issues,
+                // though unlikely to be the cause.
+                setTimeout(() => {
+                    try {
+                        console.log(`Redirecting to: ${LOGIN_PAGE_URL}`);
+                        window.location.href = LOGIN_PAGE_URL; 
+                    } catch (redirectError) {
+                        console.error("Error during redirection:", redirectError);
+                        alert("Logout successful, but redirection failed. Please navigate to the login page manually.");
+                    }
+                }, 1500); 
+
+            } catch (error) {
+                console.error("Error during logout process:", error);
+                alert("An error occurred during logout. Please try again.");
+            }
         });
     } else {
         console.warn("Logout button with ID 'global-logout-btn' not found on this page.");

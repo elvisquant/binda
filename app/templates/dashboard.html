@@ -756,7 +756,7 @@
       // Authentication Check before loading data
       if (!getDashboardAuthToken()) {
           openInfoStatusModalOnDashboard("Authentication Required", "Redirecting to login...", "error", 0);
-          setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 2500); 
+          setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 1500); 
           return; // Stop further execution if not authenticated
       }
 
