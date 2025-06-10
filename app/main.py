@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-models.Base.metadata.create_all(bind = engine)
+#models.Base.metadata.create_all(bind = engine)
 
 
 try:

@@ -8,6 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
+    // Ensure tailwind.config is globally available before any script tries to use it
     window.tailwind = {
       config: {
         darkMode: 'class',
@@ -18,7 +19,7 @@
               secondary: { DEFAULT: '#10b981', hover: '#059669', dark: '#34d399', 'dark-hover': '#10b981', light: '#d1fae5' },
               warning: { DEFAULT: '#f59e0b', hover: '#d97706', dark: '#fbbf24', 'dark-hover': '#f59e0b', light: '#fef3c7' },
               danger: { DEFAULT: '#ef4444', hover: '#dc2626', dark: '#f87171', 'dark-hover': '#ef4444', light: '#fee2e2' },
-              info: { DEFAULT: '#3b82f6', light: '#dbeafe', dark: '#60a5fa' }, // Adjusted info to match others
+              info: { DEFAULT: '#3b82f6', light: '#dbeafe', dark: '#60a5fa' },
               gray: { 
                 50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db', 400: '#9ca3af',
                 500: '#6b7280', 600: '#4b5563', 700: '#374151', 800: '#1f2937', 900: '#111827'
@@ -79,11 +80,11 @@
     #quickAddDropdown a:hover {
       transform: translateX(2px);
     }
-    /* Theme toggle button */
-    .theme-toggle {
+    /* Theme toggle button styling from your analytics.html example, applied here */
+    #theme-toggle-header.theme-toggle { /* Added .theme-toggle class for specificity */
       transition: all 0.3s ease;
     }
-    .theme-toggle:hover {
+    #theme-toggle-header.theme-toggle:hover {
       transform: rotate(15deg) scale(1.1);
     }
   </style>
@@ -94,7 +95,6 @@
 
 <!-- Main application wrapper -->
 <div class="flex h-screen">
-
     <!-- Sidebar (Left) -->
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg 
                              transform -translate-x-full transition-transform duration-300 ease-in-out 
@@ -117,7 +117,7 @@
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"> <i data-lucide="car" class="w-5 h-5"></i><a href="/vehicle">Vehicles</a> </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"> <i data-lucide="wrench" class="w-5 h-5"></i><a href="/reparation">Reparation</a> </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"> <i data-lucide="droplet" class="w-5 h-5"></i><a href="/fuel">Fuel</a> </li>
-            <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"> <i data-lucide="tool" class="w-5 h-5"></i><a href="/maintenance">Maintenance</a> </li>
+            <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"> <i data-lucide="settings" class="w-5 h-5"></i><a href="/maintenance">Maintenance</a> </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"> <i data-lucide="route" class="w-5 h-5"></i><a href="/trip">Trip</a> </li>
         </ul>
       </nav>
@@ -171,31 +171,19 @@
 
           <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
               <div class="kpi-card bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl shadow-lg flex items-start justify-between">
-                  <div>
-                      <p class="text-sm text-gray-500 dark:text-gray-400">Total Vehicles</p>
-                      <p id="kpiTotalVehicles" class="kpi-value font-bold text-gray-800 dark:text-white mt-1">0</p>
-                  </div>
+                  <div><p class="text-sm text-gray-500 dark:text-gray-400">Total Vehicles</p><p id="kpiTotalVehicles" class="kpi-value font-bold text-gray-800 dark:text-white mt-1">0</p></div>
                   <div class="p-2 sm:p-3 rounded-full bg-primary-light dark:bg-primary/20 text-primary dark:text-primary-light"><i data-lucide="truck" class="w-5 sm:w-6 h-5 sm:h-6"></i></div>
               </div>
               <div class="kpi-card bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl shadow-lg flex items-start justify-between">
-                  <div>
-                      <p class="text-sm text-gray-500 dark:text-gray-400">Planned Trips</p>
-                      <p id="kpiPlannedTrips" class="kpi-value font-bold text-gray-800 dark:text-white mt-1">0</p>
-                  </div>
+                  <div><p class="text-sm text-gray-500 dark:text-gray-400">Planned Trips</p><p id="kpiPlannedTrips" class="kpi-value font-bold text-gray-800 dark:text-white mt-1">0</p></div>
                   <div class="p-2 sm:p-3 rounded-full bg-secondary-light dark:bg-secondary/20 text-secondary dark:text-secondary-light"><i data-lucide="route" class="w-5 sm:w-6 h-5 sm:h-6"></i></div>
               </div>
               <div class="kpi-card bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl shadow-lg flex items-start justify-between">
-                   <div>
-                      <p class="text-sm text-gray-500 dark:text-gray-400">Repairs (This Month)</p>
-                      <p id="kpiRepairsMonth" class="kpi-value font-bold text-gray-800 dark:text-white mt-1">0</p>
-                  </div>
+                   <div><p class="text-sm text-gray-500 dark:text-gray-400">Repairs (Month)</p><p id="kpiRepairsMonth" class="kpi-value font-bold text-gray-800 dark:text-white mt-1">0</p></div>
                   <div class="p-2 sm:p-3 rounded-full bg-warning-light dark:bg-warning/20 text-warning dark:text-warning-light"><i data-lucide="wrench" class="w-5 sm:w-6 h-5 sm:h-6"></i></div>
               </div>
               <div class="kpi-card bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl shadow-lg flex items-start justify-between">
-                  <div>
-                      <p class="text-sm text-gray-500 dark:text-gray-400">Fuel Cost (This Week)</p>
-                      <p id="kpiFuelCostWeek" class="kpi-value font-bold text-gray-800 dark:text-white mt-1">$0</p>
-                  </div>
+                  <div><p class="text-sm text-gray-500 dark:text-gray-400">Fuel Cost (Week)</p><p id="kpiFuelCostWeek" class="kpi-value font-bold text-gray-800 dark:text-white mt-1">$0</p></div>
                   <div class="p-2 sm:p-3 rounded-full bg-danger-light dark:bg-danger/20 text-danger dark:text-danger-light"><i data-lucide="fuel" class="w-5 sm:w-6 h-5 sm:h-6"></i></div>
               </div>
           </section>
@@ -282,37 +270,28 @@
       <div id="infoStatusModalIconContainer" class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 dark:bg-green-800/30 mb-4"></div>
       <h3 id="infoStatusModalTitle" class="text-lg font-medium text-gray-900 dark:text-white mb-2">Status</h3>
       <div class="mt-2"><p id="infoStatusModalMessage" class="text-sm text-gray-500 dark:text-gray-400">Message.</p></div>
-      <div class="mt-5 sm:mt-6"><button type="button" id="infoStatusModalOkButton" class="btn-primary w-full">OK</button></div>
+      <div class="mt-5 sm:mt-6"><button type="button" id="infoStatusModalOkButton" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm">OK</button></div>
     </div>
   </div>
 </div>
 
 <script>
-  // Global constants for API and navigation
-  const DASH_API_DATA_NAMESPACE = '/dashboard-data'; // Namespace for dashboard specific API calls
-  const LOGIN_PAGE_URL = "/"; // **** IMPORTANT: Verify this is the correct path to your login page ****
+  // PAGE-SPECIFIC SCRIPT FOR DASHBOARD.HTML
 
-  // --- Toast Notification System (Self-contained) ---
+  const DASH_API_DATA_NAMESPACE = '/dashboard-data'; 
+  const LOGIN_PAGE_URL = "/"; // **** VERIFY THIS PATH ****
+
   function showToast(message, duration = 3000, type = 'info') {
     let container = document.getElementById('toast-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'toast-container';
-        document.body.appendChild(container);
-    }
+    if (!container) { container = document.createElement('div'); container.id = 'toast-container'; document.body.appendChild(container); }
     const toastElement = document.createElement('div');
     toastElement.textContent = message;
-    toastElement.className = `toast-message ${type}`; // Use CSS classes for styling
-    toastElement.classList.add('show'); // For fade-in
+    toastElement.className = `toast-message ${type}`;
+    toastElement.classList.add('show');
     container.appendChild(toastElement);
-    setTimeout(() => {
-        toastElement.classList.remove('show');
-        toastElement.style.opacity = '0'; // Start fade out
-        setTimeout(() => { toastElement.remove(); }, 300); 
-    }, duration);
+    setTimeout(() => { toastElement.classList.remove('show'); toastElement.style.opacity = '0'; setTimeout(() => { toastElement.remove(); }, 300); }, duration);
   }
   
-  // --- Sidebar Toggle Functionality ---
   const dashboardSidebar = document.getElementById('sidebar');
   const dashboardMobileMenuButton = document.getElementById('mobile-menu-button');
   const dashboardSidebarCloseButton = document.getElementById('sidebar-close-button');
@@ -321,16 +300,27 @@
   function openDashboardMobileMenu() { if (dashboardSidebar && dashboardSidebarOverlay) { dashboardSidebar.classList.remove('-translate-x-full'); dashboardSidebar.classList.add('translate-x-0'); dashboardSidebarOverlay.classList.remove('hidden'); document.body.classList.add('overflow-hidden', 'md:overflow-auto'); } }
   function closeDashboardMobileMenu() { if (dashboardSidebar && dashboardSidebarOverlay) { dashboardSidebar.classList.add('-translate-x-full'); dashboardSidebar.classList.remove('translate-x-0'); dashboardSidebarOverlay.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); } }
   
-  // --- Theme Toggle ---
-  const dashboardThemeToggleButton = document.getElementById('theme-toggle-header');
-  function setDashboardInitialThemeIcon() { 
-    if (dashboardThemeToggleButton) { 
-      dashboardThemeToggleButton.innerHTML = document.documentElement.classList.contains('dark') ? '<i data-lucide="sun" class="w-5 h-5"></i>' : '<i data-lucide="moon" class="w-5 h-5"></i>'; 
-      if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [dashboardThemeToggleButton]});
+  // --- THEME TOGGLE LOGIC FOR THIS PAGE ---
+  const pageThemeToggleButton = document.getElementById('theme-toggle-header'); // Use a page-specific variable name
+  
+  function updatePageThemeIcon() { // Use a page-specific function name
+    if (pageThemeToggleButton) { 
+      pageThemeToggleButton.innerHTML = document.documentElement.classList.contains('dark') ? '<i data-lucide="sun" class="w-5 h-5"></i>' : '<i data-lucide="moon" class="w-5 h-5"></i>'; 
+      if (typeof lucide !== 'undefined') {
+          lucide.createIcons({ nodes: [pageThemeToggleButton] }); // Specifically target this button
+      }
     }
   }
 
-  // --- Info/Status Modal (Self-contained) ---
+  function initializePageTheme() {
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+    } else { 
+        document.documentElement.classList.remove('dark'); 
+    }
+    updatePageThemeIcon(); // Set the initial icon
+  }
+
   let infoStatusModalTimeoutDashboard;
   function openInfoStatusModalOnDashboard(title, message, type = 'info', autoCloseDelay = 3000) {
     const modal = document.getElementById('infoStatusModal');
@@ -344,90 +334,65 @@
     if(messageEl) messageEl.textContent = message;
     if (infoStatusModalTimeoutDashboard) clearTimeout(infoStatusModalTimeoutDashboard);
 
-    let iconName = 'info', iconColorClass = 'text-blue-600 dark:text-blue-400', bgColorClass = 'bg-blue-100 dark:bg-blue-800/30', btnClass = 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500';
-    if (type === 'success') { iconName = 'check-circle-2'; iconColorClass = 'text-green-600 dark:text-green-400'; bgColorClass = 'bg-green-100 dark:bg-green-800/30'; btnClass = 'bg-green-600 hover:bg-green-700 focus:ring-green-500'; }
-    else if (type === 'error') { iconName = 'alert-triangle'; iconColorClass = 'text-red-600 dark:text-red-400'; bgColorClass = 'bg-red-100 dark:bg-red-800/30'; btnClass = 'bg-red-600 hover:bg-red-700 focus:ring-red-500'; }
-    else if (type === 'warning') { iconName = 'alert-octagon'; iconColorClass = 'text-yellow-500 dark:text-yellow-400'; bgColorClass = 'bg-yellow-100 dark:bg-yellow-800/30'; btnClass = 'bg-yellow-500 hover:bg-yellow-600 focus:ring-yellow-400';}
+    let iconName = 'info', iColor = 'text-blue-600 dark:text-blue-400', bgColor = 'bg-blue-100 dark:bg-blue-800/30', btn = 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500';
+    if (type === 'success') { iconName = 'check-circle-2'; iColor = 'text-green-600 dark:text-green-400'; bgColor = 'bg-green-100 dark:bg-green-800/30'; btn = 'bg-green-600 hover:bg-green-700 focus:ring-green-500'; }
+    else if (type === 'error') { iconName = 'alert-triangle'; iColor = 'text-red-600 dark:text-red-400'; bgColor = 'bg-red-100 dark:bg-red-800/30'; btn = 'bg-red-600 hover:bg-red-700 focus:ring-red-500'; }
+    else if (type === 'warning') { iconName = 'alert-octagon'; iColor = 'text-yellow-500 dark:text-yellow-400'; bgColor = 'bg-yellow-100 dark:bg-yellow-800/30'; btn = 'bg-yellow-500 hover:bg-yellow-600 focus:ring-yellow-400';}
     
-    if(iconContainer) {
-        iconContainer.className = `mx-auto flex items-center justify-center h-12 w-12 rounded-full ${bgColorClass} mb-4`;
-        iconContainer.innerHTML = `<i data-lucide="${iconName}" class="h-6 w-6 ${iconColorClass}"></i>`;
-    }
-    if(okButton) okButton.className = `inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white ${btnClass} focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 sm:text-sm`;
+    if(iconContainer) { iconContainer.className = `mx-auto flex items-center justify-center h-12 w-12 rounded-full ${bgColor} mb-4`; iconContainer.innerHTML = `<i data-lucide="${iconName}" class="h-6 w-6 ${iColor}"></i>`; }
+    if(okButton) { okButton.className = `inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white ${btn} focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 sm:text-sm`;}
     
     if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [iconContainer] });
-    modal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden'; // Prevent background scroll when modal is open
-    if (autoCloseDelay > 0 && type !== 'error') { 
-        infoStatusModalTimeoutDashboard = setTimeout(() => closeInfoStatusModalOnDashboard(), autoCloseDelay);
-    }
+    modal.classList.remove('hidden'); document.body.style.overflow = 'hidden';
+    if (autoCloseDelay > 0 && type !== 'error') { infoStatusModalTimeoutDashboard = setTimeout(() => closeInfoStatusModalOnDashboard(), autoCloseDelay); }
   }
   function closeInfoStatusModalOnDashboard() { 
     if(infoStatusModalTimeoutDashboard) clearTimeout(infoStatusModalTimeoutDashboard); 
-    document.getElementById('infoStatusModal')?.classList.add('hidden'); 
-    document.body.style.overflow = ''; // Restore background scroll
+    document.getElementById('infoStatusModal')?.classList.add('hidden'); document.body.style.overflow = '';
   }
 
-  // --- Authentication & User Info ---
   function getDashboardAuthToken() { return localStorage.getItem('accessToken'); } 
   function parseDashboardJwt(token) { try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { console.error("JWT Parse Error:", e); return null; }}
 
   function updateDashboardUserInfo() {
     const token = getDashboardAuthToken(); 
     const decodedToken = token ? parseDashboardJwt(token) : null; 
-    const username = localStorage.getItem('username') || decodedToken?.sub || 'Guest'; // Prefer username from localStorage
-    const roleFromToken = decodedToken?.status || 'User'; // Assuming 'status' field in token can be used as role
-    const role = roleFromToken.charAt(0).toUpperCase() + roleFromToken.slice(1);
-
-    const elementsToUpdate = [
-        { id: 'headerUserDisplayName', text: username },
-        { id: 'headerUserRoleDisplay', text: role },
-        { id: 'userDisplayNameRightSidebar', text: username },
-        { id: 'userRoleDisplayRightSidebar', text: role }
-    ];
-    elementsToUpdate.forEach(item => {
-        const el = document.getElementById(item.id);
-        if (el) el.textContent = item.text;
-    });
-
-    const headerAvatarImgEl = document.getElementById('headerAdminAvatar');
-    const rightSidebarAdminAvatarImg = document.getElementById('rightSidebarAdminAvatar');
+    const username = localStorage.getItem('username') || decodedToken?.sub || 'Guest';
+    const role = (decodedToken?.status || 'User').charAt(0).toUpperCase() + (decodedToken?.status || 'User').slice(1);
+    const elementsToUpdate = [ { id: 'headerUserDisplayName', text: username }, { id: 'headerUserRoleDisplay', text: role }, { id: 'userDisplayNameRightSidebar', text: username }, { id: 'userRoleDisplayRightSidebar', text: role }];
+    elementsToUpdate.forEach(item => { const el = document.getElementById(item.id); if (el) el.textContent = item.text; });
     const avatarSeedBase = username !== 'Guest' ? username.replace(/\s+/g, '').toLowerCase() : 'default_user';
+    const headerAvatarImgEl = document.getElementById('headerAdminAvatar');
     if (headerAvatarImgEl) headerAvatarImgEl.src = `https://i.pravatar.cc/32?u=${encodeURIComponent(avatarSeedBase + '_header')}`;
+    const rightSidebarAdminAvatarImg = document.getElementById('rightSidebarAdminAvatar');
     if (rightSidebarAdminAvatarImg) rightSidebarAdminAvatarImg.src = `https://i.pravatar.cc/40?u=${encodeURIComponent(avatarSeedBase + '_sidebar')}`;
   }
 
-  // --- API Request Helper ---
   async function apiRequestDashboard(endpointSubPath, method = 'GET', body = null) {
     const token = getDashboardAuthToken();
     const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
-    const fullApiPath = `${DASH_API_DATA_NAMESPACE}${endpointSubPath}`; // Relative path
-    
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    } else {
-      console.warn(`Auth token needed for ${method} ${fullApiPath} but not found.`);
+    const fullApiPath = `${DASH_API_DATA_NAMESPACE}${endpointSubPath}`; 
+    if (token) { headers['Authorization'] = `Bearer ${token}`; } 
+    else {
       openInfoStatusModalOnDashboard("Authentication Required", "Please log in to view data.", "error", 0);
       setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 2500);
       return Promise.resolve(null); 
     }
-    
     const config = { method, headers };
     if (body) config.body = JSON.stringify(body);
-    
     let responseBodyText = "";
     try {
       const response = await fetch(fullApiPath, config);
       responseBodyText = await response.text();
       if (response.status === 401) {
         openInfoStatusModalOnDashboard("Authentication Error", "Session expired or unauthorized. Redirecting to login.", "error", 0);
-        localStorage.removeItem('accessToken'); localStorage.removeItem('username');
+        localStorage.removeItem('accessToken'); localStorage.removeItem('username'); localStorage.removeItem('user_id'); localStorage.removeItem('user_status');
         setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 2500);
         return null;
       }
       if (!response.ok) {
         let errorDetail = `Server error ${response.status}.`;
-        try { const errData = JSON.parse(responseBodyText); errorDetail = errData.detail || (Array.isArray(errData) && errData.length > 0 && errData[0].msg ? errData.map(e => e.msg).join('; ') : JSON.stringify(errData)); } 
+        try { const errData = JSON.parse(responseBodyText); errorDetail = errData.detail || (Array.isArray(errData) && errData[0]?.msg ? errData.map(e => e.msg).join('; ') : JSON.stringify(errData)); } 
         catch (e) { errorDetail = responseBodyText.substring(0,200) + (responseBodyText.length > 200 ? "..." : "");}
         console.error(`API Error for ${method} ${fullApiPath}: ${response.status}. Detail:`, errorDetail);
         openInfoStatusModalOnDashboard(`API Error: ${response.status}`, errorDetail, "error", 0);
@@ -442,7 +407,6 @@
     }
   }
   
-  // --- Data Loading and UI Update Functions ---
   async function loadDashboardData() {
     const kpiData = await apiRequestDashboard('/kpis'); 
     if (kpiData) {
@@ -451,57 +415,36 @@
         document.getElementById('kpiRepairsMonth').textContent = kpiData.repairs_this_month ?? '0';
         document.getElementById('kpiFuelCostWeek').textContent = `$${(kpiData.fuel_cost_this_week ?? 0).toFixed(2)}`;
     }
-
-    // Update right sidebar insights
     const insightsData = await apiRequestDashboard('/performance-insights');
     const insightsListEl = document.getElementById('keyPerformanceInsightsList');
     if (insightsListEl) {
-        if (insightsData && insightsData.fuel_efficiency && insightsData.maintenance_compliance) {
-            insightsListEl.innerHTML = ''; // Clear loading
+        if (insightsData?.fuel_efficiency && insightsData?.maintenance_compliance) {
+            insightsListEl.innerHTML = ''; 
             const fe = insightsData.fuel_efficiency;
-            let feText = ``;
-            if (fe.percentage_change !== null && fe.percentage_change !== undefined) { 
-                feText += `${fe.percentage_change > 0 ? '+' : ''}${fe.percentage_change}% efficiency`;
-            } else { feText += "N/A comparison"; }
-            
+            let feText = fe.percentage_change !== null ? `${fe.percentage_change > 0 ? '+' : ''}${fe.percentage_change}%` : "N/A";
             let feIcon = 'minus'; let feColor = 'gray-500';
             if (fe.trend === "up") { feIcon = 'trending-up'; feColor = 'green-500'; }
             else if (fe.trend === "down") { feIcon = 'trending-down'; feColor = 'red-500'; }
-
             insightsListEl.innerHTML += `<li class="flex items-start space-x-2"><i data-lucide="${feIcon}" class="w-4 h-4 text-${feColor} mt-0.5 shrink-0"></i><span>Fuel Efficiency: <span class="font-medium">${feText}</span></span></li>`;
-            insightsListEl.innerHTML += `<li class="flex items-start space-x-2"><i data-lucide="shield-check" class="w-4 h-4 text-blue-500 mt-0.5 shrink-0"></i><span>Maintenance: <span class="font-medium">${insightsData.maintenance_compliance.total_maintenance_records ?? 0}</span> logged.</span></li>`;
-            // Add other static or placeholder insights if needed
+            insightsListEl.innerHTML += `<li class="flex items-start space-x-2"><i data-lucide="shield-check" class="w-4 h-4 text-blue-500 mt-0.5 shrink-0"></i><span>Maintenance: <span class="font-medium">${insightsData.maintenance_compliance.total_maintenance_records ?? 0}</span> logged</span></li>`;
             insightsListEl.innerHTML += `<li class="flex items-start space-x-2"><i data-lucide="activity" class="w-4 h-4 text-yellow-500 mt-0.5 shrink-0"></i><span>Idle Time: <span class="font-medium">Data N/A</span></span></li>`;
-            if (typeof lucide !== 'undefined') lucide.createIcons({nodes: insightsListEl.querySelectorAll('[data-lucide]')});
-        } else {
-            insightsListEl.innerHTML = '<li class="p-2 text-sm text-red-500">Could not load insights.</li>';
-        }
+        } else { insightsListEl.innerHTML = '<li class="p-2 text-sm text-red-500">Could not load insights.</li>'; }
+        if (typeof lucide !== 'undefined') lucide.createIcons({nodes: insightsListEl.querySelectorAll('[data-lucide]')});
     }
-    
-    // Update Alerts in right sidebar
     const alertsData = await apiRequestDashboard('/alerts');
     const notificationsListEl = document.getElementById('notificationsList');
     const notificationCountEl = document.getElementById('notificationCount');
     if (notificationsListEl && notificationCountEl) {
-        notificationsListEl.innerHTML = ''; // Clear loading
+        notificationsListEl.innerHTML = ''; 
         let activeAlertsCount = 0;
-        const createAlertHTML = (alert, icon, colorClass, typeName) => {
-            if (!alert) return '';
-            activeAlertsCount++;
-            return `<div class="flex items-start space-x-2 p-2.5 bg-${colorClass}-light dark:bg-${colorClass}/20 rounded-lg">
-                        <i data-lucide="${icon}" class="w-5 h-5 text-${colorClass} dark:text-${colorClass}-light mt-0.5 shrink-0"></i>
-                        <p class="text-xs text-gray-700 dark:text-gray-300">
-                            <span class="font-semibold">${typeName}:</span> Veh <span class="font-medium">${alert.plate_number || 'N/A'}</span> - ${alert.message || 'Details N/A'}. ${alert.status ? `(${alert.status})` : ''}
-                        </p>
-                    </div>`;
+        const createAlertHTML = (alert, icon, color, type) => {
+            if (!alert) return ''; activeAlertsCount++;
+            return `<div class="flex items-start space-x-2 p-2.5 bg-${color}-light dark:bg-${color}/20 rounded-lg"><i data-lucide="${icon}" class="w-5 h-5 text-${color} dark:text-${color}-light mt-0.5 shrink-0"></i><p class="text-xs text-gray-700 dark:text-gray-300"><span class="font-semibold">${type}:</span> Veh <span class="font-medium">${alert.plate_number||'N/A'}</span> - ${alert.message||'N/A'}. ${alert.status?`(${alert.status})`:''}</p></div>`;
         };
         notificationsListEl.innerHTML += createAlertHTML(alertsData?.critical_panne, 'alert-octagon', 'danger', 'Critical');
         notificationsListEl.innerHTML += createAlertHTML(alertsData?.maintenance_alert, 'tool', 'warning', 'Maintenance');
         notificationsListEl.innerHTML += createAlertHTML(alertsData?.trip_alert, 'route', 'info', 'Trip');
-        
-        if (activeAlertsCount === 0) {
-            notificationsListEl.innerHTML = '<p class="text-xs text-gray-500 dark:text-gray-400 p-2.5">No new alerts.</p>';
-        }
+        if (activeAlertsCount === 0) notificationsListEl.innerHTML = '<p class="text-xs text-gray-500 dark:text-gray-400 p-2.5">No new alerts.</p>';
         notificationCountEl.textContent = alertsData?.total_alerts ?? 0;
         if (typeof lucide !== 'undefined') lucide.createIcons({nodes: notificationsListEl.querySelectorAll('[data-lucide]')});
     }
@@ -510,205 +453,104 @@
   async function loadRecentActivityListsForDashboard() {
     const pannesListEl = document.getElementById('recentPannesListDashboard');
     const upcomingTripsListEl = document.getElementById('upcomingTripsListDashboard');
-
     if (pannesListEl) {
-        const recentPannes = await apiRequestDashboard('/recent-pannes'); 
-        if (recentPannes && Array.isArray(recentPannes)) {
-            pannesListEl.innerHTML = recentPannes.length > 0 ? recentPannes.map(p => 
-                `<li class="flex justify-between items-center p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md"><div><p class="font-medium">${p.vehicle?.plate_number || 'N/A'}: ${p.category_panne?.panne_name || p.description || 'Issue'}</p><p class="text-xs text-gray-500 dark:text-gray-400">${new Date(p.panne_date).toLocaleDateString()} - ${p.status}</p></div><a href="/panne#${p.id}" class="text-sm text-primary dark:text-primary-light hover:underline">View</a></li>`
-            ).join('') : '<li class="p-3 text-sm text-gray-500">No recent pannes.</li>';
-        } else { pannesListEl.innerHTML = '<li class="p-3 text-sm text-red-500">Error loading pannes.</li>';}
+        pannesListEl.innerHTML = '<li class="p-3 text-sm text-gray-500">Loading pannes...</li>';
+        const data = await apiRequestDashboard('/recent-pannes'); 
+        if (data && Array.isArray(data)) pannesListEl.innerHTML = data.length > 0 ? data.map(p => `<li class="flex justify-between items-center p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md"><div><p class="font-medium">${p.vehicle?.plate_number||'N/A'}: ${p.category_panne?.panne_name||p.description||'Issue'}</p><p class="text-xs text-gray-500 dark:text-gray-400">${new Date(p.panne_date).toLocaleDateString()} - ${p.status}</p></div><a href="/panne#${p.id}" class="text-sm text-primary dark:text-primary-light hover:underline">View</a></li>`).join('') : '<li class="p-3 text-sm text-gray-500">No recent pannes.</li>';
+        else pannesListEl.innerHTML = '<li class="p-3 text-sm text-red-500">Error loading pannes.</li>';
     }
-
     if (upcomingTripsListEl) {
-        const upcomingTrips = await apiRequestDashboard('/upcoming-trips'); 
-        if (upcomingTrips && Array.isArray(upcomingTrips)) {
-            upcomingTripsListEl.innerHTML = upcomingTrips.length > 0 ? upcomingTrips.map(trip => {
-                const vehiclePlate = trip.vehicle && trip.vehicle.plate_number ? trip.vehicle.plate_number : `Veh.ID ${trip.vehicle_id || 'Unknown'}`;
-                const tripPurpose = trip.purpose || 'General Trip';
-                const startTime = trip.start_time ? new Date(trip.start_time).toLocaleString() : 'N/A';
-                return `<li class="flex justify-between items-center p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md"><div><p class="font-medium">${vehiclePlate}: ${tripPurpose}</p><p class="text-xs text-gray-500 dark:text-gray-400">Starts: ${startTime}</p></div><a href="/trip#${trip.id}" class="text-sm text-primary dark:text-primary-light hover:underline">Details</a></li>`;
-            }).join('') : '<li class="p-3 text-sm text-gray-500">No upcoming trips.</li>';
-        } else { upcomingTripsListEl.innerHTML = '<li class="p-3 text-sm text-red-500">Error loading upcoming trips.</li>'; }
+        upcomingTripsListEl.innerHTML = '<li class="p-3 text-sm text-gray-500">Loading trips...</li>';
+        const data = await apiRequestDashboard('/upcoming-trips'); 
+        if (data && Array.isArray(data)) upcomingTripsListEl.innerHTML = data.length > 0 ? data.map(t => `<li class="flex justify-between items-center p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md"><div><p class="font-medium">${t.vehicle?.plate_number||'N/A'}: ${t.purpose||'Trip'}</p><p class="text-xs text-gray-500 dark:text-gray-400">Starts: ${new Date(t.start_time).toLocaleString()}</p></div><a href="/trip#${t.id}" class="text-sm text-primary dark:text-primary-light hover:underline">Details</a></li>`).join('') : '<li class="p-3 text-sm text-gray-500">No upcoming trips.</li>';
+        else upcomingTripsListEl.innerHTML = '<li class="p-3 text-sm text-red-500">Error loading trips.</li>';
     }
-    if (typeof lucide !== 'undefined') lucide.createIcons(); // For icons in these lists
+    if (typeof lucide !== 'undefined') lucide.createIcons();
   }
 
   async function loadTopPerformingDrivers() {
-    const topDriversListEl = document.getElementById('topPerformingDriversList'); 
-    if (!topDriversListEl) return;
-    topDriversListEl.innerHTML = '<li class="p-2 text-sm text-gray-500">Loading top drivers...</li>';
-    const topDrivers = await apiRequestDashboard('/top-performing-drivers?limit=3'); 
-    if (topDrivers && Array.isArray(topDrivers) && topDrivers.length > 0) {
-        topDriversListEl.innerHTML = topDrivers.map((driver, index) => `
-            <li class="flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md">
-                <div class="flex items-center space-x-3">
-                    <img src="https://i.pravatar.cc/40?u=driver${driver.driver_id || index}" alt="Driver ${driver.first_name}" class="w-8 h-8 rounded-full object-cover">
-                    <span class="font-medium text-sm text-gray-700 dark:text-gray-200">${driver.first_name} ${driver.last_name}</span>
-                </div>
-                <span class="text-sm text-green-500 dark:text-green-400">${driver.performance_metric}</span>
-            </li>
-        `).join('');
-    } else if (topDrivers && topDrivers.length === 0) {
-        topDriversListEl.innerHTML = '<li class="p-2 text-sm text-gray-500">No driver performance data available.</li>';
-    } else {
-        topDriversListEl.innerHTML = '<li class="p-2 text-sm text-red-500">Could not load top drivers.</li>';
-    }
-    if (typeof lucide !== 'undefined') lucide.createIcons({nodes: topDriversListEl.querySelectorAll('[data-lucide]')});
+    const listEl = document.getElementById('topPerformingDriversList'); 
+    if (!listEl) return;
+    listEl.innerHTML = '<li class="p-2 text-sm text-gray-500">Loading drivers...</li>';
+    const data = await apiRequestDashboard('/top-performing-drivers?limit=3'); 
+    if (data && Array.isArray(data) && data.length > 0) listEl.innerHTML = data.map((d, i) => `<li class="flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md"><div class="flex items-center space-x-3"><img src="https://i.pravatar.cc/40?u=driver${d.driver_id||i}" alt="${d.first_name}" class="w-8 h-8 rounded-full object-cover"><span class="font-medium text-sm text-gray-700 dark:text-gray-200">${d.first_name} ${d.last_name}</span></div><span class="text-sm text-green-500 dark:text-green-400">${d.performance_metric}</span></li>`).join('');
+    else if (data && data.length === 0) listEl.innerHTML = '<li class="p-2 text-sm text-gray-500">No driver data.</li>';
+    else listEl.innerHTML = '<li class="p-2 text-sm text-red-500">Could not load drivers.</li>';
+    if (typeof lucide !== 'undefined') lucide.createIcons({nodes: listEl.querySelectorAll('[data-lucide]')});
   }
 
-  // --- Chart Initialization ---
   let monthlyActivityChartInstance = null;
   let vehicleStatusChartInstance = null;
-  
-  const getChartColorTailwind = (colorName, variant = 'DEFAULT', fallbackColor) => {
-    let color = fallbackColor;
-    try {
-        if (window.tailwind && window.tailwind.config && window.tailwind.config.theme) {
-            let twColorConfig = window.tailwind.config.theme.colors || {}; 
-            if (window.tailwind.config.theme.extend && window.tailwind.config.theme.extend.colors) {
-                twColorConfig = { ...twColorConfig, ...window.tailwind.config.theme.extend.colors };
-            }
-            if (twColorConfig[colorName]) {
-                if (typeof twColorConfig[colorName] === 'object' && twColorConfig[colorName][variant]) {
-                    color = twColorConfig[colorName][variant];
-                } else if (typeof twColorConfig[colorName] === 'string' && variant === 'DEFAULT') {
-                    color = twColorConfig[colorName];
-                }
-            }
-        }
-    } catch (e) { console.warn("Error accessing Tailwind config for chart colors:", e); }
-    return color;
+  const getChartColorTailwind = (colorName, variant = 'DEFAULT', fallbackColor) => { 
+    let color = fallbackColor; try { if (window.tailwind?.config?.theme) { let twColors = {...(window.tailwind.config.theme.colors || {}), ...(window.tailwind.config.theme.extend?.colors || {})}; if (twColors[colorName]) { if (typeof twColors[colorName] === 'object' && twColors[colorName][variant]) color = twColors[colorName][variant]; else if (typeof twColors[colorName] === 'string' && variant === 'DEFAULT') color = twColors[colorName];}}} catch (e) { console.warn("Tailwind color access error:", e); } return color;
   };
   
   async function fetchAndInitializeCharts(isThemeChange = false) {
     const monthlyActivityData = await apiRequestDashboard('/charts/monthly-activity?months_to_display=12');
     const vehicleStatusDataFromApi = await apiRequestDashboard('/charts/vehicle-status');
-    
     const finalMonthlyData = monthlyActivityData || { labels: [], trips: [], maintenances: [], pannes: [] };
-    const finalVehicleStatusData = vehicleStatusDataFromApi && vehicleStatusDataFromApi.labels && vehicleStatusDataFromApi.counts
-        ? { labels: vehicleStatusDataFromApi.labels, data: vehicleStatusDataFromApi.counts } 
-        : { labels: ["No Data"], data: [1] }; // Provide default for empty pie chart
-    
+    const finalVehicleStatusData = vehicleStatusDataFromApi?.labels && vehicleStatusDataFromApi?.counts ? { labels: vehicleStatusDataFromApi.labels, data: vehicleStatusDataFromApi.counts } : { labels: ["No Data"], data: [1] }; 
     initializeDashboardCharts(isThemeChange, finalMonthlyData, finalVehicleStatusData);
   }
 
   function initializeDashboardCharts(isThemeChange = false, monthlyData, statusData) { 
     const isDark = document.documentElement.classList.contains('dark');
-    const gridColor = isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.08)';
-    const tickColor = getChartColorTailwind('gray', isDark ? '400' : '600', isDark ? '#9ca3af' : '#4b5563');
-    const legendLabelColor = getChartColorTailwind('gray', isDark ? '300' : '700', isDark ? '#d1d5db' : '#374151');
-    const tooltipTitleColor = getChartColorTailwind('gray', isDark ? '100' : '900', isDark ? '#f3f4f6' : '#111827');
-    const tooltipBodyColor = getChartColorTailwind('gray', isDark ? '200' : '700', isDark ? '#e5e7eb' : '#374151');
-    const tooltipBgColor = isDark ? 'rgba(55, 65, 81, 0.9)' : 'rgba(255, 255, 255, 0.95)';
-    const tooltipBorderColor = isDark ? getChartColorTailwind('gray', '600', '#4b5563') : getChartColorTailwind('gray', '300', '#d1d5db');
+    const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'; 
+    const tickColor = getChartColorTailwind('gray', isDark ? '400' : '500', '#6b7280');
+    const legendLabelColor = getChartColorTailwind('gray', isDark ? '300' : '600', '#4b5563');
+    const tooltipBgColor = isDark ? 'rgba(31, 41, 55, 0.9)' : 'rgba(255, 255, 255, 0.95)'; 
+    const tooltipTitleColor = getChartColorTailwind('gray', isDark ? '100' : '800', '#1f2937');
+    const tooltipBodyColor = getChartColorTailwind('gray', isDark ? '200' : '700', '#374151');
+    const tooltipBorderColor = isDark ? getChartColorTailwind('gray', '700', '#374151') : getChartColorTailwind('gray', '300', '#d1d5db');
 
-    Chart.defaults.font.family = '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"';
-    Chart.defaults.color = tickColor;
+    Chart.defaults.font.family = 'Inter, sans-serif'; Chart.defaults.color = tickColor;
 
     const monthlyCtx = document.getElementById('monthlyActivityChart')?.getContext('2d');
     if (monthlyCtx) {
-        if (monthlyActivityChartInstance) { monthlyActivityChartInstance.destroy(); }
+        if (monthlyActivityChartInstance) monthlyActivityChartInstance.destroy();
         monthlyActivityChartInstance = new Chart(monthlyCtx, {
-            type: 'bar',
-            data: {
-                labels: monthlyData.labels,
-                datasets: [
-                    { label: 'Trips', data: monthlyData.trips, backgroundColor: getChartColorTailwind('primary', isDark ? 'dark' : 'DEFAULT', '#3b82f6'), borderColor: getChartColorTailwind('primary', isDark ? 'dark' : 'DEFAULT', '#3b82f6'), borderWidth: 1, borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.7 },
-                    { label: 'Maintenances', data: monthlyData.maintenances, backgroundColor: getChartColorTailwind('warning', isDark ? 'dark' : 'DEFAULT', '#f59e0b'), borderColor: getChartColorTailwind('warning', isDark ? 'dark' : 'DEFAULT', '#f59e0b'), borderWidth: 1, borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.7 },
-                    { label: 'Pannes', data: monthlyData.pannes, backgroundColor: getChartColorTailwind('danger', isDark ? 'dark' : 'DEFAULT', '#ef4444'), borderColor: getChartColorTailwind('danger', isDark ? 'dark' : 'DEFAULT', '#ef4444'), borderWidth: 1, borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.7 }
-                ]
-            },
-            options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false, },
-                scales: {
-                    x: { stacked: false, grid: { display: false }, ticks: { color: tickColor, font: { size: 11 } } },
-                    y: { stacked: false, beginAtZero: true, grid: { color: gridColor, borderColor: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 }, padding: 8, callback: function(value) { if (Number.isInteger(value)) { return value; } } } }
-                },
-                plugins: { legend: { position: 'top', align: 'end', labels: { color: legendLabelColor, usePointStyle: true, boxWidth: 8, font: { size: 12 }, padding: 15 } },
-                    tooltip: { backgroundColor: tooltipBgColor, titleColor: tooltipTitleColor, titleFont: { weight: '600', size: 13 }, bodyColor: tooltipBodyColor, bodyFont: { size: 12 }, borderColor: tooltipBorderColor, borderWidth: 1, cornerRadius: 4, padding: 10, displayColors: true, boxPadding: 4 }
-                }
-            }
+            type: 'bar', data: { labels: monthlyData.labels, datasets: [
+                { label: 'Trips', data: monthlyData.trips, backgroundColor: getChartColorTailwind('primary', isDark?'dark':'DEFAULT', '#3b82f6'), borderWidth:0, borderRadius:4, barPercentage:0.5, categoryPercentage:0.7},
+                { label: 'Maintenances', data: monthlyData.maintenances, backgroundColor: getChartColorTailwind('warning', isDark?'dark':'DEFAULT', '#f59e0b'), borderWidth:0, borderRadius:4, barPercentage:0.5, categoryPercentage:0.7},
+                { label: 'Pannes', data: monthlyData.pannes, backgroundColor: getChartColorTailwind('danger', isDark?'dark':'DEFAULT', '#ef4444'), borderWidth:0, borderRadius:4, barPercentage:0.5, categoryPercentage:0.7 }
+            ]},
+            options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, scales: { x: { grid: { display: false }, ticks: {font:{size:10}} }, y: { beginAtZero: true, grid: { color: gridColor, drawBorder: false }, ticks: { padding: 8, font:{size:10}, callback: v => Number.isInteger(v) ? v : null } } }, plugins: { legend: { position: 'top', align:'end', labels: {color: legendLabelColor, usePointStyle:true, boxWidth:6, font:{size:11}, padding:15}}, tooltip: {backgroundColor:tooltipBgColor, titleColor:tooltipTitleColor, bodyColor:tooltipBodyColor, borderColor:tooltipBorderColor, borderWidth:1, cornerRadius:3, padding:8, usePointStyle:true, boxPadding:3} } }
         });
-    } else { console.warn("Monthly activity chart canvas not found"); }
+    }
 
     const statusCtx = document.getElementById('vehicleStatusChart')?.getContext('2d');
     if (statusCtx) {
-        if (vehicleStatusChartInstance) { vehicleStatusChartInstance.destroy(); }
-        const statusColors = [
-            getChartColorTailwind('primary', isDark ? 'dark' : 'DEFAULT', '#3b82f6'),    
-            getChartColorTailwind('secondary', isDark ? 'dark' : 'DEFAULT', '#10b981'), 
-            getChartColorTailwind('warning', isDark ? 'dark' : 'DEFAULT', '#f59e0b'),   
-            getChartColorTailwind('danger', isDark ? 'dark' : 'DEFAULT', '#ef4444'),     
-            getChartColorTailwind('gray', isDark ? '500' : '400', '#6b7280'), 
-            getChartColorTailwind('info', isDark ? 'dark' : 'DEFAULT', '#3b82f6') 
-        ];
-        const chartDataProvided = statusData.labels.length > 0 && statusData.data.length > 0;
+        if (vehicleStatusChartInstance) vehicleStatusChartInstance.destroy();
+        const statusColors = [getChartColorTailwind('secondary', isDark?'dark':'DEFAULT'), getChartColorTailwind('primary', isDark?'dark':'DEFAULT'), getChartColorTailwind('warning', isDark?'dark':'DEFAULT'), getChartColorTailwind('danger', isDark?'dark':'DEFAULT'), getChartColorTailwind('gray', '500')];
+        const chartHasData = statusData.labels.length > 0 && statusData.labels[0] !== "No Data";
         vehicleStatusChartInstance = new Chart(statusCtx, {
-            type: 'doughnut',
-            data: { 
-                labels: chartDataProvided ? statusData.labels : ["No Data"],
-                datasets: [{ 
-                    label: 'Vehicle Status', 
-                    data: chartDataProvided ? statusData.data : [1], 
-                    backgroundColor: chartDataProvided ? statusData.labels.map((_, i) => statusColors[i % statusColors.length]) : [getChartColorTailwind('gray', isDark ? '700' : '200', '#374151')], 
-                    borderColor: isDark ? getChartColorTailwind('gray','800', '#1f2937') : '#ffffff', 
-                    borderWidth: chartDataProvided ? 2 : 0, 
-                    hoverOffset: 8 
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false, cutout: '65%',
-                plugins: { 
-                    legend: { 
-                        display: chartDataProvided, // Only display legend if there's actual data
-                        position: 'bottom', 
-                        labels: { color: legendLabelColor, usePointStyle: true, boxWidth: 8, font: { size: 12 }, padding: 15 } 
-                    },
-                    tooltip: { 
-                        enabled: chartDataProvided, // Only enable tooltip if there's actual data
-                        backgroundColor: tooltipBgColor, titleColor: tooltipTitleColor, titleFont: { weight: '600', size: 13 }, bodyColor: tooltipBodyColor, bodyFont: { size: 12 }, borderColor: tooltipBorderColor, borderWidth: 1, cornerRadius: 4, padding: 10, displayColors: true,
-                        callbacks: { 
-                            label: function(context) { 
-                                let label = context.label || ''; 
-                                if (label) { label += ': '; } 
-                                if (context.parsed !== null) { label += context.parsed; } 
-                                return label; 
-                            } 
-                        }
-                    }
-                }
-            }
+            type: 'doughnut', data: { labels: chartHasData ? statusData.labels : ["No Data Available"], datasets: [{ data: chartHasData ? statusData.data : [1], backgroundColor: chartHasData ? statusData.labels.map((_,i) => statusColors[i % statusColors.length]) : [getChartColorTailwind('gray', isDark?'700':'200')], borderColor: isDark ? getChartColorTailwind('gray','800') : '#fff', borderWidth: chartHasData ? 3 : 0, hoverOffset: 8 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: chartHasData, position: 'bottom', labels: {color: legendLabelColor, usePointStyle:true, boxWidth:6, font:{size:11}, padding:12}}, tooltip: {enabled: chartHasData, backgroundColor:tooltipBgColor, titleColor:tooltipTitleColor, bodyColor:tooltipBodyColor, borderColor:tooltipBorderColor, borderWidth:1, cornerRadius:3, padding:8, usePointStyle:true, boxPadding:3, callbacks: {label: c => `${c.label}: ${c.formattedValue}` }} } }
         });
-    } else { console.warn("Vehicle status chart canvas not found"); }
-    if(typeof lucide !== 'undefined') lucide.createIcons(); // General refresh after charts
+    }
+     if(typeof lucide !== 'undefined') lucide.createIcons();
   }
   
   // --- Main Initialization on DOMContentLoaded ---
   document.addEventListener('DOMContentLoaded', async () => {
-      if (typeof lucide !== 'undefined') lucide.createIcons(); // Initial Lucide call for static icons
-      
-      // Theme setup
-      if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-          document.documentElement.classList.add('dark');
-      } else { 
-          document.documentElement.classList.remove('dark'); 
+      // Initial Lucide call for any static icons already in the HTML
+      if (typeof lucide !== 'undefined') {
+        try { lucide.createIcons(); } catch(e) { console.error("Initial Lucide error:", e); }
       }
-      setDashboardInitialThemeIcon(); // Sets icon and calls lucide.createIcons()
       
-      updateDashboardUserInfo(); // Update user names and avatars
+      // Initialize theme FIRST, as it affects component appearance
+      initializePageTheme(); // Sets theme and updates button icon (calls lucide for button)
+      
+      // Update user info display elements
+      updateDashboardUserInfo(); 
 
-      // Event Listeners
-      if (dashboardMobileMenuButton) dashboardMobileMenuButton.addEventListener('click', openDashboardMobileMenu);
-      if (dashboardSidebarCloseButton) dashboardSidebarCloseButton.addEventListener('click', closeDashboardMobileMenu);
-      if (dashboardSidebarOverlay) dashboardSidebarOverlay.addEventListener('click', closeDashboardMobileMenu);
-      
-      if (dashboardThemeToggleButton) {
-          dashboardThemeToggleButton.addEventListener('click', async () => { 
-              document.documentElement.classList.toggle('dark'); 
-              localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-              setDashboardInitialThemeIcon(); // Updates icon and calls lucide
-              await fetchAndInitializeCharts(true); // Re-fetch/re-init charts for theme
-          });
-      }
+      // Setup general event listeners
+      const mobileMenuBtn = document.getElementById('mobile-menu-button');
+      const sidebarCloseBtn = document.getElementById('sidebar-close-button');
+      const sidebarOverlayEl = document.getElementById('sidebar-overlay');
+      if(mobileMenuBtn) mobileMenuBtn.addEventListener('click', openDashboardMobileMenu);
+      if(sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeDashboardMobileMenu);
+      if(sidebarOverlayEl) sidebarOverlayEl.addEventListener('click', closeDashboardMobileMenu);
       
       document.querySelectorAll('#sidebar nav a').forEach(link => { 
           link.addEventListener('click', (e) => { 
@@ -718,11 +560,30 @@
           }); 
       });
       
+      const themeToggleBtnHeader = document.getElementById('theme-toggle-header');
+      if (themeToggleBtnHeader) {
+          themeToggleBtnHeader.addEventListener('click', async () => { 
+              console.log("Theme toggle clicked"); // DEBUG
+              document.documentElement.classList.toggle('dark'); 
+              localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+              updatePageThemeIcon(); // Updates icon and calls lucide for button
+              console.log("Theme class toggled, localStorage updated, icon updated."); // DEBUG
+              
+              // Re-initialize charts as theme affects their colors
+              if (typeof fetchAndInitializeCharts === 'function') {
+                  console.log("Re-initializing charts due to theme change."); // DEBUG
+                  await fetchAndInitializeCharts(true); 
+              }
+          });
+      } else {
+          console.warn("Theme toggle button #theme-toggle-header not found during listener setup.");
+      }
+      
       const quickAddBtn = document.getElementById('quickAddBtn');
       const quickAddDropdown = document.getElementById('quickAddDropdown');
       if(quickAddBtn && quickAddDropdown) { 
-        quickAddBtn.addEventListener('click', () => quickAddDropdown.classList.toggle('hidden'));
-        document.addEventListener('click', (event) => { // Close dropdown if clicked outside
+        quickAddBtn.addEventListener('click', (e) => { e.stopPropagation(); quickAddDropdown.classList.toggle('hidden');});
+        document.addEventListener('click', (event) => {
             if (!quickAddBtn.contains(event.target) && !quickAddDropdown.contains(event.target)) {
                 quickAddDropdown.classList.add('hidden');
             }
@@ -731,40 +592,42 @@
 
       const dashboardDateFilter = document.getElementById('dashboardDateFilter');
       if (dashboardDateFilter) { 
-        const today = new Date().toISOString().split('T')[0];
-        dashboardDateFilter.value = today; // Set to today by default
-        dashboardDateFilter.addEventListener('change', async (e) => {
+        const today = new Date();
+        const offset = today.getTimezoneOffset();
+        const localToday = new Date(today.getTime() - (offset*60*1000));
+        dashboardDateFilter.value = localToday.toISOString().split('T')[0];
+        dashboardDateFilter.addEventListener('change', (e) => {
             console.log("Dashboard date filter changed to:", e.target.value);
-            // Potentially re-fetch some date-sensitive data here if needed for dashboard
-            // For now, just logging. KPIs are generally "this month/week".
         });
       }
 
       document.getElementById('global-logout-btn')?.addEventListener('click', (e) => { 
         e.preventDefault();
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('username');
-        localStorage.removeItem('user_id');
-        localStorage.removeItem('user_status');
-        openInfoStatusModalOnDashboard("Logged Out", "You have been logged out. Redirecting...", "info", 0);
-        setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 2000);
+        localStorage.removeItem('accessToken'); localStorage.removeItem('refreshToken');
+        localStorage.removeItem('username'); localStorage.removeItem('user_id'); localStorage.removeItem('user_status');
+        openInfoStatusModalOnDashboard("Logged Out", "Redirecting to login...", "info", 0);
+        setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 1500);
       });
       
       document.getElementById('infoStatusModalOkButton')?.addEventListener('click', closeInfoStatusModalOnDashboard);
 
-      // Authentication Check before loading data
       if (!getDashboardAuthToken()) {
           openInfoStatusModalOnDashboard("Authentication Required", "Redirecting to login...", "error", 0);
           setTimeout(() => { window.location.href = LOGIN_PAGE_URL; }, 1500); 
-          return; // Stop further execution if not authenticated
+          return; 
       }
 
-      // Load all dashboard data
-      await loadDashboardData(); // Loads KPIs, Right Sidebar Insights & Alerts
-      await loadRecentActivityListsForDashboard(); 
-      await loadTopPerformingDrivers(); 
-      await fetchAndInitializeCharts(); // Loads chart data and initializes charts
+      await Promise.all([
+        loadDashboardData(), 
+        loadRecentActivityListsForDashboard(), 
+        loadTopPerformingDrivers(), 
+        fetchAndInitializeCharts()
+      ]).catch(error => {
+        console.error("Error during initial data loading sequence:", error);
+        openInfoStatusModalOnDashboard("Loading Error", "Some dashboard components might not have loaded correctly.", "error");
+      });
+      
+      // No need for 'themeChangedGlobal' listener if theme logic is self-contained here.
   });
 </script>
 </body>

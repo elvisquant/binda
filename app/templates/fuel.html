@@ -47,34 +47,34 @@
       <nav class="flex-1 overflow-y-auto">
         <ul class="space-y-2">
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="layout-dashboard" class="w-5 h-5"></i><a href="dashboard.html">Dashboard</a>
+              <i data-lucide="layout-dashboard" class="w-5 h-5"></i><a href="dashboard">Dashboard</a>
             </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="pie-chart" class="w-5 h-5"></i><a href="analytics.html">Analytics</a>
+              <i data-lucide="pie-chart" class="w-5 h-5"></i><a href="analytics">Analytics</a>
             </li>
             <!--li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
               <i data-lucide="users" class="w-5 h-5"></i><a href="users">User</a>
             </!li-->
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="user" class="w-5 h-5"></i><a href="driver.html">Driver</a>
+              <i data-lucide="user" class="w-5 h-5"></i><a href="driver">Driver</a>
             </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="alert-triangle" class="w-5 h-5"></i><a href="panne.html">Pannes (Issues)</a>
+              <i data-lucide="alert-triangle" class="w-5 h-5"></i><a href="panne">Pannes (Issues)</a>
             </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="car" class="w-5 h-5"></i><a href="vehicle.html">Vehicles</a>
+              <i data-lucide="car" class="w-5 h-5"></i><a href="vehicle">Vehicles</a>
             </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="wrench" class="w-5 h-5"></i><a href="reparation.html">Reparation</a>
+              <i data-lucide="wrench" class="w-5 h-5"></i><a href="reparation">Reparation</a>
             </li>
             <li class="flex items-center space-x-3 text-blue-600 dark:text-blue-400 font-semibold bg-blue-50 dark:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="droplet" class="w-5 h-5"></i><a href="fuel.html">Fuel</a>
+              <i data-lucide="droplet" class="w-5 h-5"></i><a href="fuel">Fuel</a>
             </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="settings" class="w-5 h-5"></i><a href="maintenance.html">Maintenance</a>
+              <i data-lucide="settings" class="w-5 h-5"></i><a href="maintenance">Maintenance</a>
             </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="route" class="w-5 h-5"></i><a href="trip.html">Trip</a>
+              <i data-lucide="route" class="w-5 h-5"></i><a href="trip">Trip</a>
             </li>
         </ul>
       </nav>
@@ -181,15 +181,32 @@
             </div>
           </section>
         </main>
-
-        <aside class="w-1/5 bg-white dark:bg-gray-800 p-4 space-y-6 shadow-md hidden lg:block flex-shrink-0 overflow-y-auto border-l dark:border-gray-700">
+         <!-- Right Sidebar -->
+         <aside class="w-1/5 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden lg:block flex-shrink-0 border-l dark:border-gray-700 overflow-y-auto">
             <div class="flex justify-end items-center">
-              <div>
-                  <div class="text-sm font-semibold text-right" id="userDisplayNameRightSidebar">User</div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400 text-right">Admin</div>
-              </div>
+                <div class="text-right">
+                    <div class="text-sm font-semibold text-gray-800 dark:text-white" id="userDisplayNameRightSidebar">User</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">Fleet Analyst</div>
+                </div>
+                <img src="https://i.pravatar.cc/40?u=analyst_jane_doe" alt="Analyst" class="w-10 h-10 rounded-full ml-2 object-cover">
             </div>
-            <div><h4 class="font-bold mb-4 text-lg">Fuel Insights</h4><p class="text-xs text-gray-500 dark:text-gray-400">Avg Price/L: N/A</p><p class="text-xs text-gray-500 dark:text-gray-400">Total Cost (Month): N/A</p></div>
+            <hr class="dark:border-gray-700/50">
+            <div>
+                <h4 class="font-semibold mb-3 text-gray-700 dark:text-gray-200">Key Performance Insights</h4>
+                <ul id="keyPerformanceInsightsList" class="text-xs space-y-2.5 text-gray-600 dark:text-gray-300">
+                    <li class="flex items-start space-x-2"><i data-lucide="loader-2" class="w-4 h-4 text-gray-400 animate-spin mt-0.5 shrink-0"></i><span>Loading insights...</span></li>
+                </ul>
+            </div>
+            <hr class="dark:border-gray-700/50">
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <h4 class="font-semibold text-gray-700 dark:text-gray-200">Alerts & Notifications</h4>
+                    <a href="#" id="viewAllNotificationsLink" class="text-xs text-primary dark:text-primary-light hover:underline">View All (<span id="notificationCount">0</span>)</a>
+                </div>
+                <div id="notificationsList" class="space-y-3 max-h-40 overflow-y-auto pr-1">
+                     <div class="flex items-start space-x-2 p-2.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><i data-lucide="loader-2" class="w-5 h-5 text-gray-400 animate-spin mt-0.5 flex-shrink-0"></i><p class="text-xs text-gray-700 dark:text-gray-300">Loading alerts...</p></div>
+                </div>
+            </div>
         </aside>
       </div>
     </div>
@@ -308,7 +325,6 @@
         </div>
     </div>
 </div>
-
 <script>
   const API_BASE_URL = '';
   const LOGIN_PAGE_URL = '/login';
@@ -316,18 +332,15 @@
   const VEHICLE_API_ENDPOINT = '/vehicle/';
   const FUEL_TYPE_API_ENDPOINT = '/fuel_type/';
 
-  
-
-
   // --- CORE HELPER FUNCTIONS ---
   function getAuthToken() { return localStorage.getItem('accessToken'); }
-  function parseJwt(token) { try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { console.error("DEBUG JWT Parse Error:", e, "Token:", token); return null; }}
+  function parseJwt(token) { try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { console.error("JWT Parse Error:", e); return null; }}
 
   function updateUserInfoDisplay() {
     const token = getAuthToken();
     const userDisplayElements = [
         document.getElementById('userDisplayNameHeader'),
-        document.getElementById('userDisplayNameRightSidebar') // Ensure this ID exists in your right sidebar
+        document.getElementById('userDisplayNameRightSidebar')
     ];
 
     userDisplayElements.forEach(userDisplayElement => {
@@ -344,14 +357,11 @@
   async function apiRequest(endpoint, method = 'GET', body = null) {
     const token = getAuthToken();
     const headers = { 'Content-Type': 'application/json' };
-    // Determine if auth is needed (most fuel endpoints likely need it)
-    const publicEndpoints = []; // Add public fuel endpoints if any
-    const isPublic = publicEndpoints.some(publicEp => endpoint.startsWith(publicEp) && method === 'GET');
-
-
-    if (token && !isPublic) { headers['Authorization'] = `Bearer ${token}`; }
-    else if (!token && !isPublic && !endpoint.startsWith('/login')) { 
-        console.warn(`DEBUG WARN: Protected endpoint ${endpoint} called without token.`); 
+    
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    } else {
+        console.warn(`WARN: Protected endpoint ${endpoint} called without token.`);
     }
 
     const config = { method, headers };
@@ -362,7 +372,7 @@
       const responseForJson = response.clone();
       const responseForText = response.clone();
 
-      if (response.status === 401 && !isPublic && !endpoint.endsWith('/login/')) {
+      if (response.status === 401) {
         openInfoStatusModal("Authentication Error", "Session expired or unauthorized. Please log in again.", "error", 5000);
         return null;
       }
@@ -370,29 +380,27 @@
 
       const responseData = await responseForJson.json().catch(async (jsonError) => {
           const text = await responseForText.text();
-          console.error(`DEBUG JSON Parse Error for ${endpoint}. Status: ${response.status}. Response: ${text.substring(0,200)}...`, jsonError);
+          console.error(`JSON Parse Error for ${endpoint}. Status: ${response.status}. Response: ${text.substring(0,200)}...`, jsonError);
           if (!response.ok) { return Promise.reject({ status: response.status, detail: text || `Server error ${response.status}` }); }
           return Promise.reject({ status: response.status, detail: `Invalid JSON (Status: ${response.status}). Text: ${text.substring(0,100)}` });
       });
 
       if (!response.ok) {
         const errorDetail = responseData.detail || (typeof responseData === 'object' ? JSON.stringify(responseData) : responseData) || 'Unknown server error.';
-        console.error(`DEBUG API Error for ${endpoint}: ${response.status}`, errorDetail);
-        if (!(response.status === 401 && endpoint.endsWith('/login/'))) {
-          openInfoStatusModal(`API Error: ${response.status}`, errorDetail, "error");
-        }
+        console.error(`API Error for ${endpoint}: ${response.status}`, errorDetail);
+        openInfoStatusModal(`API Error: ${response.status}`, errorDetail, "error");
         return null;
       }
       return responseData;
     } catch (error) {
-      console.error(`DEBUG Network/Catch Error for ${endpoint}:`, error);
+      console.error(`Network/Catch Error for ${endpoint}:`, error);
       const errorMessage = error.detail || error.message || "A network or request error occurred.";
       openInfoStatusModal("Request Error", errorMessage, "error");
       return null;
     }
   }
-  // --- END CORE HELPER FUNCTIONS ---
 
+  // --- GLOBAL VARIABLES & STATE ---
   let allFetchedFuelLogsFromServer = [];
   let vehicleDataForDropdown_fuel = [];
   let fuelTypeDataForDropdown_fuel = [];
@@ -402,16 +410,16 @@
   let activeFuelDateFilter = 'all';
   let customFuelFilterStartDate = null;
   let customFuelFilterEndDate = null;
-
   let currentConfirmAction = null;
   let currentActionData = null;
   let infoStatusModalTimeout = null;
 
-  // --- Sidebar Toggle Functionality ---
+  // --- SIDEBAR & THEME ---
   const sidebar = document.getElementById('sidebar');
   const mobileMenuButton = document.getElementById('mobile-menu-button');
   const sidebarCloseButton = document.getElementById('sidebar-close-button'); 
   const sidebarOverlay = document.getElementById('sidebar-overlay');
+  const themeToggleButtonHeader = document.getElementById('theme-toggle-header'); 
 
   function openMobileMenu() {
     if (sidebar && sidebarOverlay) {
@@ -431,109 +439,177 @@
     }
   }
   
-  // --- Theme Toggle ---
-  const themeToggleButtonHeader = document.getElementById('theme-toggle-header'); 
   function setInitialThemeIcon() {
     if (themeToggleButtonHeader) { 
-        if (document.documentElement.classList.contains('dark')) {
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
             themeToggleButtonHeader.innerHTML = '<i data-lucide="sun" class="w-5 h-5"></i>';
         } else {
+            document.documentElement.classList.remove('dark');
             themeToggleButtonHeader.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>';
         }
         lucide.createIcons();
     }
   }
 
-  // --- MODAL CLOSE FUNCTIONS ---
-  function closeModal(modalId) {
-    const modal = document.getElementById(modalId); if (modal) modal.classList.add('hidden');
-    document.body.style.overflow = '';
-  }
-
-  function closeAddFuelModal() {
-    closeModal('addFuelModal');
-    fuelLogToEditId = null;
-    const form = document.getElementById('addFuelForm'); if (form) form.reset();
-    const displayArea = document.getElementById('calculatedCostDisplayArea'); if (displayArea) displayArea.style.display = 'none';
-  }
-  function closeViewFuelModal() { closeModal('viewFuelModal'); }
-  function closeGenericConfirmModal() {
-    closeModal('genericConfirmModal');
-    currentConfirmAction = null; currentActionData = null;
-  }
-  function closeInfoStatusModal() {
-    if (infoStatusModalTimeout) { clearTimeout(infoStatusModalTimeout); infoStatusModalTimeout = null; }
-    closeModal('infoStatusModal');
-  }
-
-  // --- MODAL OPEN FUNCTIONS (Generic & Info/Status) ---
-  function openGenericConfirmModal(title, message, confirmButtonText, confirmButtonIconName, onConfirmCallback, actionData = null) {
-    document.getElementById('genericConfirmModalTitle').textContent = title;
-    document.getElementById('genericConfirmModalMessage').textContent = message;
-
-    const confirmBtnEl = document.getElementById('genericConfirmModalConfirmBtn');
-    confirmBtnEl.innerHTML = ''; 
-    if (confirmButtonIconName) {
-        const icon = document.createElement('i');
-        icon.setAttribute('data-lucide', confirmButtonIconName);
-        icon.classList.add('w-4', 'h-4', 'mr-2');
-        confirmBtnEl.appendChild(icon);
-    }
-    confirmBtnEl.appendChild(document.createTextNode(confirmButtonText || 'Confirm'));
-
-    if(confirmButtonIconName === 'trash-2' || confirmButtonText.toLowerCase().includes('delete')){
-        confirmBtnEl.classList.remove('bg-blue-500', 'hover:bg-blue-600');
-        confirmBtnEl.classList.add('bg-red-500', 'hover:bg-red-600');
+  function toggleTheme() {
+    if (document.documentElement.classList.contains('dark')) {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
     } else {
-        confirmBtnEl.classList.remove('bg-red-500', 'hover:bg-red-600');
-        confirmBtnEl.classList.add('bg-blue-500', 'hover:bg-blue-600');
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
     }
-
-    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [confirmBtnEl] });
-
-    currentConfirmAction = onConfirmCallback;
-    currentActionData = actionData;
-
-    document.getElementById('genericConfirmModal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
+    setInitialThemeIcon();
   }
 
-  function openInfoStatusModal(title, message, type = 'info', autoCloseDelay = 3000) {
-    const modal = document.getElementById('infoStatusModal');
-    const modalTitleEl = document.getElementById('infoStatusModalTitle');
-    const modalMessageEl = document.getElementById('infoStatusModalMessage');
-    const iconContainer = document.getElementById('infoStatusModalIconContainer');
-    const okButton = document.getElementById('infoStatusModalOkButton');
+  // --- Dashboard Widget Functions (Right Sidebar) ---
+  async function fetchAndDisplayPerformanceInsights() {
+      const insightsList = document.getElementById('keyPerformanceInsightsList');
+      if (!insightsList) return;
 
-    modalTitleEl.textContent = title;
-    modalMessageEl.textContent = message;
+      insightsList.innerHTML = `<li class="flex items-start space-x-2"><i data-lucide="loader-2" class="w-4 h-4 text-gray-400 animate-spin mt-0.5 shrink-0"></i><span>Loading insights...</span></li>`;
+      lucide.createIcons();
 
-    if (infoStatusModalTimeout) clearTimeout(infoStatusModalTimeout);
-    iconContainer.innerHTML = '';
-    let iconName = 'info'; let iconColor = 'blue'; let bgColor = 'blue';
+      const data = await apiRequest('/dashboard-data/performance-insights');
+      if (!data) {
+          insightsList.innerHTML = `<li class="flex items-start space-x-2 text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 shrink-0"></i><span>Failed to load insights.</span></li>`;
+          lucide.createIcons();
+          return;
+      }
 
-    switch (type.toLowerCase()) {
-        case 'success': iconName = 'check-circle'; iconColor = 'green'; bgColor = 'green'; break;
-        case 'error': iconName = 'alert-circle'; iconColor = 'red'; bgColor = 'red'; break;
-    }
-
-    iconContainer.className = `mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-${bgColor}-100 dark:bg-${bgColor}-800 mb-4`;
-    const iconEl = document.createElement('i');
-    iconEl.setAttribute('data-lucide', iconName);
-    iconEl.className = `w-6 h-6 text-${iconColor}-600 dark:text-${iconColor}-400`;
-    iconContainer.appendChild(iconEl);
-
-    okButton.className = `w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-${iconColor}-600 text-base font-medium text-white hover:bg-${iconColor}-700 focus:ring-2 focus:ring-offset-2 focus:ring-${iconColor}-500 dark:focus:ring-offset-gray-800`;
-
-    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [iconContainer] });
-
-    modal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-
-    if (autoCloseDelay && autoCloseDelay > 0) {
-        infoStatusModalTimeout = setTimeout(() => { closeInfoStatusModal(); }, autoCloseDelay);
-    }
+      let insightsHTML = '';
+      const { fuel_efficiency, maintenance_compliance } = data;
+      if (fuel_efficiency) {
+          let trendColor = 'text-gray-500 dark:text-gray-400';
+          let trendText = 'steady';
+          if (fuel_efficiency.trend === 'up') {
+              trendColor = 'text-green-500';
+              trendText = 'improving';
+          } else if (fuel_efficiency.trend === 'down') {
+              trendColor = 'text-red-500';
+              trendText = 'worsening';
+          }
+          const percentageText = fuel_efficiency.percentage_change !== null ? `(${fuel_efficiency.percentage_change > 0 ? '+' : ''}${fuel_efficiency.percentage_change}%)` : '(No prior data)';
+          insightsHTML += `<li class="flex items-start space-x-2"><i data-lucide="droplet" class="w-4 h-4 text-blue-500 mt-0.5 shrink-0"></i><div><span>Fuel Efficiency is <span class="${trendColor} font-semibold">${trendText}</span>.</span><span class="block text-gray-400 dark:text-gray-500 text-xs">Consumption vs last month ${percentageText}.</span></div></li>`;
+      }
+      if (maintenance_compliance) {
+          insightsHTML += `<li class="flex items-start space-x-2"><i data-lucide="wrench" class="w-4 h-4 text-yellow-500 mt-0.5 shrink-0"></i><div><span><span class="font-semibold">${maintenance_compliance.total_maintenance_records}</span> maintenance records logged.</span><span class="block text-gray-400 dark:text-gray-500 text-xs">Total historical tasks.</span></div></li>`;
+      }
+      insightsList.innerHTML = insightsHTML || `<li>No performance data available.</li>`;
+      lucide.createIcons();
   }
+
+  async function fetchAndDisplayAlerts() {
+      const alertsList = document.getElementById('notificationsList');
+      const notificationCountSpan = document.getElementById('notificationCount');
+      if (!alertsList || !notificationCountSpan) return;
+
+      alertsList.innerHTML = `<div class="flex items-start space-x-2 p-2.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><i data-lucide="loader-2" class="w-5 h-5 text-gray-400 animate-spin mt-0.5 flex-shrink-0"></i><p class="text-xs text-gray-700 dark:text-gray-300">Loading alerts...</p></div>`;
+      lucide.createIcons();
+
+      const data = await apiRequest('/dashboard-data/alerts');
+      if (!data) {
+          alertsList.innerHTML = `<div class="flex items-start space-x-2 text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 shrink-0"></i><p class="text-xs">Failed to load alerts.</p></div>`;
+          notificationCountSpan.textContent = '0';
+          lucide.createIcons();
+          return;
+      }
+
+      notificationCountSpan.textContent = data.total_alerts || '0';
+      let alertsHTML = '';
+      const createAlertItemHTML = (alert, icon, colorClass) => {
+          if (!alert) return '';
+          return `<div class="flex items-start space-x-2 p-2.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><i data-lucide="${icon}" class="w-5 h-5 ${colorClass} mt-0.5 flex-shrink-0"></i><div><p class="text-xs font-semibold text-gray-800 dark:text-gray-200">${alert.plate_number}</p><p class="text-xs text-gray-600 dark:text-gray-300">${alert.message}</p></div></div>`;
+      };
+      alertsHTML += createAlertItemHTML(data.critical_panne, 'shield-alert', 'text-red-500');
+      alertsHTML += createAlertItemHTML(data.maintenance_alert, 'calendar-clock', 'text-blue-500');
+      alertsHTML += createAlertItemHTML(data.trip_alert, 'route', 'text-purple-500');
+      if (data.total_alerts === 0) {
+          alertsHTML = `<div class="flex items-center justify-center text-center p-4"><div class="text-gray-500 dark:text-gray-400"><i data-lucide="check-circle" class="w-8 h-8 mx-auto mb-2 text-green-500"></i><p class="text-xs">All clear! No new alerts.</p></div></div>`;
+      }
+      alertsList.innerHTML = alertsHTML;
+      lucide.createIcons();
+  }
+  
+  async function initializeDashboardWidgets() {
+      await Promise.all([
+          fetchAndDisplayPerformanceInsights(),
+          fetchAndDisplayAlerts()
+      ]);
+  }
+
+  // --- MODAL & UI Functions ---
+   function closeModal(modalId) { 
+       const modal = document.getElementById(modalId); 
+       if (modal) modal.classList.add('hidden'); 
+       document.body.style.overflow = ''; 
+    }
+   function closeAddFuelModal() { 
+       closeModal('addFuelModal'); 
+       fuelLogToEditId = null; 
+       const form = document.getElementById('addFuelForm'); 
+       if (form) form.reset(); 
+       const displayArea = document.getElementById('calculatedCostDisplayArea'); 
+       if (displayArea) displayArea.style.display = 'none'; 
+    }
+   function closeViewFuelModal() { closeModal('viewFuelModal'); }
+   function closeGenericConfirmModal() { 
+       closeModal('genericConfirmModal'); 
+       currentConfirmAction = null; 
+       currentActionData = null; 
+    }
+   function closeInfoStatusModal() { 
+       if (infoStatusModalTimeout) { 
+           clearTimeout(infoSaxctusModalTimeout); 
+           infoStatusModalTimeout = null; 
+        } 
+        closeModal('infoStatusModal'); 
+    }
+   function openGenericConfirmModal(title, message, confirmButtonText, confirmButtonIconName, onConfirmCallback, actionData = null) { 
+       document.getElementById('genericConfirmModalTitle').textContent = title; 
+       document.getElementById('genericConfirmModalMessage').textContent = message; 
+       const confirmBtnEl = document.getElementById('genericConfirmModalConfirmBtn'); 
+       confirmBtnEl.innerHTML = `<i data-lucide="${confirmButtonIconName}" class="w-4 h-4 mr-2"></i> ${confirmButtonText || 'Confirm'}`; 
+       if(confirmButtonIconName === 'trash-2'){ 
+           confirmBtnEl.classList.remove('bg-blue-500', 'hover:bg-blue-600'); 
+           confirmBtnEl.classList.add('bg-red-500', 'hover:bg-red-600'); 
+        } else { 
+            confirmBtnEl.classList.remove('bg-red-500', 'hover:bg-red-600'); 
+            confirmBtnEl.classList.add('bg-blue-500', 'hover:bg-blue-600'); 
+        } 
+        lucide.createIcons(); 
+        currentConfirmAction = onConfirmCallback; 
+        currentActionData = actionData; 
+        document.getElementById('genericConfirmModal').classList.remove('hidden'); 
+        document.body.style.overflow = 'hidden'; 
+    }
+   function openInfoStatusModal(title, message, type = 'info', autoCloseDelay = 3000) { 
+       const modal = document.getElementById('infoStatusModal'); 
+       const modalTitleEl = document.getElementById('infoStatusModalTitle'); 
+       const modalMessageEl = document.getElementById('infoStatusModalMessage'); 
+       const iconContainer = document.getElementById('infoStatusModalIconContainer'); 
+       const okButton = document.getElementById('infoStatusModalOkButton'); 
+       modalTitleEl.textContent = title; 
+       modalMessageEl.textContent = message; 
+       if (infoStatusModalTimeout) clearTimeout(infoStatusModalTimeout); 
+       iconContainer.innerHTML = ''; 
+       let iconName = 'info'; 
+       let iconColor = 'blue'; 
+       switch (type.toLowerCase()) { 
+           case 'success': iconName = 'check-circle'; iconColor = 'green'; break; 
+           case 'error': iconName = 'alert-circle'; iconColor = 'red'; break; 
+        } 
+        iconContainer.className = `mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-${iconColor}-100 dark:bg-${iconColor}-800 mb-4`; 
+        iconContainer.innerHTML = `<i data-lucide="${iconName}" class="w-6 h-6 text-${iconColor}-600 dark:text-${iconColor}-400"></i>`; 
+        okButton.className = `w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-${iconColor}-600 text-base font-medium text-white hover:bg-${iconColor}-700 focus:ring-2 focus:ring-offset-2 focus:ring-${iconColor}-500 dark:focus:ring-offset-gray-800`; 
+        lucide.createIcons(); 
+        modal.classList.remove('hidden'); 
+        document.body.style.overflow = 'hidden'; 
+        if (autoCloseDelay && autoCloseDelay > 0) { 
+            infoStatusModalTimeout = setTimeout(() => { closeInfoStatusModal(); }, autoCloseDelay); 
+        } 
+    }
 
 
   // --- DOMContentLoaded Event Listener ---
@@ -541,49 +617,13 @@
       lucide.createIcons();
       updateUserInfoDisplay();
       
-      themeToggleButtonHeader?.addEventListener('click', () => {
-        document.documentElement.classList.toggle('dark');
-        setInitialThemeIcon(); 
-      });
+      themeToggleButtonHeader?.addEventListener('click', toggleTheme);
       setInitialThemeIcon();
 
       mobileMenuButton?.addEventListener('click', openMobileMenu);
       sidebarCloseButton?.addEventListener('click', closeMobileMenu);
       sidebarOverlay?.addEventListener('click', closeMobileMenu);
-      document.querySelectorAll('#sidebar nav a').forEach(link => {
-          link.addEventListener('click', () => {
-              if (window.innerWidth < 768) { // md breakpoint
-                  closeMobileMenu();
-              }
-          });
-      });
-
-      document.getElementById('addFuelModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeAddFuelModal(); });
-      document.getElementById('viewFuelModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeViewFuelModal(); });
-      document.getElementById('genericConfirmModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeGenericConfirmModal(); });
-      document.getElementById('infoStatusModal').addEventListener('click', e => { if (e.target.id === 'infoStatusModal' || e.target.closest('#infoStatusModalOkButton')) closeInfoStatusModal(); });
-
-      document.getElementById('closeAddFuelModalButtonTop')?.addEventListener('click', closeAddFuelModal);
-      document.getElementById('cancelAddFuelModalButton')?.addEventListener('click', closeAddFuelModal);
-      document.getElementById('closeViewFuelModalButtonTop')?.addEventListener('click', closeViewFuelModal);
-      document.getElementById('closeViewFuelModalButtonBottom')?.addEventListener('click', closeViewFuelModal);
-      document.getElementById('closeGenericConfirmModalButtonX')?.addEventListener('click', closeGenericConfirmModal);
-      document.getElementById('cancelGenericConfirmModalButton')?.addEventListener('click', closeGenericConfirmModal);
-
-      document.getElementById('genericConfirmModalConfirmBtn').addEventListener('click', async () => {
-        if (typeof currentConfirmAction === 'function') {
-            try {
-                 await currentConfirmAction(currentActionData);
-            } catch (error) {
-                console.error("DEBUG: Uncaught error from currentConfirmAction:", error);
-                openInfoStatusModal("Critical Action Error", "An unexpected error occurred: " + (error.message || error), "error");
-            }
-        } else {
-            console.log("DEBUG: genericConfirmModalConfirmBtn - No currentConfirmAction defined.");
-        }
-        closeGenericConfirmModal();
-      });
-
+      
       document.getElementById('global-logout-btn')?.addEventListener('click', (e) => {
           e.preventDefault();
           localStorage.removeItem('accessToken');
@@ -591,9 +631,13 @@
           updateUserInfoDisplay();
           allFetchedFuelLogsFromServer = [];
           renderFuelLogTable();
-          // setTimeout(()=>window.location.href=LOGIN_PAGE_URL, 2500);
+          document.getElementById('keyPerformanceInsightsList').innerHTML = `<li class="flex items-start space-x-2 text-gray-500"><i data-lucide="log-in" class="w-4 h-4 mt-0.5 shrink-0"></i><span>Please log in to see insights.</span></li>`;
+          document.getElementById('notificationsList').innerHTML = `<div class="flex items-start space-x-2 text-gray-500 p-2.5"><i data-lucide="log-in" class="w-5 h-5 mt-0.5 shrink-0"></i><p class="text-xs">Please log in to see alerts.</p></div>`;
+          document.getElementById('notificationCount').textContent = '0';
+          lucide.createIcons();
       });
 
+      document.getElementById('addFuelForm')?.addEventListener('submit', handleFuelFormSubmit);
       document.getElementById('fuel_quantity_form')?.addEventListener('input', displayDynamicCost);
       document.getElementById('fuel_price_little_form')?.addEventListener('input', displayDynamicCost);
       document.getElementById('openAddFuelModalButton')?.addEventListener('click', openAddFuelModal);
@@ -607,53 +651,83 @@
       document.getElementById('fuel-filter-all')?.addEventListener('click', () => applyFuelDateFilter('all'));
       document.getElementById('fuel-filter-custom-btn')?.addEventListener('click', toggleFuelCustomDateRange);
       document.getElementById('applyCustomDateFilterButton')?.addEventListener('click', applyFuelCustomDateFilter);
-
-      const addFuelForm = document.getElementById('addFuelForm');
-      if (addFuelForm) addFuelForm.addEventListener('submit', handleFuelFormSubmit);
+      
+      document.getElementById('addFuelModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeAddFuelModal(); });
+      document.getElementById('viewFuelModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeViewFuelModal(); });
+      document.getElementById('genericConfirmModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeGenericConfirmModal(); });
+      document.getElementById('infoStatusModal').addEventListener('click', e => { if (e.target.id === 'infoStatusModal' || e.target.closest('#infoStatusModalOkButton')) closeInfoStatusModal(); });
+      document.getElementById('closeAddFuelModalButtonTop')?.addEventListener('click', closeAddFuelModal);
+      document.getElementById('cancelAddFuelModalButton')?.addEventListener('click', closeAddFuelModal);
+      document.getElementById('closeViewFuelModalButtonTop')?.addEventListener('click', closeViewFuelModal);
+      document.getElementById('closeViewFuelModalButtonBottom')?.addEventListener('click', closeViewFuelModal);
+      document.getElementById('closeGenericConfirmModalButtonX')?.addEventListener('click', closeGenericConfirmModal);
+      document.getElementById('cancelGenericConfirmModalButton')?.addEventListener('click', closeGenericConfirmModal);
+      document.getElementById('genericConfirmModalConfirmBtn').addEventListener('click', async () => { if (typeof currentConfirmAction === 'function') await currentConfirmAction(currentActionData); closeGenericConfirmModal(); });
 
       await initializeFuelLogSection();
   });
 
   // --- Fuel Specific Functions ---
   function displayDynamicCost() {
-      const quantityEl = document.getElementById('fuel_quantity_form'); const priceLittleEl = document.getElementById('fuel_price_little_form');
-      const displayArea = document.getElementById('calculatedCostDisplayArea'); const costSpan = document.getElementById('displayCalculatedCost');
-      if (!quantityEl || !priceLittleEl || !displayArea || !costSpan) { return; }
-      const quantity = parseFloat(quantityEl.value) || 0; const priceLittle = parseFloat(priceLittleEl.value) || 0;
-      if (quantity > 0 && priceLittle > 0) { const calculated = (quantity * priceLittle).toFixed(2); costSpan.textContent = `$${calculated}`; displayArea.style.display = 'block'; }
-      else { displayArea.style.display = 'none'; costSpan.textContent = ''; }
+      const quantityEl = document.getElementById('fuel_quantity_form');
+      const priceLittleEl = document.getElementById('fuel_price_little_form');
+      const displayArea = document.getElementById('calculatedCostDisplayArea');
+      const costSpan = document.getElementById('displayCalculatedCost');
+      if (!quantityEl || !priceLittleEl || !displayArea || !costSpan) return;
+      const quantity = parseFloat(quantityEl.value) || 0;
+      const priceLittle = parseFloat(priceLittleEl.value) || 0;
+      if (quantity > 0 && priceLittle > 0) {
+        const calculated = (quantity * priceLittle).toFixed(2);
+        costSpan.textContent = `$${calculated}`;
+        displayArea.style.display = 'block';
+      } else {
+        displayArea.style.display = 'none';
+        costSpan.textContent = '';
+      }
   }
 
   async function initializeFuelLogSection() {
-    console.log("DEBUG: Initializing fuel log section...");
+    console.log("Initializing fuel log section...");
     await fetchDropdownDataForFuel();
     if (!getAuthToken()) {
-        const fuelLogBody = document.getElementById('fuelLogBody'); if(fuelLogBody) fuelLogBody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-red-500">Please log in.</td></tr>`;
-        const fuelLogCount = document.getElementById('fuelLogCount'); if(fuelLogCount) fuelLogCount.textContent = '0 records';
-        const fuelLogPagination = document.getElementById('fuelLogPagination'); if(fuelLogPagination) fuelLogPagination.innerHTML = '';
+        document.getElementById('fuelLogBody').innerHTML = `<tr><td colspan="8" class="text-center py-8 text-red-500">Please log in to view fuel logs.</td></tr>`;
+        document.getElementById('fuelLogCount').textContent = '0 records';
+        document.getElementById('fuelLogPagination').innerHTML = '';
+        document.getElementById('keyPerformanceInsightsList').innerHTML = `<li class="flex items-start space-x-2 text-gray-500"><i data-lucide="log-in" class="w-4 h-4 mt-0.5 shrink-0"></i><span>Please log in to see insights.</span></li>`;
+        document.getElementById('notificationsList').innerHTML = `<div class="flex items-start space-x-2 text-gray-500 p-2.5"><i data-lucide="log-in" class="w-5 h-5 mt-0.5 shrink-0"></i><p class="text-xs">Please log in to see alerts.</p></div>`;
+        document.getElementById('notificationCount').textContent = '0';
+        lucide.createIcons();
     } else {
         await fetchFuelLogs();
+        await initializeDashboardWidgets();
     }
     setActiveFuelDateFilterButton('all');
   }
 
   async function fetchDropdownDataForFuel() {
-    vehicleDataForDropdown_fuel = await apiRequest(`${VEHICLE_API_ENDPOINT}?limit=1000`) || []; // Corrected
-    fuelTypeDataForDropdown_fuel = await apiRequest(`${FUEL_TYPE_API_ENDPOINT}?limit=100`) || []; // Corrected
+    const [vehicles, fuelTypes] = await Promise.all([
+        apiRequest(`${VEHICLE_API_ENDPOINT}?limit=1000`),
+        apiRequest(`${FUEL_TYPE_API_ENDPOINT}?limit=100`)
+    ]);
 
-    if (!Array.isArray(vehicleDataForDropdown_fuel)) vehicleDataForDropdown_fuel = [];
-    if (!Array.isArray(fuelTypeDataForDropdown_fuel)) fuelTypeDataForDropdown_fuel = [];
+    vehicleDataForDropdown_fuel = Array.isArray(vehicles) ? vehicles : [];
+    fuelTypeDataForDropdown_fuel = Array.isArray(fuelTypes) ? fuelTypes : [];
 
-    populateSelectWithOptionsGeneric('fuelVehicleFilter', vehicleDataForDropdown_fuel, 'id', 'plate_number', "All Vehicles", (v) => v.plate_number);
-    populateSelectWithOptionsGeneric('fuelFuelTypeFilter', fuelTypeDataForDropdown_fuel, 'id', 'fuel_type', "All Fuel Types", (ft) => ft.fuel_type);
+    populateSelectWithOptionsGeneric('fuelVehicleFilter', vehicleDataForDropdown_fuel, 'id', 'plate_number', "All Vehicles");
+    populateSelectWithOptionsGeneric('fuelFuelTypeFilter', fuelTypeDataForDropdown_fuel, 'id', 'fuel_type', "All Fuel Types");
+    
+    populateSelectWithOptionsGeneric('fuel_vehicle_id_form', vehicleDataForDropdown_fuel, 'id', 'plate_number', "Select Vehicle", v => {
+        const makeName = v.make_ref?.vehicle_make || ''; 
+        const modelName = v.model_ref?.vehicle_model || '';
+        return `${v.plate_number} (${v.year || ''} ${makeName} ${modelName})`.replace(/\s{2,}/g, ' ').trim();
+    });
 
-    populateSelectWithOptionsGeneric('fuel_vehicle_id_form', vehicleDataForDropdown_fuel, 'id', 'plate_number', "Select Vehicle", (v) => `${v.make} ${v.model} (${v.plate_number})`); // Enhanced display
-    populateSelectWithOptionsGeneric('fuel_fuel_type_id_form', fuelTypeDataForDropdown_fuel, 'id', 'fuel_type', "Select Fuel Type", (ft) => ft.fuel_type);
+    populateSelectWithOptionsGeneric('fuel_fuel_type_id_form', fuelTypeDataForDropdown_fuel, 'id', 'fuel_type', "Select Fuel Type");
   }
 
   function populateSelectWithOptionsGeneric(selectElementId, optionsArray, valueField, textField, placeholder = "Select Option", displayFormatter = null) {
     const selectElement = document.getElementById(selectElementId);
-    if (!selectElement) { console.warn(`Populate Warn: Element '${selectElementId}' not found.`); return; }
+    if (!selectElement) return;
 
     const currentValue = selectElement.value;
     selectElement.innerHTML = `<option value="">${placeholder}</option>`;
@@ -663,22 +737,11 @@
     optionsArray.forEach((opt) => {
         if (typeof opt !== 'object' || opt === null) return;
         const option = document.createElement('option');
-        const val = opt[valueField];
-        option.value = (val === undefined) ? '' : val;
-
-        let displayText = displayFormatter ? displayFormatter(opt) :
-                          (opt[textField] !== undefined ? opt[textField] : `(ID: ${val !== undefined ? val : 'N/A'})`);
-        option.textContent = displayText;
+        option.value = opt[valueField];
+        option.textContent = displayFormatter ? displayFormatter(opt) : (opt[textField] || `ID: ${opt[valueField]}`);
         selectElement.appendChild(option);
     });
     if (optionsArray.some(opt => opt && String(opt[valueField]) === String(currentValue))) { selectElement.value = currentValue; }
-  }
-
-  function getISODateString(date) { return new Date(date).toISOString().split('T')[0]; }
-  function getDateRangeForFuelFilter(filterType) {
-    const today=new Date(); today.setHours(0,0,0,0); let sD=new Date(today); let eD=new Date(today); eD.setHours(23,59,59,999);
-    switch(filterType){ case 'today':break; case 'last7days':sD.setDate(today.getDate()-6);break; case 'last30days':sD.setDate(today.getDate()-29);break; case 'all':return{startDate:null,endDate:null}; default:return{startDate:null,endDate:null};}
-    return{startDate:getISODateString(sD),endDate:getISODateString(eD)};
   }
 
   async function fetchFuelLogs() {
@@ -688,288 +751,280 @@
     if (vehicleFilterVal) queryParams += `&vehicle_id=${vehicleFilterVal}`;
     if (fuelTypeFilterVal) queryParams += `&fuel_type_id=${fuelTypeFilterVal}`;
 
-    if (activeFuelDateFilter !== 'all') {
-        let range = (activeFuelDateFilter === 'custom' && customFuelFilterStartDate && customFuelFilterEndDate)
-                    ? { startDate: customFuelFilterStartDate, endDate: customFuelFilterEndDate }
-                    : getDateRangeForFuelFilter(activeFuelDateFilter);
-        if (range.startDate) queryParams += `&date_after=${range.startDate}`;
-        if (range.endDate) queryParams += `&date_before=${range.endDate}`;
-    }
-
-    const data = await apiRequest(`${FUEL_API_ENDPOINT}?${queryParams}`); // Corrected endpoint
+    const data = await apiRequest(`${FUEL_API_ENDPOINT}?${queryParams}`);
     allFetchedFuelLogsFromServer = Array.isArray(data) ? data : [];
     renderFuelLogTable();
   }
 
-  function formatDateTimeForDisplay(dateTimeStr) { if (!dateTimeStr) return 'N/A'; try { return new Date(dateTimeStr).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return dateTimeStr; }}
-
+  function formatDateTimeForDisplay(dateTimeStr) { 
+      if (!dateTimeStr) return 'N/A'; 
+      try { 
+          return new Date(dateTimeStr).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); 
+        } catch (e) { 
+            return dateTimeStr; 
+        } 
+    }
+  
   function renderFuelLogTable() {
-    const recordsToDisplay = Array.isArray(allFetchedFuelLogsFromServer) ? allFetchedFuelLogsFromServer : [];
+    const recordsToDisplay = allFetchedFuelLogsFromServer;
     const fuelLogBody = document.getElementById('fuelLogBody');
-    if (!fuelLogBody) { console.error("ERROR: fuelLogBody element not found!"); return; }
+    if (!fuelLogBody) return;
 
     if (recordsToDisplay.length > 0) {
         fuelLogBody.innerHTML = recordsToDisplay.map(log => {
-        if (typeof log !== 'object' || log === null) return '';
-        const vehicle = Array.isArray(vehicleDataForDropdown_fuel) ? vehicleDataForDropdown_fuel.find(v => v.id === log.vehicle_id) : null;
-        const fuelType = Array.isArray(fuelTypeDataForDropdown_fuel) ? fuelTypeDataForDropdown_fuel.find(ft => ft.id === log.fuel_type_id) : null;
-        const vehicleDisplay = vehicle ? vehicle.plate_number : `VID ${log.vehicle_id || 'N/A'}`;
-        const fuelTypeDisplay = fuelType ? fuelType.fuel_type : `FTID ${log.fuel_type_id || 'N/A'}`;
-        return `<tr class="border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50" data-id="${log.id || 'unknown'}">
-                    <td class="py-3 px-2">${log.id || 'N/A'}</td> <td class="px-2">${vehicleDisplay}</td> <td class="px-2">${fuelTypeDisplay}</td>
-                    <td class="px-2 text-right">${(log.quantity || 0).toFixed(2)}</td> <td class="px-2 text-right">${(log.price_little || 0).toFixed(3)}</td>
-                    <td class="px-2 text-right">${(log.cost || 0).toFixed(2)}</td> <td class="px-2">${formatDateTimeForDisplay(log.created_at)}</td>
-                    <td class="px-2 text-center whitespace-nowrap">
-                    <button onclick="openViewFuelModal(${log.id})" class="text-green-600 dark:text-green-400 p-1" title="View"><i data-lucide="eye" class="w-4 h-4"></i></button>
-                    <button onclick="openEditFuelModal(${log.id})" class="text-blue-600 dark:text-blue-400 p-1 ml-1" title="Edit"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                    <button onclick="openConfirmDeleteFuelLogModal(${log.id})" class="text-red-600 dark:text-red-400 p-1 ml-1" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                    </td></tr>`; }).join('');
+            const vehicle = vehicleDataForDropdown_fuel.find(v => v.id === log.vehicle_id);
+            const fuelType = fuelTypeDataForDropdown_fuel.find(ft => ft.id === log.fuel_type_id);
+            const vehicleDisplay = vehicle ? vehicle.plate_number : `Vehicle ID ${log.vehicle_id || 'N/A'}`;
+            const fuelTypeDisplay = fuelType ? fuelType.fuel_type : `Fuel Type ID ${log.fuel_type_id || 'N/A'}`;
+            
+            return `<tr class="border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50" data-id="${log.id}">
+                        <td class="py-3 px-2">${log.id}</td> <td class="px-2">${vehicleDisplay}</td> <td class="px-2">${fuelTypeDisplay}</td>
+                        <td class="px-2 text-right">${(log.quantity || 0).toFixed(2)}</td> <td class="px-2 text-right">${(log.price_little || 0).toFixed(3)}</td>
+                        <td class="px-2 text-right">${(log.cost || 0).toFixed(2)}</td> <td class="px-2">${formatDateTimeForDisplay(log.created_at)}</td>
+                        <td class="px-2 text-center whitespace-nowrap">
+                        <button onclick="openViewFuelModal(${log.id})" class="text-green-600 dark:text-green-400 p-1" title="View"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                        <button onclick="openEditFuelModal(${log.id})" class="text-blue-600 dark:text-blue-400 p-1 ml-1" title="Edit"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                        <button onclick="openConfirmDeleteFuelLogModal(${log.id})" class="text-red-600 dark:text-red-400 p-1 ml-1" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </td></tr>`;
+        }).join('');
     } else {
         let message = "No fuel log records found.";
         if (!getAuthToken()) message = "Please log in to view fuel logs.";
-        else if (recordsToDisplay.length === 0 && !document.getElementById('fuelVehicleFilter')?.value && !document.getElementById('fuelFuelTypeFilter')?.value && activeFuelDateFilter === 'all') message = "No fuel logs recorded yet.";
+        else if (!document.getElementById('fuelVehicleFilter')?.value && !document.getElementById('fuelFuelTypeFilter')?.value && activeFuelDateFilter === 'all') message = "No fuel logs recorded yet.";
         else message = "No fuel logs match your current filter criteria.";
         fuelLogBody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-gray-500">${message}</td></tr>`;
     }
     lucide.createIcons();
-    document.getElementById('fuelLogCount').textContent = `Showing ${recordsToDisplay.length} records (on current page)`;
+    document.getElementById('fuelLogCount').textContent = `Showing ${recordsToDisplay.length} records on this page`;
     renderFuelLogPagination(recordsToDisplay.length);
   }
 
-  function renderFuelLogPagination(currentPageRecordCount) {
-    const paginationContainer = document.getElementById('fuelLogPagination');
-    if (!paginationContainer) return;
-    paginationContainer.innerHTML = '';
-    const showPagination = currentFuelLogPage > 1 || currentPageRecordCount === fuelLogsPerPage ||
-                           (document.getElementById('fuelVehicleFilter')?.value ||
-                            document.getElementById('fuelFuelTypeFilter')?.value ||
-                            activeFuelDateFilter !== 'all');
-
-    if (!showPagination && currentPageRecordCount < fuelLogsPerPage && currentFuelLogPage === 1) return;
-
-
-    const buttonClasses = "px-3 py-1.5 text-sm rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-900 focus:ring-blue-500";
-    const inactiveClasses = "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700";
-    const disabledClasses = "bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed";
-
-    const prevButton = document.createElement('button');
-    prevButton.innerHTML = `<i data-lucide="chevron-left" class="w-4 h-4 inline-block mr-1"></i> Prev`;
-    prevButton.className = `${buttonClasses} ${currentFuelLogPage === 1 ? disabledClasses : inactiveClasses}`;
-    if (currentFuelLogPage > 1) prevButton.onclick = () => { currentFuelLogPage--; fetchFuelLogs(); };
-    else prevButton.disabled = true;
-    paginationContainer.appendChild(prevButton);
-
-    const pageInfo = document.createElement('span');
-    pageInfo.className = "px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400";
-    pageInfo.textContent = `Page ${currentFuelLogPage}`;
-    paginationContainer.appendChild(pageInfo);
-
-    const nextButton = document.createElement('button');
-    nextButton.innerHTML = `Next <i data-lucide="chevron-right" class="w-4 h-4 inline-block ml-1"></i>`;
-    const hasMore = currentPageRecordCount === fuelLogsPerPage;
-    nextButton.className = `${buttonClasses} ${!hasMore ? disabledClasses : inactiveClasses}`;
-    if (hasMore) nextButton.onclick = () => { currentFuelLogPage++; fetchFuelLogs(); };
-    else nextButton.disabled = true;
-    paginationContainer.appendChild(nextButton);
-    lucide.createIcons();
-  }
-
-  async function openAddFuelModal() {
-    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in.", "error"); return; }
-    fuelLogToEditId = null;
-    document.getElementById('addFuelForm').reset();
-    document.getElementById('fuelModalTitle').textContent = "Add New Fuel Log";
-    document.getElementById('fuelSubmitButton').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4 mr-2"></i> Add Log`;
-    displayDynamicCost();
-    lucide.createIcons();
-    document.getElementById('addFuelModal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-  }
-
-  async function openEditFuelModal(id) {
-    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in.", "error"); return; }
-    const recordToEdit = await apiRequest(`${FUEL_API_ENDPOINT}${id}`); // Corrected
-    if (!recordToEdit) { openInfoStatusModal("Error","Could not fetch fuel log details for editing.", "error"); return; }
-
-    fuelLogToEditId = id;
-    document.getElementById('addFuelForm').reset();
-    document.getElementById('fuelModalTitle').textContent = "Edit Fuel Log";
-    document.getElementById('fuelSubmitButton').innerHTML = `<i data-lucide="save" class="w-4 h-4 mr-2"></i> Save Changes`;
-
-    document.getElementById('fuelId_form').value = recordToEdit.id;
-    document.getElementById('fuel_vehicle_id_form').value = recordToEdit.vehicle_id;
-    document.getElementById('fuel_fuel_type_id_form').value = recordToEdit.fuel_type_id;
-    document.getElementById('fuel_quantity_form').value = recordToEdit.quantity;
-    document.getElementById('fuel_price_little_form').value = recordToEdit.price_little;
-
-    displayDynamicCost();
-    lucide.createIcons();
-    document.getElementById('addFuelModal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-  }
-
-  async function openViewFuelModal(id) {
-    const record = await apiRequest(`${FUEL_API_ENDPOINT}${id}`); // Corrected
-    if (!record) { openInfoStatusModal("Error", "Could not fetch fuel log details for viewing.", "error"); return; }
-
-    const vehicle = Array.isArray(vehicleDataForDropdown_fuel) ? vehicleDataForDropdown_fuel.find(v => v.id === record.vehicle_id) : null;
-    const fuelType = Array.isArray(fuelTypeDataForDropdown_fuel) ? fuelTypeDataForDropdown_fuel.find(ft => ft.id === record.fuel_type_id) : null;
-
-    document.getElementById('view-fuel-id').textContent = record.id || 'N/A';
-    document.getElementById('view-fuel-vehicle').textContent = vehicle ? vehicle.plate_number : `VID ${record.vehicle_id || 'N/A'}`;
-    document.getElementById('view-fuel-fuel_type').textContent = fuelType ? fuelType.fuel_type : `FTID ${record.fuel_type_id || 'N/A'}`;
-    document.getElementById('view-fuel-quantity').textContent = `${(record.quantity || 0).toFixed(2)} (L/kWh)`;
-    document.getElementById('view-fuel-price_little').textContent = `$${(record.price_little || 0).toFixed(3)}`;
-    document.getElementById('view-fuel-cost').textContent = `$${(record.cost || 0).toFixed(2)}`;
-    document.getElementById('view-fuel-created_at').textContent = formatDateTimeForDisplay(record.created_at);
-
-    document.getElementById('viewFuelModal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-    lucide.createIcons();
-  }
-
-  async function handleFuelFormSubmit(event) {
-    event.preventDefault();
-    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in.", "error"); return; }
-
-    const fuelData = {
-      vehicle_id: parseInt(document.getElementById('fuel_vehicle_id_form').value),
-      fuel_type_id: parseInt(document.getElementById('fuel_fuel_type_id_form').value),
-      quantity: parseFloat(document.getElementById('fuel_quantity_form').value),
-      price_little: parseFloat(document.getElementById('fuel_price_little_form').value),
-    };
-
-    if (isNaN(fuelData.vehicle_id) || isNaN(fuelData.fuel_type_id) || isNaN(fuelData.quantity) || isNaN(fuelData.price_little)) {
-      openInfoStatusModal("Validation Error", "Ensure all fields (Vehicle, Fuel Type, Quantity, Price) are correctly filled.", "error"); return;
+  function renderFuelLogPagination(currentPageRecordCount) { 
+      const paginationContainer = document.getElementById('fuelLogPagination'); 
+      if (!paginationContainer) return; 
+      paginationContainer.innerHTML = ''; 
+      const showPagination = currentFuelLogPage > 1 || currentPageRecordCount === fuelLogsPerPage; 
+      if (!showPagination) return; 
+      const buttonClasses = "px-3 py-1.5 text-sm rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-900 focus:ring-blue-500"; 
+      const inactiveClasses = "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"; 
+      const disabledClasses = "bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed"; 
+      const prevButton = document.createElement('button'); 
+      prevButton.innerHTML = `<i data-lucide="chevron-left" class="w-4 h-4 inline-block mr-1"></i> Prev`; 
+      prevButton.className = `${buttonClasses} ${currentFuelLogPage === 1 ? disabledClasses : inactiveClasses}`; 
+      if (currentFuelLogPage > 1) prevButton.onclick = () => { currentFuelLogPage--; fetchFuelLogs(); }; 
+      else prevButton.disabled = true; 
+      paginationContainer.appendChild(prevButton); 
+      const pageInfo = document.createElement('span'); 
+      pageInfo.className = "px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400"; 
+      pageInfo.textContent = `Page ${currentFuelLogPage}`; 
+      paginationContainer.appendChild(pageInfo); 
+      const nextButton = document.createElement('button'); 
+      nextButton.innerHTML = `Next <i data-lucide="chevron-right" class="w-4 h-4 inline-block ml-1"></i>`; 
+      const hasMore = currentPageRecordCount === fuelLogsPerPage; 
+      nextButton.className = `${buttonClasses} ${!hasMore ? disabledClasses : inactiveClasses}`; 
+      if (hasMore) nextButton.onclick = () => { currentFuelLogPage++; fetchFuelLogs(); }; 
+      else nextButton.disabled = true; 
+      paginationContainer.appendChild(nextButton); 
+      lucide.createIcons(); 
     }
-    if (fuelData.quantity <= 0) { openInfoStatusModal("Validation Error", "Quantity must be greater than 0.", "error"); return;}
-    if (fuelData.price_little <= 0) { openInfoStatusModal("Validation Error", "Price per Unit must be greater than 0.", "error"); return;}
 
-    const actionType = fuelLogToEditId ? "update" : "add";
-    const confirmTitle = fuelLogToEditId ? "Confirm Update" : "Confirm Add Fuel Log"; 
-    const confirmMsg = `Are you sure you want to ${actionType} this fuel log?`; 
-    const confirmBtnText = fuelLogToEditId ? "Update Log" : "Add Log"; 
-    const confirmBtnIcon = fuelLogToEditId ? "save" : "plus-circle";
+  async function openAddFuelModal() { 
+      if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in.", "error"); return; } 
+      fuelLogToEditId = null; 
+      document.getElementById('addFuelForm').reset(); 
+      document.getElementById('fuelModalTitle').textContent = "Add New Fuel Log"; 
+      document.getElementById('fuelSubmitButton').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4 mr-2"></i> Add Log`; 
+      displayDynamicCost(); 
+      lucide.createIcons(); 
+      document.getElementById('addFuelModal').classList.remove('hidden'); 
+      document.body.style.overflow = 'hidden'; 
+    }
 
-    openGenericConfirmModal( confirmTitle, confirmMsg, confirmBtnText, confirmBtnIcon,
-        async (dataForAction) => {
-            let result;
-            if (fuelLogToEditId) {
-                result = await apiRequest(`${FUEL_API_ENDPOINT}${fuelLogToEditId}`, 'PUT', dataForAction); // Corrected
-            } else {
-                result = await apiRequest(`${FUEL_API_ENDPOINT}`, 'POST', dataForAction); // Corrected
-            }
+  async function openEditFuelModal(id) { 
+      if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in.", "error"); return; } 
+      const recordToEdit = await apiRequest(`${FUEL_API_ENDPOINT}${id}`); 
+      if (!recordToEdit) { openInfoStatusModal("Error","Could not fetch fuel log details.", "error"); return; } 
+      fuelLogToEditId = id; 
+      document.getElementById('addFuelForm').reset(); 
+      document.getElementById('fuelModalTitle').textContent = "Edit Fuel Log"; 
+      document.getElementById('fuelSubmitButton').innerHTML = `<i data-lucide="save" class="w-4 h-4 mr-2"></i> Save Changes`; 
+      document.getElementById('fuelId_form').value = recordToEdit.id; 
+      document.getElementById('fuel_vehicle_id_form').value = recordToEdit.vehicle_id; 
+      document.getElementById('fuel_fuel_type_id_form').value = recordToEdit.fuel_type_id; 
+      document.getElementById('fuel_quantity_form').value = recordToEdit.quantity; 
+      document.getElementById('fuel_price_little_form').value = recordToEdit.price_little; 
+      displayDynamicCost(); 
+      lucide.createIcons(); 
+      document.getElementById('addFuelModal').classList.remove('hidden'); 
+      document.body.style.overflow = 'hidden'; 
+    }
 
-            if (result) {
-                openInfoStatusModal("Success", `Fuel log ${actionType}d successfully!`, "success"); 
-                closeAddFuelModal();
-                currentFuelLogPage = (actionType === 'add') ? 1 : currentFuelLogPage;
-                await fetchFuelLogs();
-            }
-        },
-        fuelData
-    );
-  }
+  async function openViewFuelModal(id) { 
+      const record = await apiRequest(`${FUEL_API_ENDPOINT}${id}`); 
+      if (!record) { openInfoStatusModal("Error", "Could not fetch fuel log details.", "error"); return; } 
+      const vehicle = vehicleDataForDropdown_fuel.find(v => v.id === record.vehicle_id); 
+      const fuelType = fuelTypeDataForDropdown_fuel.find(ft => ft.id === record.fuel_type_id); 
+      document.getElementById('view-fuel-id').textContent = record.id || 'N/A'; 
+      document.getElementById('view-fuel-vehicle').textContent = vehicle ? vehicle.plate_number : `VID ${record.vehicle_id}`; 
+      document.getElementById('view-fuel-fuel_type').textContent = fuelType ? fuelType.fuel_type : `FTID ${record.fuel_type_id}`; 
+      document.getElementById('view-fuel-quantity').textContent = `${(record.quantity || 0).toFixed(2)} (L/kWh)`; 
+      document.getElementById('view-fuel-price_little').textContent = `$${(record.price_little || 0).toFixed(3)}`; 
+      document.getElementById('view-fuel-cost').textContent = `$${(record.cost || 0).toFixed(2)}`; 
+      document.getElementById('view-fuel-created_at').textContent = formatDateTimeForDisplay(record.created_at); 
+      document.getElementById('viewFuelModal').classList.remove('hidden'); 
+      document.body.style.overflow = 'hidden'; 
+      lucide.createIcons(); 
+    }
+  
+  async function handleFuelFormSubmit(event) { 
+      event.preventDefault(); 
+      if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in.", "error"); return; } 
+      const fuelData = { 
+          vehicle_id: parseInt(document.getElementById('fuel_vehicle_id_form').value), 
+          fuel_type_id: parseInt(document.getElementById('fuel_fuel_type_id_form').value), 
+          quantity: parseFloat(document.getElementById('fuel_quantity_form').value), 
+          price_little: parseFloat(document.getElementById('fuel_price_little_form').value), 
+        }; 
+        if (isNaN(fuelData.vehicle_id) || isNaN(fuelData.fuel_type_id) || isNaN(fuelData.quantity) || isNaN(fuelData.price_little) || fuelData.quantity <= 0 || fuelData.price_little <= 0) { 
+            openInfoStatusModal("Validation Error", "Ensure all fields are correctly filled and values are positive.", "error"); 
+            return; 
+        } 
+        const actionType = fuelLogToEditId ? "update" : "add"; 
+        openGenericConfirmModal( 
+            fuelLogToEditId ? "Confirm Update" : "Confirm Add Fuel Log", 
+            `Are you sure you want to ${actionType} this fuel log?`, 
+            fuelLogToEditId ? "Update Log" : "Add Log", 
+            fuelLogToEditId ? "save" : "plus-circle", 
+            async (dataForAction) => { 
+                const result = fuelLogToEditId ? 
+                    await apiRequest(`${FUEL_API_ENDPOINT}${fuelLogToEditId}`, 'PUT', dataForAction) : 
+                    await apiRequest(FUEL_API_ENDPOINT, 'POST', dataForAction); 
+                if (result) { 
+                    openInfoStatusModal("Success", `Fuel log ${actionType}d successfully!`, "success"); 
+                    closeAddFuelModal(); 
+                    currentFuelLogPage = (actionType === 'add') ? 1 : currentFuelLogPage; 
+                    await fetchFuelLogs(); 
+                } 
+            }, 
+            fuelData 
+        ); 
+    }
 
-  function openConfirmDeleteFuelLogModal(id) {
-      if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to delete.", "error"); return; }
-      if (!id) { openInfoStatusModal("Error", "Cannot delete: Fuel Log ID is missing.", "error"); return; } 
-
-      openGenericConfirmModal(
-        "Confirm Deletion",
-        `Are you sure you want to permanently delete fuel log ID: ${id}? This action cannot be undone.`, 
-        "Delete",
-        "trash-2",
-        async (logIdToDelete) => {
-            const result = await apiRequest(`${FUEL_API_ENDPOINT}${logIdToDelete}`, 'DELETE'); // Corrected
-            if (result === true) {
+  function openConfirmDeleteFuelLogModal(id) { 
+      if (!getAuthToken()) { 
+          openInfoStatusModal("Authentication Required","Please log in.", "error"); 
+          return; 
+        } 
+        openGenericConfirmModal( "Confirm Deletion", `Permanently delete fuel log ID: ${id}?`, "Delete", "trash-2", 
+        async (logIdToDelete) => { 
+            const result = await apiRequest(`${FUEL_API_ENDPOINT}${logIdToDelete}`, 'DELETE'); 
+            if (result === true) { 
                 openInfoStatusModal("Success", `Fuel log ID: ${logIdToDelete} deleted.`, "success"); 
-                if(Array.isArray(allFetchedFuelLogsFromServer) && allFetchedFuelLogsFromServer.length === 1 && currentFuelLogPage > 1) {
-                    currentFuelLogPage--;
-                }
-                await fetchFuelLogs();
-            }
-        },
-        id
-      );
-  }
+                if(allFetchedFuelLogsFromServer.length === 1 && currentFuelLogPage > 1) currentFuelLogPage--; 
+                await fetchFuelLogs(); 
+            } 
+        }, id ); 
+    }
 
   function applyFuelFilters() { currentFuelLogPage = 1; fetchFuelLogs(); }
-  function applyFuelDateFilter(filterType) {
-    activeFuelDateFilter = filterType;
-    customFuelFilterStartDate = null;
-    customFuelFilterEndDate = null;
-    const el = document.getElementById('fuelCustomDateRange'); if(el) el.classList.add('hidden');
-    setActiveFuelDateFilterButton(filterType);
-    currentFuelLogPage = 1;
-    fetchFuelLogs();
-  }
-  function setActiveFuelDateFilterButton(filterTypeOrId) {
-    document.querySelectorAll('#fuel-section .date-filter-btn').forEach(btn => btn.classList.remove('active'));
-    const activeBtn = document.getElementById(filterTypeOrId.startsWith('fuel-filter-') ? filterTypeOrId : `fuel-filter-${filterTypeOrId}`);
-    if (activeBtn) activeBtn.classList.add('active');
-  }
-  function toggleFuelCustomDateRange() {
-    const el = document.getElementById('fuelCustomDateRange');
-    if(el) el.classList.toggle('hidden');
-    if (el && !el.classList.contains('hidden')) setActiveFuelDateFilterButton('fuel-filter-custom-btn');
-    else if (activeFuelDateFilter === 'custom') applyFuelDateFilter('all');
-  }
-  function applyFuelCustomDateFilter() {
-    const startEl = document.getElementById('fuelCustomStartDate');
-    const endEl = document.getElementById('fuelCustomEndDate');
-    if(!startEl || !endEl) return;
-    const startDate = startEl.value; const endDate = endEl.value;
-    if (!startDate || !endDate) { openInfoStatusModal("Input Error", "Select start/end dates.", "error"); return; }
-    if (new Date(startDate) > new Date(endDate)) { openInfoStatusModal("Input Error", "Start date after end date.", "error"); return; }
-    activeFuelDateFilter = 'custom'; customFuelFilterStartDate = startDate; customFuelFilterEndDate = endDate;
-    setActiveFuelDateFilterButton('fuel-filter-custom-btn');
-    currentFuelLogPage = 1; fetchFuelLogs();
-  }
+  
+  function applyFuelDateFilter(filterType) { 
+      activeFuelDateFilter = filterType; 
+      customFuelFilterStartDate = null; 
+      customFuelFilterEndDate = null; 
+      document.getElementById('fuelCustomDateRange').classList.add('hidden'); 
+      setActiveFuelDateFilterButton(filterType); 
+      currentFuelLogPage = 1; 
+      fetchFuelLogs(); 
+    }
+  
+  function setActiveFuelDateFilterButton(filterTypeOrId) { 
+      document.querySelectorAll('#fuel-section .date-filter-btn').forEach(btn => btn.classList.remove('active')); 
+      const activeBtn = document.getElementById(filterTypeOrId.startsWith('fuel-filter-') ? filterTypeOrId : `fuel-filter-${filterTypeOrId}`); 
+      if (activeBtn) activeBtn.classList.add('active'); 
+    }
 
-  function getFuelExportData() {
-    return Array.isArray(allFetchedFuelLogsFromServer) ? [...allFetchedFuelLogsFromServer] : [];
-  }
+  function toggleFuelCustomDateRange() { 
+      const el = document.getElementById('fuelCustomDateRange'); 
+      el.classList.toggle('hidden'); 
+      if (!el.classList.contains('hidden')) setActiveFuelDateFilterButton('fuel-filter-custom-btn'); 
+      else if (activeFuelDateFilter === 'custom') applyFuelDateFilter('all'); 
+    }
+  
+  function applyFuelCustomDateFilter() { 
+      const startDate = document.getElementById('fuelCustomStartDate').value; 
+      const endDate = document.getElementById('fuelCustomEndDate').value; 
+      if (!startDate || !endDate || new Date(startDate) > new Date(endDate)) { 
+          openInfoStatusModal("Input Error", "Please select a valid date range.", "error"); 
+          return; 
+        } 
+        activeFuelDateFilter = 'custom'; 
+        customFuelFilterStartDate = startDate; 
+        customFuelFilterEndDate = endDate; 
+        setActiveFuelDateFilterButton('fuel-filter-custom-btn'); 
+        currentFuelLogPage = 1; 
+        fetchFuelLogs(); 
+    }
+  
+  function getFuelExportData() { return allFetchedFuelLogsFromServer; }
 
-  function exportFuelLogsExcel() {
-    if (!getAuthToken() && getFuelExportData().length === 0) { openInfoStatusModal("Export Error", "Log in or load data.", "error"); return;}
-    const records = getFuelExportData();
-    if (records.length === 0) { openInfoStatusModal("Info", "No data to export.", "info"); return; }
-    const wsData = records.map(log => {
-        const vehicle = Array.isArray(vehicleDataForDropdown_fuel) ? vehicleDataForDropdown_fuel.find(v => v.id === log.vehicle_id) : null;
-        const fuelType = Array.isArray(fuelTypeDataForDropdown_fuel) ? fuelTypeDataForDropdown_fuel.find(ft => ft.id === log.fuel_type_id) : null;
-        return { 'ID': log.id, 'Vehicle Plate': vehicle ? vehicle.plate_number : `ID ${log.vehicle_id}`, 'Fuel Type': fuelType ? fuelType.fuel_type : `ID ${log.fuel_type_id}`,
-            'Quantity': (log.quantity || 0).toFixed(2), 'Price/Unit ($)': (log.price_little || 0).toFixed(3), 'Total Cost ($)': (log.cost || 0).toFixed(2),
-            'Date Recorded': formatDateTimeForDisplay(log.created_at) };
-    });
-    const ws = XLSX.utils.json_to_sheet(wsData); const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "FuelLogs"); XLSX.writeFile(wb, "fuel_logs_export.xlsx");
-  }
+  function exportFuelLogsExcel() { 
+      if (!getAuthToken() || getFuelExportData().length === 0) { 
+          openInfoStatusModal("Export Error", "No data available to export.", "error"); 
+          return;
+        } 
+        const records = getFuelExportData(); 
+        const wsData = records.map(log => { 
+            const vehicle = vehicleDataForDropdown_fuel.find(v => v.id === log.vehicle_id); 
+            const fuelType = fuelTypeDataForDropdown_fuel.find(ft => ft.id === log.fuel_type_id); 
+            return {
+                'ID': log.id, 'Vehicle Plate': vehicle?.plate_number || `ID ${log.vehicle_id}`, 
+                'Fuel Type': fuelType?.fuel_type || `ID ${log.fuel_type_id}`, 
+                'Quantity': (log.quantity || 0).toFixed(2), 
+                'Price/Unit ($)': (log.price_little || 0).toFixed(3), 
+                'Total Cost ($)': (log.cost || 0).toFixed(2), 
+                'Date Recorded': formatDateTimeForDisplay(log.created_at) 
+            }; 
+        }); 
+        const ws = XLSX.utils.json_to_sheet(wsData); 
+        const wb = XLSX.utils.book_new(); 
+        XLSX.utils.book_append_sheet(wb, ws, "FuelLogs"); 
+        XLSX.writeFile(wb, "fuel_logs_export.xlsx"); 
+    }
 
-  function exportFuelLogsPDF() {
-    if (!getAuthToken() && getFuelExportData().length === 0) { openInfoStatusModal("Export Error", "Log in or load data.", "error"); return;}
-    const {jsPDF} = window.jspdf; const doc = new jsPDF();
-    doc.setFontSize(18); doc.text('Fuel Log Records', 14, 15);
-    const records = getFuelExportData();
-    if (records.length === 0) { openInfoStatusModal("Info", "No data to export.", "info"); return; }
-
-    const headers = [['ID', 'Vehicle', 'Fuel Type', 'Qty', 'Price/Unit', 'Total Cost', 'Date']];
-    const data = records.map(log => {
-        const vehicle = Array.isArray(vehicleDataForDropdown_fuel) ? vehicleDataForDropdown_fuel.find(v => v.id === log.vehicle_id) : null;
-        const fuelType = Array.isArray(fuelTypeDataForDropdown_fuel) ? fuelTypeDataForDropdown_fuel.find(ft => ft.id === log.fuel_type_id) : null;
-        return [ log.id, vehicle ? vehicle.plate_number : `ID ${log.vehicle_id}`, fuelType ? fuelType.fuel_type : `ID ${log.fuel_type_id}`,
-            (log.quantity || 0).toFixed(2), `$${(log.price_little || 0).toFixed(3)}`, `$${(log.cost || 0).toFixed(2)}`,
-            new Date(log.created_at).toLocaleDateString() ];
-    });
-    doc.autoTable({ head: headers, body: data, startY: 25, theme:'grid',
-        columnStyles: {
-            0: { cellWidth: 10, halign: 'right' }, 1: { cellWidth: 30 }, 2: {cellWidth: 30},
-            3:{cellWidth:20, halign: 'right'}, 4:{cellWidth:25, halign: 'right'},
-            5:{cellWidth:25, halign: 'right'}, 6:{cellWidth:25}
-        }
-    });
-    doc.save('fuel_logs_export.pdf');
-  }
+  function exportFuelLogsPDF() { 
+      if (!getAuthToken() || getFuelExportData().length === 0) { 
+          openInfoStatusModal("Export Error", "No data available to export.", "error"); 
+          return;
+        } 
+        const {jsPDF} = window.jspdf; 
+        const doc = new jsPDF(); 
+        doc.setFontSize(18); 
+        doc.text('Fuel Log Records', 14, 15); 
+        const records = getFuelExportData(); 
+        const headers = [['ID', 'Vehicle', 'Fuel Type', 'Qty', 'Price/Unit', 'Total', 'Date']]; 
+        const data = records.map(log => { 
+            const vehicle = vehicleDataForDropdown_fuel.find(v => v.id === log.vehicle_id); 
+            const fuelType = fuelTypeDataForDropdown_fuel.find(ft => ft.id === log.fuel_type_id); 
+            return [ 
+                log.id, 
+                vehicle?.plate_number || `ID ${log.vehicle_id}`, 
+                fuelType?.fuel_type || `ID ${log.fuel_type_id}`, 
+                (log.quantity || 0).toFixed(2), 
+                `$${(log.price_little || 0).toFixed(3)}`, 
+                `$${(log.cost || 0).toFixed(2)}`, 
+                new Date(log.created_at).toLocaleDateString() 
+            ]; 
+        }); 
+        doc.autoTable({ 
+            head: headers, 
+            body: data, 
+            startY: 25, 
+            theme:'grid', 
+            columnStyles: { 0:{halign:'right'},3:{halign:'right'},4:{halign:'right'},5:{halign:'right'} } 
+        }); 
+        doc.save('fuel_logs_export.pdf'); 
+    }
 
 </script>
 <script src="/static/js/global.js"></script> 

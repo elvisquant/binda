@@ -163,15 +163,31 @@
         </main>
 
         <!-- Right Sidebar -->
-        <aside class="w-1/5 bg-white dark:bg-gray-800 p-4 space-y-6 shadow-md hidden lg:block flex-shrink-0 overflow-y-auto border-l dark:border-gray-700">
+         <aside class="w-1/5 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden lg:block flex-shrink-0 border-l dark:border-gray-700 overflow-y-auto">
             <div class="flex justify-end items-center">
-              <div>
-                  <div class="text-sm font-semibold text-right" id="userDisplayNameRightSidebar">User</div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400 text-right">Admin</div>
-              </div>
+                <div class="text-right">
+                    <div class="text-sm font-semibold text-gray-800 dark:text-white" id="userDisplayNameRightSidebar">User</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">Fleet Analyst</div>
+                </div>
+                <img src="https://i.pravatar.cc/40?u=analyst_jane_doe" alt="Analyst" class="w-10 h-10 rounded-full ml-2 object-cover">
             </div>
-            <div><h4 class="font-bold mb-4 text-lg">Recent Driver Activity</h4><div class="flex flex-col space-y-6 relative"><div class="absolute left-5 top-0 bottom-0 w-0.5 bg-blue-500"></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">New driver added</p><p class="text-sm text-gray-500 dark:text-gray-400">1 hour ago</p></div></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">Driver profile updated</p><p class="text-sm text-gray-500 dark:text-gray-400">3 hours ago</p></div></div></div></div>
-            <div class="mt-8"><h4 class="font-bold mb-4 text-lg">Quick Actions</h4><div class="grid grid-cols-2 gap-2"><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="user-check" class="w-5 h-5 mb-1"></i><span class="text-xs">Verify Driver</span></button><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="search" class="w-5 h-5 mb-1"></i><span class="text-xs">Find Driver</span></button></div></div>
+            <hr class="dark:border-gray-700/50">
+            <div>
+                <h4 class="font-semibold mb-3 text-gray-700 dark:text-gray-200">Key Performance Insights</h4>
+                <ul id="keyPerformanceInsightsList" class="text-xs space-y-2.5 text-gray-600 dark:text-gray-300">
+                    <li class="flex items-start space-x-2"><i data-lucide="loader-2" class="w-4 h-4 text-gray-400 animate-spin mt-0.5 shrink-0"></i><span>Loading insights...</span></li>
+                </ul>
+            </div>
+            <hr class="dark:border-gray-700/50">
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <h4 class="font-semibold text-gray-700 dark:text-gray-200">Alerts & Notifications</h4>
+                    <a href="#" id="viewAllNotificationsLink" class="text-xs text-primary dark:text-primary-light hover:underline">View All (<span id="notificationCount">0</span>)</a>
+                </div>
+                <div id="notificationsList" class="space-y-3 max-h-40 overflow-y-auto pr-1">
+                     <div class="flex items-start space-x-2 p-2.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><i data-lucide="loader-2" class="w-5 h-5 text-gray-400 animate-spin mt-0.5 flex-shrink-0"></i><p class="text-xs text-gray-700 dark:text-gray-300">Loading alerts...</p></div>
+                </div>
+            </div>
         </aside>
       </div>
     </div>
@@ -301,12 +317,11 @@
   </div>
 </div>
 
-
 <script>
   const API_BASE_URL = '';
   const LOGIN_PAGE_URL = '/login';
 
-  // --- Authentication Helper (Copied, essential) ---
+  // --- Authentication Helper ---
   function getAuthToken() { return localStorage.getItem('accessToken'); }
   function parseJwt(token) { try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { console.error("JWT Parse Error:", e); return null; }}
 
@@ -331,37 +346,35 @@
   async function apiRequest(endpoint, method = 'GET', body = null) {
     const token = getAuthToken();
     const headers = { 'Content-Type': 'application/json' };
-    const publicEndpoints = []; 
-    const isPublic = publicEndpoints.some(publicEp => endpoint.startsWith(publicEp));
-
-    if (token && !isPublic) headers['Authorization'] = `Bearer ${token}`;
-    else if (!token && !isPublic) console.warn(`WARN: Protected endpoint ${endpoint} called without token.`);
+    
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    } else if (!endpoint.startsWith('/login')) {
+        console.warn(`WARN: Protected endpoint ${endpoint} called without token.`);
+    }
 
     const config = { method, headers };
     if (body) config.body = JSON.stringify(body);
 
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-      const responseForJson = response.clone();
-      const responseForText = response.clone();
-
-      if (response.status === 401 && !isPublic) {
+      if (response.status === 401 && !endpoint.endsWith('/login/')) {
         openInfoStatusModal("Authentication Error", "Session expired or unauthorized. Please log in again.", "error", 3000);
         return null;
       }
       if (response.status === 204) return true;
 
-      const responseData = await responseForJson.json().catch(async (jsonError) => {
-          const text = await responseForText.text();
-          console.error(`JSON Parse Error for ${endpoint}. Status: ${response.status}. Response text (first 100 chars): ${text.substring(0,100)}...`, jsonError);
+      const responseData = await response.json().catch(async (jsonError) => {
+          const text = await response.text();
+          console.error(`JSON Parse Error for ${endpoint}. Status: ${response.status}. Response text: ${text.substring(0,100)}...`, jsonError);
           if (!response.ok) { return Promise.reject({ detail: text || `Server error ${response.status}` }); }
           throw new Error(`Invalid JSON response from server (status ${response.status}). Check console.`);
       });
 
       if (!response.ok) {
-        const errorDetail = responseData.detail || (typeof responseData === 'object' ? JSON.stringify(responseData) : responseData) || 'Unknown server error.';
+        const errorDetail = responseData.detail || 'Unknown server error.';
         console.error(`API Error for ${endpoint}: ${response.status}`, errorDetail);
-        openInfoStatusModal(`API Error: ${response.status}`, errorDetail, "error");
+        openInfoStatusModal(`API Error: ${response.status}`, Array.isArray(errorDetail) ? errorDetail[0].msg : errorDetail, "error");
         return null;
       }
       return responseData;
@@ -377,400 +390,190 @@
   const driversPerPage = 5;
   let currentDriverPage = 1;
   let driverToEditId = null;
-
   let currentConfirmAction = null;
   let currentActionData = null;
   let infoStatusModalTimeout = null;
 
-  // --- Sidebar Toggle Functionality ---
+  // --- Sidebar Toggle ---
   const sidebar = document.getElementById('sidebar');
   const mobileMenuButton = document.getElementById('mobile-menu-button');
   const sidebarCloseButton = document.getElementById('sidebar-close-button');
   const sidebarOverlay = document.getElementById('sidebar-overlay');
+  function openMobileMenu() { if (sidebar && sidebarOverlay) { sidebar.classList.remove('-translate-x-full'); sidebar.classList.add('translate-x-0'); sidebarOverlay.classList.remove('hidden'); document.body.classList.add('overflow-hidden', 'md:overflow-auto'); } }
+  function closeMobileMenu() { if (sidebar && sidebarOverlay) { sidebar.classList.add('-translate-x-full'); sidebar.classList.remove('translate-x-0'); sidebarOverlay.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); } }
 
-  function openMobileMenu() {
-    if (sidebar && sidebarOverlay) {
-        sidebar.classList.remove('-translate-x-full');
-        sidebar.classList.add('translate-x-0');
-        sidebarOverlay.classList.remove('hidden');
-        document.body.classList.add('overflow-hidden', 'md:overflow-auto');
+  // --- Theme Toggle Logic (Complete & Persistent) ---
+  function applyTheme(theme) {
+    localStorage.setItem('theme', theme);
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
     }
-  }
-
-  function closeMobileMenu() {
-    if (sidebar && sidebarOverlay) {
-        sidebar.classList.add('-translate-x-full');
-        sidebar.classList.remove('translate-x-0');
-        sidebarOverlay.classList.add('hidden');
-        document.body.classList.remove('overflow-hidden');
-    }
-  }
-  
-  // --- Theme Toggle ---
-  const themeToggleButton = document.getElementById('theme-toggle-header');
-  function setInitialThemeIcon() {
+    const themeToggleButton = document.getElementById('theme-toggle-header');
     if (themeToggleButton) {
-        if (document.documentElement.classList.contains('dark')) {
-            themeToggleButton.innerHTML = '<i data-lucide="sun" class="w-5 h-5"></i>';
-        } else {
-            themeToggleButton.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>';
-        }
+      themeToggleButton.innerHTML = theme === 'dark' ? '<i data-lucide="sun" class="w-5 h-5"></i>' : '<i data-lucide="moon" class="w-5 h-5"></i>';
+      if (typeof lucide !== 'undefined') {
         lucide.createIcons();
+      }
     }
   }
+  function toggleTheme() {
+    const newTheme = localStorage.getItem('theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(newTheme);
+  }
+  (function setInitialTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      applyTheme(savedTheme);
+      return;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      applyTheme('dark');
+      return;
+    }
+    applyTheme('light');
+  })();
+
+  // --- Dashboard Widget Functions ---
+  async function fetchAndDisplayPerformanceInsights() { const insightsList = document.getElementById('keyPerformanceInsightsList'); if (!insightsList) return; insightsList.innerHTML = `<li class="flex items-start space-x-2"><i data-lucide="loader-2" class="w-4 h-4 text-gray-400 animate-spin mt-0.5 shrink-0"></i><span>Loading insights...</span></li>`; lucide.createIcons(); const data = await apiRequest('/dashboard-data/performance-insights'); if (!data) { insightsList.innerHTML = `<li class="flex items-start space-x-2 text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 shrink-0"></i><span>Failed to load insights.</span></li>`; lucide.createIcons(); return; } let insightsHTML = ''; const { fuel_efficiency, maintenance_compliance } = data; if (fuel_efficiency) { let trendColor = 'text-gray-500 dark:text-gray-400', trendText = 'steady'; if (fuel_efficiency.trend === 'up') { trendColor = 'text-green-500'; trendText = 'improving'; } else if (fuel_efficiency.trend === 'down') { trendColor = 'text-red-500'; trendText = 'worsening'; } const percentageText = fuel_efficiency.percentage_change !== null ? `(${fuel_efficiency.percentage_change > 0 ? '+' : ''}${fuel_efficiency.percentage_change}%)` : '(No prior data)'; insightsHTML += `<li class="flex items-start space-x-2"><i data-lucide="droplet" class="w-4 h-4 text-blue-500 mt-0.5 shrink-0"></i><div><span>Fuel Efficiency is <span class="${trendColor} font-semibold">${trendText}</span>.</span><span class="block text-gray-400 dark:text-gray-500 text-xs">Consumption vs last month ${percentageText}.</span></div></li>`; } if (maintenance_compliance) { insightsHTML += `<li class="flex items-start space-x-2"><i data-lucide="wrench" class="w-4 h-4 text-yellow-500 mt-0.5 shrink-0"></i><div><span><span class="font-semibold">${maintenance_compliance.total_maintenance_records}</span> maintenance records logged.</span><span class="block text-gray-400 dark:text-gray-500 text-xs">Total historical tasks.</span></div></li>`; } insightsList.innerHTML = insightsHTML || `<li>No performance data available.</li>`; lucide.createIcons(); }
+  async function fetchAndDisplayAlerts() { const alertsList = document.getElementById('notificationsList'); const notificationCountSpan = document.getElementById('notificationCount'); if (!alertsList || !notificationCountSpan) return; alertsList.innerHTML = `<div class="flex items-start space-x-2 p-2.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><i data-lucide="loader-2" class="w-5 h-5 text-gray-400 animate-spin mt-0.5 flex-shrink-0"></i><p class="text-xs text-gray-700 dark:text-gray-300">Loading alerts...</p></div>`; lucide.createIcons(); const data = await apiRequest('/dashboard-data/alerts'); if (!data) { alertsList.innerHTML = `<div class="flex items-start space-x-2 text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 shrink-0"></i><p class="text-xs">Failed to load alerts.</p></div>`; notificationCountSpan.textContent = '0'; lucide.createIcons(); return; } notificationCountSpan.textContent = data.total_alerts || '0'; let alertsHTML = ''; const createAlertItemHTML = (alert, icon, colorClass) => { if (!alert) return ''; return `<div class="flex items-start space-x-2 p-2.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><i data-lucide="${icon}" class="w-5 h-5 ${colorClass} mt-0.5 flex-shrink-0"></i><div><p class="text-xs font-semibold text-gray-800 dark:text-gray-200">${alert.plate_number}</p><p class="text-xs text-gray-600 dark:text-gray-300">${alert.message}</p></div></div>`; }; alertsHTML += createAlertItemHTML(data.critical_panne, 'shield-alert', 'text-red-500'); alertsHTML += createAlertItemHTML(data.maintenance_alert, 'calendar-clock', 'text-blue-500'); alertsHTML += createAlertItemHTML(data.trip_alert, 'route', 'text-purple-500'); if (data.total_alerts === 0) { alertsHTML = `<div class="flex items-center justify-center text-center p-4"><div class="text-gray-500 dark:text-gray-400"><i data-lucide="check-circle" class="w-8 h-8 mx-auto mb-2 text-green-500"></i><p class="text-xs">All clear! No new alerts.</p></div></div>`; } alertsList.innerHTML = alertsHTML; lucide.createIcons(); }
+  async function initializeDashboardWidgets() { await Promise.all([ fetchAndDisplayPerformanceInsights(), fetchAndDisplayAlerts() ]); }
+
+  // --- MODAL CONTROL ---
+  function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); document.body.style.overflow = ''; }
+  function openModal(modalId) { document.getElementById(modalId).classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+  function closeAddDriverModal() { closeModal('addDriverModal'); driverToEditId = null; document.getElementById('addDriverForm').reset(); }
+  function closeViewDriverModal() { closeModal('viewDriverModal'); }
+  function closeGenericConfirmModal() { closeModal('genericConfirmModal'); currentConfirmAction = null; currentActionData = null; }
+  function closeInfoStatusModal() { if (infoStatusModalTimeout) { clearTimeout(infoStatusModalTimeout); infoStatusModalTimeout = null; } closeModal('infoStatusModal'); }
+  function openGenericConfirmModal(title, message, confirmButtonText, confirmButtonIcon, onConfirmCallback, actionData = null) { document.getElementById('genericConfirmModalTitle').textContent = title; document.getElementById('genericConfirmModalMessage').textContent = message; const confirmBtn = document.getElementById('genericConfirmModalConfirmBtn'); confirmBtn.innerHTML = `<i data-lucide="${confirmButtonIcon || 'check-circle'}" class="w-4 h-4"></i> ${confirmButtonText || 'Confirm'}`; if(confirmButtonIcon === 'trash-2'){ confirmBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600'); confirmBtn.classList.add('bg-red-500', 'hover:bg-red-600');} else { confirmBtn.classList.remove('bg-red-500', 'hover:bg-red-600'); confirmBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');} lucide.createIcons(); currentConfirmAction = onConfirmCallback; currentActionData = actionData; openModal('genericConfirmModal'); }
+  function openInfoStatusModal(title, message, type = 'success', autoCloseDelay = 3000) { const modal = document.getElementById('infoStatusModal'); const titleEl = document.getElementById('infoStatusModalTitle'); const messageEl = document.getElementById('infoStatusModalMessage'); const iconContainer = document.getElementById('infoStatusModalIconContainer'); const okButton = document.getElementById('infoStatusModalOkButton'); titleEl.textContent = title; messageEl.textContent = message; if (infoStatusModalTimeout) clearTimeout(infoStatusModalTimeout); iconContainer.innerHTML = ''; if (type === 'success') { iconContainer.className = 'mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4'; iconContainer.innerHTML = `<i data-lucide="check" class="h-6 w-6 text-green-600"></i>`; okButton.className = 'inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:text-sm';} else if (type === 'error') { iconContainer.className = 'mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4'; iconContainer.innerHTML = `<i data-lucide="x-circle" class="h-6 w-6 text-red-600"></i>`; okButton.className = 'inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:text-sm';} else { iconContainer.className = 'mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4'; iconContainer.innerHTML = `<i data-lucide="info" class="h-6 w-6 text-blue-600"></i>`; okButton.className = 'inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm';} lucide.createIcons(); openModal('infoStatusModal'); if (autoCloseDelay > 0) { infoStatusModalTimeout = setTimeout(() => { closeInfoStatusModal(); }, autoCloseDelay); } }
 
   // --- DOMContentLoaded ---
   document.addEventListener('DOMContentLoaded', async () => {
       lucide.createIcons();
       updateUserInfoDisplay();
       
-      themeToggleButton?.addEventListener('click', () => {
-        document.documentElement.classList.toggle('dark');
-        setInitialThemeIcon(); 
-      });
-      setInitialThemeIcon();
-
+      document.getElementById('theme-toggle-header')?.addEventListener('click', toggleTheme);
       mobileMenuButton?.addEventListener('click', openMobileMenu);
       sidebarCloseButton?.addEventListener('click', closeMobileMenu);
       sidebarOverlay?.addEventListener('click', closeMobileMenu);
       document.querySelectorAll('#sidebar nav a').forEach(link => {
-          link.addEventListener('click', () => {
-              if (window.innerWidth < 768) { // md breakpoint
-                  closeMobileMenu();
-              }
-          });
+          link.addEventListener('click', () => { if (window.innerWidth < 768) closeMobileMenu(); });
       });
-
 
       document.getElementById('addDriverModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeAddDriverModal(); });
       document.getElementById('viewDriverModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeViewDriverModal(); });
       document.getElementById('genericConfirmModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeGenericConfirmModal(); });
-      document.getElementById('genericConfirmModalConfirmBtn').addEventListener('click', async () => {
-        if (typeof currentConfirmAction === 'function') { await currentConfirmAction(currentActionData); }
-        closeGenericConfirmModal();
-      });
-      document.getElementById('infoStatusModal').addEventListener('click', e => { if (e.target === e.currentTarget || e.target.id === 'infoStatusModalOkButton' || e.target.closest('#infoStatusModalOkButton')) closeInfoStatusModal(); });
+      document.getElementById('genericConfirmModalConfirmBtn').addEventListener('click', async () => { if (typeof currentConfirmAction === 'function') await currentConfirmAction(currentActionData); closeGenericConfirmModal(); });
+      document.getElementById('infoStatusModal').addEventListener('click', e => { if (e.target.id === 'infoStatusModal' || e.target.closest('#infoStatusModalOkButton')) closeInfoStatusModal(); });
 
       document.getElementById('global-logout-btn')?.addEventListener('click', (e) => {
           e.preventDefault();
           localStorage.removeItem('accessToken');
           openInfoStatusModal("Logged Out", "Successfully logged out.", "success", 2500);
-          updateUserInfoDisplay(); allFetchedDriversFromServer = []; renderDriversTable();
+          updateUserInfoDisplay();
+          allFetchedDriversFromServer = [];
+          renderDriversTable();
+          document.getElementById('keyPerformanceInsightsList').innerHTML = `<li class="flex items-start space-x-2 text-gray-500"><i data-lucide="log-in" class="w-4 h-4 mt-0.5 shrink-0"></i><span>Please log in to see insights.</span></li>`;
+          document.getElementById('notificationsList').innerHTML = `<div class="flex items-start space-x-2 text-gray-500 p-2.5"><i data-lucide="log-in" class="w-5 h-5 mt-0.5 shrink-0"></i><p class="text-xs">Please log in to see alerts.</p></div>`;
+          document.getElementById('notificationCount').textContent = '0';
+          lucide.createIcons();
       });
       await initializeDriverSection();
   });
 
-
+  // --- Initializer & Main Logic ---
   async function initializeDriverSection() {
-    const token = getAuthToken();
-    if (!token) {
-        document.getElementById('driversBody').innerHTML = `<tr><td colspan="7" class="text-center py-8 text-red-500">Please log in to view drivers.</td></tr>`;
-        document.getElementById('driversCount').textContent = '0 records';
-        document.getElementById('driversPagination').innerHTML = '';
+    if (getAuthToken()) {
+        await fetchAndRenderDrivers();
+        await initializeDashboardWidgets();
     } else {
-        await fetchDrivers();
+        renderDriversTable(); 
     }
-    document.getElementById('driverSearch').addEventListener('input', () => { currentDriverPage = 1; fetchDrivers(); });
+    document.getElementById('driverSearch').addEventListener('input', () => { currentDriverPage = 1; renderDriversTable(); });
     document.getElementById('addDriverForm').addEventListener('submit', handleDriverFormSubmit);
   }
 
-
-  async function fetchDrivers() {
-    const searchTerm = document.getElementById('driverSearch').value;
-    const data = await apiRequest(`/driver/?limit=${driversPerPage}&skip=${(currentDriverPage - 1) * driversPerPage}&search=${encodeURIComponent(searchTerm)}`);
-    if (data) { allFetchedDriversFromServer = data;} else { allFetchedDriversFromServer = []; }
+  async function fetchAndRenderDrivers() {
+    if (!getAuthToken()) { allFetchedDriversFromServer = []; renderDriversTable(); return; }
+    const data = await apiRequest(`/driver/?limit=200`);
+    allFetchedDriversFromServer = Array.isArray(data) ? data : [];
     renderDriversTable();
   }
-
-  function formatDateTimeForDisplay(dateTimeString) {
-    if (!dateTimeString) return 'N/A';
-    try { return new Date(dateTimeString).toLocaleDateString(); } 
-    catch (e) { return dateTimeString; }
+  
+  function getFilteredDrivers() {
+      let records = [...allFetchedDriversFromServer];
+      const searchTerm = document.getElementById('driverSearch').value.toLowerCase();
+      if (searchTerm) {
+          records = records.filter(d => 
+              (d.first_name?.toLowerCase().includes(searchTerm)) ||
+              (d.last_name?.toLowerCase().includes(searchTerm)) ||
+              (d.email?.toLowerCase().includes(searchTerm)) ||
+              (d.cni_number?.toLowerCase().includes(searchTerm)) ||
+              (d.matricule?.toLowerCase().includes(searchTerm))
+          );
+      }
+      return records;
   }
 
-  function renderDriversTable() {
-    const recordsToDisplay = [...allFetchedDriversFromServer];
+  function formatDateTimeForDisplay(dateTimeString) { if (!dateTimeString) return 'N/A'; try { return new Date(dateTimeString).toLocaleDateString(); } catch (e) { return dateTimeString; } }
 
+  function renderDriversTable() {
     const driversBody = document.getElementById('driversBody');
-    if (recordsToDisplay.length > 0) {
-        driversBody.innerHTML = recordsToDisplay.map(d => {
-        const fullName = `${d.first_name} ${d.last_name}`;
-        return `<tr class="border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50" data-id="${d.id}">
-                    <td class="py-3 px-2">${d.id}</td>
-                    <td class="px-2">${fullName}</td>
-                    <td class="px-2">${d.email}</td>
-                    <td class="px-2">${d.matricule}</td>
-                    <td class="px-2">${d.cni_number}</td>
-                    <td class="px-2">${formatDateTimeForDisplay(d.created_at)}</td>
-                    <td class="px-2 text-center whitespace-nowrap">
-                    <button onclick="openViewDriverModal(${d.id})" class="text-green-600 dark:text-green-400 p-1" title="View"><i data-lucide="eye" class="w-4 h-4"></i></button>
-                    <button onclick="openEditDriverModal(${d.id})" class="text-blue-600 dark:text-blue-400 p-1 ml-1" title="Edit"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                    <button onclick="openConfirmDeleteDriverModal(${d.id})" class="text-red-600 dark:text-red-400 p-1 ml-1" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                    </td></tr>`;
+    if (!getAuthToken()) {
+        driversBody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-red-500">Please log in to view driver records.</td></tr>`;
+        document.getElementById('driversCount').textContent = '0 records';
+        document.getElementById('driversPagination').innerHTML = '';
+        return;
+    }
+
+    const filteredRecords = getFilteredDrivers();
+    const totalRecords = filteredRecords.length;
+    const totalPages = Math.ceil(totalRecords / driversPerPage);
+    if (currentDriverPage > totalPages) currentDriverPage = totalPages || 1;
+    
+    const start = (currentDriverPage - 1) * driversPerPage;
+    const paginatedRecords = filteredRecords.slice(start, start + driversPerPage);
+
+    if (paginatedRecords.length > 0) {
+        driversBody.innerHTML = paginatedRecords.map(d => {
+            const fullName = `${d.first_name} ${d.last_name}`;
+            return `<tr class="border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50" data-id="${d.id}">
+                        <td class="py-3 px-2">${d.id}</td> <td class="px-2">${fullName}</td> <td class="px-2">${d.email}</td>
+                        <td class="px-2">${d.matricule}</td> <td class="px-2">${d.cni_number}</td>
+                        <td class="px-2">${formatDateTimeForDisplay(d.created_at)}</td>
+                        <td class="px-2 text-center whitespace-nowrap">
+                            <button onclick="openViewDriverModal(${d.id})" class="text-green-600 dark:text-green-400 p-1" title="View"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                            <button onclick="openEditDriverModal(${d.id})" class="text-blue-600 dark:text-blue-400 p-1 ml-1" title="Edit"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                            <button onclick="openConfirmDeleteDriverModal(${d.id})" class="text-red-600 dark:text-red-400 p-1 ml-1" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </td></tr>`;
         }).join('');
     } else {
-        let message = "No driver records found.";
-        if (!getAuthToken()) { message = "Please log in to view driver records."; }
-        else if (getAuthToken() && allFetchedDriversFromServer.length === 0 && !document.getElementById('driverSearch').value) { message = "No drivers in the system yet. Try adding one!";}
-        else if (document.getElementById('driverSearch').value) { message = "No drivers match your current search criteria." }
+        const message = document.getElementById('driverSearch').value ? "No drivers match your current search criteria." : "No driver records found. Try adding one!";
         driversBody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-500">${message}</td></tr>`;
     }
     lucide.createIcons();
-    const displayedRecordCount = recordsToDisplay.length;
-    const estimatedStart = displayedRecordCount > 0 ? (currentDriverPage -1) * driversPerPage + 1 : 0;
-    const estimatedEnd = (currentDriverPage -1) * driversPerPage + displayedRecordCount;
-    document.getElementById('driversCount').textContent = `Showing ${estimatedStart} to ${estimatedEnd} of approx. ${estimatedEnd} records (current view)`;
-    renderDriverPagination(allFetchedDriversFromServer.length);
+    const startRecord = totalRecords > 0 ? start + 1 : 0;
+    const endRecord = start + paginatedRecords.length;
+    document.getElementById('driversCount').textContent = `Showing ${startRecord} to ${endRecord} of ${totalRecords} records`;
+    renderDriverPagination(totalRecords);
   }
 
-  function renderDriverPagination(currentPageRecordCount) {
-    const paginationContainer = document.getElementById('driversPagination');
-    paginationContainer.innerHTML = '';
-    if (currentDriverPage === 1 && currentPageRecordCount < driversPerPage) {
-        if (currentPageRecordCount === 0) {}
-        else if (currentPageRecordCount < driversPerPage && currentDriverPage === 1) return;
-    }
+  function renderDriverPagination(totalRecords) { const totalPages = Math.ceil(totalRecords / driversPerPage); const paginationContainer = document.getElementById('driversPagination'); paginationContainer.innerHTML = ''; if (totalPages <= 1) return; const btnClasses = "px-3 py-1.5 text-sm rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-900 focus:ring-blue-500"; const itemClasses = "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"; const disabledClasses = "bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed"; const prevButton = Object.assign(document.createElement('button'), { innerHTML: `<i data-lucide="chevron-left" class="w-4 h-4 inline-block mr-1"></i> Prev`, className: `${btnClasses} ${currentDriverPage === 1 ? disabledClasses : itemClasses}`, disabled: currentDriverPage === 1, onclick: () => { if(currentDriverPage > 1) {currentDriverPage--; renderDriversTable();} } }); const pageInfo = Object.assign(document.createElement('span'), { className: "px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400", textContent: `Page ${currentDriverPage} of ${totalPages}` }); const nextButton = Object.assign(document.createElement('button'), { innerHTML: `Next <i data-lucide="chevron-right" class="w-4 h-4 inline-block ml-1"></i>`, className: `${btnClasses} ${currentDriverPage >= totalPages ? disabledClasses : itemClasses}`, disabled: currentDriverPage >= totalPages, onclick: () => { if(currentDriverPage < totalPages) {currentDriverPage++; renderDriversTable();} } }); paginationContainer.append(prevButton, pageInfo, nextButton); lucide.createIcons(); }
 
-    const buttonClasses = "px-3 py-1.5 text-sm rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-900 focus:ring-blue-500";
-    const inactiveClasses = "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700";
-    const disabledClasses = "bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed";
+  // --- Modal & Form Handling ---
+  async function openAddDriverModal() { if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to add a driver.", "error"); return; } driverToEditId = null; document.getElementById('addDriverForm').reset(); document.getElementById('driverModalTitle').textContent = "Add New Driver"; document.getElementById('driverSubmitButton').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4"></i> Add Driver`; lucide.createIcons(); openModal('addDriverModal'); }
+  async function openEditDriverModal(id) { if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to edit a driver.", "error"); return; } const recordToEdit = await apiRequest(`/driver/${id}`); if (!recordToEdit) { openInfoStatusModal("Error","Could not fetch driver details for editing.", "error"); return; } driverToEditId = id; document.getElementById('addDriverForm').reset(); document.getElementById('driverModalTitle').textContent = "Edit Driver Record"; document.getElementById('driverSubmitButton').innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> Save Changes`; document.getElementById('driverId_form').value = recordToEdit.id; document.getElementById('driver_first_name_form').value = recordToEdit.first_name; document.getElementById('driver_last_name_form').value = recordToEdit.last_name; document.getElementById('driver_email_form').value = recordToEdit.email; document.getElementById('driver_cni_number_form').value = recordToEdit.cni_number; document.getElementById('driver_matricule_form').value = recordToEdit.matricule; lucide.createIcons(); openModal('addDriverModal'); }
+  async function openViewDriverModal(id) { const record = await apiRequest(`/driver/${id}`); if (!record) { openInfoStatusModal("Error", "Could not fetch driver details.", "error"); return; } document.getElementById('view-driver-id').textContent = record.id; document.getElementById('view-driver-full_name').textContent = `${record.first_name} ${record.last_name}`; document.getElementById('view-driver-email').textContent = record.email; document.getElementById('view-driver-cni_number').textContent = record.cni_number; document.getElementById('view-driver-matricule').textContent = record.matricule; document.getElementById('view-driver-created_at').textContent = formatDateTimeForDisplay(record.created_at); openModal('viewDriverModal'); }
+  async function handleDriverFormSubmit(event) { event.preventDefault(); if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to submit.", "error"); return; } const driverData = { first_name: document.getElementById('driver_first_name_form').value.trim(), last_name: document.getElementById('driver_last_name_form').value.trim(), email: document.getElementById('driver_email_form').value.trim(), cni_number: document.getElementById('driver_cni_number_form').value.trim(), matricule: document.getElementById('driver_matricule_form').value.trim(), }; if (!driverData.first_name || !driverData.last_name || !driverData.email || !driverData.cni_number || !driverData.matricule) { openInfoStatusModal("Validation Error", "Please fill all required driver fields.", "error"); return; } if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(driverData.email)) { openInfoStatusModal("Validation Error", "Please enter a valid email address.", "error"); return; } const actionType = driverToEditId ? "update" : "add"; const confirmTitle = driverToEditId ? "Confirm Update" : "Confirm Add Driver"; const confirmMessage = `Are you sure you want to ${actionType} this driver${driverToEditId ? "'s details" : ""}?`; const confirmBtnText = driverToEditId ? "Update" : "Add Driver"; const confirmBtnIcon = driverToEditId ? "save" : "plus-circle"; openGenericConfirmModal( confirmTitle, confirmMessage, confirmBtnText, confirmBtnIcon, async (dataForAction) => { let result; if (driverToEditId) { result = await apiRequest(`/driver/${driverToEditId}`, 'PUT', dataForAction); } else { result = await apiRequest('/driver/', 'POST', dataForAction); } if (result) { openInfoStatusModal("Success", `Driver record ${driverToEditId ? 'updated' : 'added'} successfully!`, "success"); closeAddDriverModal(); currentDriverPage = 1; await fetchAndRenderDrivers(); } }, driverData ); }
+  function openConfirmDeleteDriverModal(id) { if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to delete.", "error"); return; } openGenericConfirmModal( "Confirm Deletion", "Are you sure you want to permanently delete this driver record? This action cannot be undone and might affect related trip records.", "Delete", "trash-2", async (driverIdToDelete) => { if (!driverIdToDelete) return; const result = await apiRequest(`/driver/${driverIdToDelete}`, 'DELETE'); if (result) { openInfoStatusModal("Success", "Driver record deleted successfully!", "success"); currentDriverPage = 1; await fetchAndRenderDrivers(); } }, id ); }
 
-    const prevButton = document.createElement('button');
-    prevButton.innerHTML = `<i data-lucide="chevron-left" class="w-4 h-4 inline-block mr-1"></i> Prev`;
-    prevButton.className = `${buttonClasses} ${currentDriverPage === 1 ? disabledClasses : inactiveClasses}`;
-    if (currentDriverPage > 1) { prevButton.onclick = () => { currentDriverPage--; fetchDrivers(); }; }
-    else { prevButton.disabled = true; }
-    paginationContainer.appendChild(prevButton);
+  // --- Export Functions ---
+  function exportDriversExcel() { if (!getAuthToken()) { openInfoStatusModal("Export Error", "Log in or load data to export.", "error"); return; } const recordsToExport = getFilteredDrivers(); if (recordsToExport.length === 0) { openInfoStatusModal("Export Info", "No data to export based on current filters.", "info"); return; } const wsData = recordsToExport.map(d => ({ 'ID': d.id, 'First Name': d.first_name, 'Last Name': d.last_name, 'Email': d.email, 'CNI Number': d.cni_number, 'Matricule': d.matricule, 'Registered At': formatDateTimeForDisplay(d.created_at) })); const ws = XLSX.utils.json_to_sheet(wsData); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Drivers"); XLSX.writeFile(wb, "drivers_export.xlsx"); }
+  function exportDriversPDF() { if (!getAuthToken()) { openInfoStatusModal("Export Error", "Log in or load data to export.", "error"); return; } const {jsPDF} = window.jspdf; const doc = new jsPDF(); doc.setFontSize(18); doc.text('Driver Records', 14, 15); const recordsToExport = getFilteredDrivers(); if (recordsToExport.length === 0) { openInfoStatusModal("Export Info", "No data to export based on current filters.", "info"); return; } const headers = [['ID', 'Full Name', 'Email', 'Matricule', 'CNI']]; const data = recordsToExport.map(d => [ d.id, `${d.first_name} ${d.last_name}`, d.email, d.matricule, d.cni_number ]); doc.autoTable({ head: headers, body: data, startY: 25, theme:'grid', headStyles:{fillColor:[59,130,246], textColor:255}, }); doc.save('drivers_export.pdf'); }
 
-    const pageInfo = document.createElement('span');
-    pageInfo.className = "px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400";
-    pageInfo.textContent = `Page ${currentDriverPage}`;
-    paginationContainer.appendChild(pageInfo);
-
-    const nextButton = document.createElement('button');
-    nextButton.innerHTML = `Next <i data-lucide="chevron-right" class="w-4 h-4 inline-block ml-1"></i>`;
-    const hasMore = currentPageRecordCount === driversPerPage;
-    nextButton.className = `${buttonClasses} ${!hasMore ? disabledClasses : inactiveClasses}`;
-    if (hasMore) { nextButton.onclick = () => { currentDriverPage++; fetchDrivers(); }; }
-    else { nextButton.disabled = true; }
-    paginationContainer.appendChild(nextButton);
-    lucide.createIcons();
-  }
-
-  async function openAddDriverModal() {
-    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to add a driver.", "error"); return; }
-    driverToEditId = null;
-    document.getElementById('addDriverForm').reset();
-    document.getElementById('driverModalTitle').textContent = "Add New Driver";
-    document.getElementById('driverSubmitButton').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4"></i> Add Driver`;
-    lucide.createIcons();
-    document.getElementById('addDriverModal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-  }
-
-  async function openEditDriverModal(id) {
-    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to edit a driver.", "error"); return; }
-    const recordToEdit = await apiRequest(`/driver/${id}`);
-    if (!recordToEdit) { openInfoStatusModal("Error","Could not fetch driver details for editing.", "error"); return; }
-
-    driverToEditId = id;
-    document.getElementById('addDriverForm').reset();
-
-    document.getElementById('driverModalTitle').textContent = "Edit Driver Record";
-    document.getElementById('driverSubmitButton').innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> Save Changes`;
-
-    document.getElementById('driverId_form').value = recordToEdit.id;
-    document.getElementById('driver_first_name_form').value = recordToEdit.first_name;
-    document.getElementById('driver_last_name_form').value = recordToEdit.last_name;
-    document.getElementById('driver_email_form').value = recordToEdit.email;
-    document.getElementById('driver_cni_number_form').value = recordToEdit.cni_number;
-    document.getElementById('driver_matricule_form').value = recordToEdit.matricule;
-
-    lucide.createIcons();
-    document.getElementById('addDriverModal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeAddDriverModal() {
-    document.getElementById('addDriverModal').classList.add('hidden');
-    document.body.style.overflow = '';
-    driverToEditId = null;
-    document.getElementById('addDriverForm').reset();
-  }
-
-  async function openViewDriverModal(id) {
-    const record = await apiRequest(`/driver/${id}`);
-    if (!record) { openInfoStatusModal("Error", "Could not fetch driver details.", "error"); return; }
-
-    document.getElementById('view-driver-id').textContent = record.id;
-    document.getElementById('view-driver-full_name').textContent = `${record.first_name} ${record.last_name}`;
-    document.getElementById('view-driver-email').textContent = record.email;
-    document.getElementById('view-driver-cni_number').textContent = record.cni_number;
-    document.getElementById('view-driver-matricule').textContent = record.matricule;
-    document.getElementById('view-driver-created_at').textContent = formatDateTimeForDisplay(record.created_at);
-
-    document.getElementById('viewDriverModal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-    lucide.createIcons();
-  }
-  function closeViewDriverModal() { document.getElementById('viewDriverModal').classList.add('hidden'); document.body.style.overflow = ''; }
-
-
-  function openGenericConfirmModal(title, message, confirmButtonText, confirmButtonIcon, onConfirmCallback, actionData = null) {
-    document.getElementById('genericConfirmModalTitle').textContent = title;
-    document.getElementById('genericConfirmModalMessage').textContent = message;
-    const confirmBtn = document.getElementById('genericConfirmModalConfirmBtn');
-    confirmBtn.innerHTML = `<i data-lucide="${confirmButtonIcon || 'check-circle'}" class="w-4 h-4"></i> ${confirmButtonText || 'Confirm'}`;
-    if(confirmButtonIcon === 'trash-2'){ confirmBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600'); confirmBtn.classList.add('bg-red-500', 'hover:bg-red-600');}
-    else { confirmBtn.classList.remove('bg-red-500', 'hover:bg-red-600'); confirmBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');}
-    lucide.createIcons(); currentConfirmAction = onConfirmCallback; currentActionData = actionData;
-    document.getElementById('genericConfirmModal').classList.remove('hidden'); document.body.style.overflow = 'hidden';
-  }
-  function closeGenericConfirmModal() {
-    document.getElementById('genericConfirmModal').classList.add('hidden'); document.body.style.overflow = '';
-    currentConfirmAction = null; currentActionData = null;
-  }
-  function openInfoStatusModal(title, message, type = 'success', autoCloseDelay = 3000) {
-    const modal = document.getElementById('infoStatusModal');
-    const titleEl = document.getElementById('infoStatusModalTitle');
-    const messageEl = document.getElementById('infoStatusModalMessage');
-    const iconContainer = document.getElementById('infoStatusModalIconContainer');
-    const okButton = document.getElementById('infoStatusModalOkButton');
-    titleEl.textContent = title; messageEl.textContent = message;
-    if (infoStatusModalTimeout) clearTimeout(infoStatusModalTimeout);
-    iconContainer.innerHTML = '';
-    if (type === 'success') { iconContainer.className = 'mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4'; iconContainer.innerHTML = `<i data-lucide="check" class="h-6 w-6 text-green-600"></i>`; okButton.className = 'inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:text-sm';}
-    else if (type === 'error') { iconContainer.className = 'mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4'; iconContainer.innerHTML = `<i data-lucide="x-circle" class="h-6 w-6 text-red-600"></i>`; okButton.className = 'inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:text-sm';}
-    else { iconContainer.className = 'mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4'; iconContainer.innerHTML = `<i data-lucide="info" class="h-6 w-6 text-blue-600"></i>`; okButton.className = 'inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm';}
-    lucide.createIcons();
-    modal.classList.remove('hidden'); document.body.style.overflow = 'hidden';
-    if (autoCloseDelay > 0) { infoStatusModalTimeout = setTimeout(() => { closeInfoStatusModal(); }, autoCloseDelay); }
-  }
-  function closeInfoStatusModal() {
-    if (infoStatusModalTimeout) { clearTimeout(infoStatusModalTimeout); infoStatusModalTimeout = null; }
-    document.getElementById('infoStatusModal').classList.add('hidden');
-    document.body.style.overflow = '';
-  }
-
-  async function handleDriverFormSubmit(event) {
-    event.preventDefault();
-    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to submit.", "error"); return; }
-
-    const driverData = {
-      first_name: document.getElementById('driver_first_name_form').value.trim(),
-      last_name: document.getElementById('driver_last_name_form').value.trim(),
-      email: document.getElementById('driver_email_form').value.trim(),
-      cni_number: document.getElementById('driver_cni_number_form').value.trim(),
-      matricule: document.getElementById('driver_matricule_form').value.trim(),
-    };
-
-     if (!driverData.first_name || !driverData.last_name || !driverData.email || !driverData.cni_number || !driverData.matricule) {
-      openInfoStatusModal("Validation Error", "Please fill all required driver fields.", "error"); return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(driverData.email)) {
-        openInfoStatusModal("Validation Error", "Please enter a valid email address.", "error"); return;
-    }
-
-    const actionType = driverToEditId ? "update" : "add";
-    const confirmTitle = driverToEditId ? "Confirm Update" : "Confirm Add Driver";
-    const confirmMessage = `Are you sure you want to ${actionType} this driver${driverToEditId ? "'s details" : ""}?`;
-    const confirmBtnText = driverToEditId ? "Update" : "Add Driver";
-    const confirmBtnIcon = driverToEditId ? "save" : "plus-circle";
-
-    openGenericConfirmModal(
-        confirmTitle, confirmMessage, confirmBtnText, confirmBtnIcon,
-        async (dataForAction) => {
-            let result;
-            if (driverToEditId) {
-                result = await apiRequest(`/driver/${driverToEditId}`, 'PUT', dataForAction);
-            } else {
-                result = await apiRequest('/driver/', 'POST', dataForAction);
-            }
-
-            if (result) {
-              openInfoStatusModal("Success", `Driver record ${driverToEditId ? 'updated' : 'added'} successfully!`, "success");
-              closeAddDriverModal();
-              currentDriverPage = driverToEditId ? currentDriverPage : 1;
-              await fetchDrivers();
-            }
-        },
-        driverData
-    );
-  }
-
-  function openConfirmDeleteDriverModal(id) {
-      if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to delete.", "error"); return; }
-      openGenericConfirmModal(
-        "Confirm Deletion",
-        "Are you sure you want to permanently delete this driver record? This action cannot be undone and might affect related trip records.",
-        "Delete", "trash-2",
-        async (driverIdToDelete) => { 
-            if (!driverIdToDelete) return;
-            const result = await apiRequest(`/driver/${driverIdToDelete}`, 'DELETE');
-            if (result) { 
-                openInfoStatusModal("Success", "Driver record deleted successfully!", "success");
-                if(allFetchedDriversFromServer.length === 1 && currentDriverPage > 1) {
-                    currentDriverPage--;
-                }
-                await fetchDrivers();
-            }
-        },
-        id 
-      );
-  }
-
-  function getDriverExportData() {
-    return [...allFetchedDriversFromServer];
-  }
-
-  function exportDriversExcel() {
-    if (!getAuthToken() && allFetchedDriversFromServer.length === 0) {
-        openInfoStatusModal("Export Error", "Log in or load data to export.", "error"); return;
-    }
-    const recordsToExport = getDriverExportData();
-    if (recordsToExport.length === 0) { openInfoStatusModal("Export Info", "No data to export.", "info"); return; }
-
-    const wsData = recordsToExport.map(d => ({
-        'ID': d.id,
-        'First Name': d.first_name,
-        'Last Name': d.last_name,
-        'Email': d.email,
-        'CNI Number': d.cni_number,
-        'Matricule': d.matricule,
-        'Registered At': formatDateTimeForDisplay(d.created_at)
-    }));
-    const ws = XLSX.utils.json_to_sheet(wsData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Drivers");
-    XLSX.writeFile(wb, "drivers_export.xlsx");
-  }
-
-  function exportDriversPDF() {
-    if (!getAuthToken() && allFetchedDriversFromServer.length === 0) {
-        openInfoStatusModal("Export Error", "Log in or load data to export.", "error"); return;
-    }
-    const {jsPDF} = window.jspdf;
-    const doc = new jsPDF(); 
-    doc.setFontSize(18); doc.text('Driver Records', 14, 15);
-
-    const recordsToExport = getDriverExportData();
-    if (recordsToExport.length === 0) { openInfoStatusModal("Export Info", "No data to export.", "info"); return; }
-
-    const headers = [['ID', 'Full Name', 'Email', 'Matricule', 'CNI']];
-    const data = recordsToExport.map(d => [
-        d.id,
-        `${d.first_name} ${d.last_name}`,
-        d.email,
-        d.matricule,
-        d.cni_number
-    ]);
-
-    doc.autoTable({
-        head: headers, body: data, startY: 25, theme:'grid',
-        headStyles:{fillColor:[59,130,246], textColor:255},
-    });
-    doc.save('drivers_export.pdf');
-  }
 </script>
 <script src="/static/js/global.js"></script> 
 </body>

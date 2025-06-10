@@ -71,7 +71,7 @@
               <i data-lucide="droplet" class="w-5 h-5"></i><a href="fuel">Fuel</a>
             </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="tool" class="w-5 h-5"></i><a href="maintenance">Maintenance</a>
+              <i data-lucide="settings" class="w-5 h-5"></i><a href="maintenance">Maintenance</a>
             </li>
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
               <i data-lucide="route" class="w-5 h-5"></i><a href="trip">Trip</a>
@@ -192,18 +192,31 @@
         </main>
 
         <!-- Right Sidebar -->
-        <aside class="w-1/5 bg-white dark:bg-gray-800 p-4 space-y-6 shadow-md hidden lg:block flex-shrink-0 overflow-y-auto border-l dark:border-gray-700">
+       <aside class="w-1/5 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden lg:block flex-shrink-0 border-l dark:border-gray-700 overflow-y-auto">
             <div class="flex justify-end items-center">
-              <div>
-                  <div class="text-sm font-semibold text-right" id="userDisplayNameRightSidebar">User</div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400 text-right" id="userRoleDisplayRightSidebar">Role</div>
-              </div>
+                <div class="text-right">
+                    <div class="text-sm font-semibold text-gray-800 dark:text-white" id="userDisplayNameRightSidebar">User</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">Fleet Analyst</div>
+                </div>
+                <img src="https://i.pravatar.cc/40?u=analyst_jane_doe" alt="Analyst" class="w-10 h-10 rounded-full ml-2 object-cover">
             </div>
-            <div><h4 class="font-bold mb-4 text-lg">Recent Updates</h4><div class="flex flex-col space-y-6 relative"><div class="absolute left-5 top-0 bottom-0 w-0.5 bg-blue-500"></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">New reparation logged</p><p class="text-sm text-gray-500 dark:text-gray-400">5 minutes ago</p></div></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">Reparation status updated</p><p class="text-sm text-gray-500 dark:text-gray-400">1 hour ago</p></div></div></div></div>
-            <div class="mt-8"><h4 class="font-bold mb-4 text-lg">Quick Actions</h4><div class="grid grid-cols-2 gap-2">
-                <button onclick="document.getElementById('openAddReparationModalButton').click()" class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="plus-circle" class="w-5 h-5 mb-1"></i><span class="text-xs">Add Reparation</span></button>
-                <button onclick="document.getElementById('reparationSearch').focus()" class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="search" class="w-5 h-5 mb-1"></i><span class="text-xs">Find Reparation</span></button>
-            </div></div>
+            <hr class="dark:border-gray-700/50">
+            <div>
+                <h4 class="font-semibold mb-3 text-gray-700 dark:text-gray-200">Key Performance Insights</h4>
+                <ul id="keyPerformanceInsightsList" class="text-xs space-y-2.5 text-gray-600 dark:text-gray-300">
+                    <li class="flex items-start space-x-2"><i data-lucide="loader-2" class="w-4 h-4 text-gray-400 animate-spin mt-0.5 shrink-0"></i><span>Loading insights...</span></li>
+                </ul>
+            </div>
+            <hr class="dark:border-gray-700/50">
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <h4 class="font-semibold text-gray-700 dark:text-gray-200">Alerts & Notifications</h4>
+                    <a href="#" id="viewAllNotificationsLink" class="text-xs text-primary dark:text-primary-light hover:underline">View All (<span id="notificationCount">0</span>)</a>
+                </div>
+                <div id="notificationsList" class="space-y-3 max-h-40 overflow-y-auto pr-1">
+                     <div class="flex items-start space-x-2 p-2.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><i data-lucide="loader-2" class="w-5 h-5 text-gray-400 animate-spin mt-0.5 flex-shrink-0"></i><p class="text-xs text-gray-700 dark:text-gray-300">Loading alerts...</p></div>
+                </div>
+            </div>
         </aside>
       </div>
     </div>
@@ -334,7 +347,6 @@
   </div>
 </div>
 
-
 <script>
   // --- Configuration ---
   const API_ROOT_URL = ''; 
@@ -350,21 +362,30 @@
   function updateUserInfoDisplay() {
     const token = getAuthToken();
     const userDisplayElements = [
-        { el: document.getElementById('userDisplayNameHeader'), roleEl: document.getElementById('userRoleDisplayHeader') },
-        { el: document.getElementById('userDisplayNameRightSidebar'), roleEl: document.getElementById('userRoleDisplayRightSidebar') }
+        document.getElementById('userDisplayNameHeader'),
+        document.getElementById('userDisplayNameRightSidebar')
     ];
 
     userDisplayElements.forEach(item => {
-        if (!item.el) return;
+        if (!item) return;
         if (token) {
             const decoded = parseJwt(token);
-            item.el.textContent = (decoded && decoded.sub) ? decoded.sub : 'User';
-            if (item.roleEl) {
-                 item.roleEl.textContent = (decoded && decoded.role) ? decoded.role.charAt(0).toUpperCase() + decoded.role.slice(1) : 'Member';
-            }
+            item.textContent = (decoded && decoded.sub) ? decoded.sub : 'User';
         } else {
-            item.el.textContent = 'Guest';
-            if (item.roleEl) item.roleEl.textContent = '';
+            item.textContent = 'Guest';
+        }
+    });
+    const userRoleElements = [
+        document.getElementById('userRoleDisplayHeader'),
+        document.getElementById('userRoleDisplayRightSidebar')
+    ];
+    userRoleElements.forEach(roleEl => {
+        if (!roleEl) return;
+        if (token) {
+            const decoded = parseJwt(token);
+            roleEl.textContent = (decoded && decoded.role) ? decoded.role.charAt(0).toUpperCase() + decoded.role.slice(1) : 'Member';
+        } else {
+            roleEl.textContent = '';
         }
     });
   }
@@ -372,13 +393,10 @@
   async function apiRequest(endpoint, method = 'GET', body = null) {
     const token = getAuthToken();
     const headers = { 'Content-Type': 'application/json' };
-    const publicGetEndpoints = []; 
 
-    const isAuthRequiredForThisRequest = !(publicGetEndpoints.some(publicEp => endpoint.startsWith(publicEp) && method === 'GET'));
-
-    if (token && isAuthRequiredForThisRequest) {
+    if (token) {
          headers['Authorization'] = `Bearer ${token}`;
-    } else if (!token && isAuthRequiredForThisRequest && !endpoint.startsWith('/login')) {
+    } else if (!endpoint.startsWith('/login')) {
         console.warn(`WARN: Protected endpoint ${API_ROOT_URL}${endpoint} called without token.`);
     }
 
@@ -387,7 +405,7 @@
 
     try {
       const response = await fetch(`${API_ROOT_URL}${endpoint}`, config);
-      if (response.status === 401 && isAuthRequiredForThisRequest && !endpoint.endsWith('/login/')) {
+      if (response.status === 401 && !endpoint.endsWith('/login/')) {
         openInfoStatusModal("Authentication Error", "Session expired or unauthorized. Please log in again.", "error", 5000);
         return null;
       }
@@ -396,9 +414,7 @@
       const responseData = await response.json().catch(async () => {
           const text = await response.text();
           console.error(`JSON Parse Error for ${API_ROOT_URL}${endpoint}. Status: ${response.status}. Response Text (first 100 chars): ${text.substring(0,100)}...`);
-          if (!response.ok) {
-              return Promise.reject({ detail: text || `Server error ${response.status}` });
-          }
+          if (!response.ok) { return Promise.reject({ detail: text || `Server error ${response.status}` }); }
           throw new Error(`Invalid JSON response from server (status ${response.status}). Check console for raw response.`);
       });
 
@@ -406,7 +422,8 @@
         const errorDetail = responseData.detail || (typeof responseData === 'object' ? JSON.stringify(responseData) : responseData) || 'Unknown server error.';
         console.error(`API Error for ${API_ROOT_URL}${endpoint}: ${response.status}`, errorDetail);
          if (!(response.status === 401 && endpoint.endsWith('/login/'))) {
-            openInfoStatusModal(`API Error: ${response.status}`, Array.isArray(errorDetail) ? errorDetail.map(e => e.msg || e.detail).join(', ') : errorDetail, "error");
+            const errorMsg = Array.isArray(errorDetail) ? errorDetail.map(e => e.msg || e.detail).join(', ') : errorDetail;
+            openInfoStatusModal(`API Error: ${response.status}`, errorMsg, "error");
         }
         return null;
       }
@@ -419,7 +436,7 @@
     }
   }
 
-  // --- Global Variables for Reparations ---
+  // --- Global Variables ---
   let allReparations = [];
   const reparationsPerPage = 10;
   let currentReparationPage = 1;
@@ -434,130 +451,37 @@
   let currentActionData = null;
   let infoStatusModalTimeout = null;
 
-  // --- Sidebar Toggle Functionality ---
-  const sidebar = document.getElementById('sidebar');
-  const mobileMenuButton = document.getElementById('mobile-menu-button');
-  const sidebarCloseButton = document.getElementById('sidebar-close-button');
-  const sidebarOverlay = document.getElementById('sidebar-overlay');
+  // --- Sidebar & Theme ---
+  const sidebar = document.getElementById('sidebar'); const mobileMenuButton = document.getElementById('mobile-menu-button'); const sidebarCloseButton = document.getElementById('sidebar-close-button'); const sidebarOverlay = document.getElementById('sidebar-overlay'); const themeToggleButton = document.getElementById('theme-toggle-header'); function openMobileMenu() { if (sidebar && sidebarOverlay) { sidebar.classList.remove('-translate-x-full'); sidebar.classList.add('translate-x-0'); sidebarOverlay.classList.remove('hidden'); document.body.classList.add('overflow-hidden', 'md:overflow-auto'); } } function closeMobileMenu() { if (sidebar && sidebarOverlay) { sidebar.classList.add('-translate-x-full'); sidebar.classList.remove('translate-x-0'); sidebarOverlay.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); } } function setInitialThemeIcon() { if (themeToggleButton) { if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { document.documentElement.classList.add('dark'); themeToggleButton.innerHTML = '<i data-lucide="sun" class="w-5 h-5"></i>'; } else { document.documentElement.classList.remove('dark'); themeToggleButton.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>'; } lucide.createIcons(); } } function toggleTheme() { if (document.documentElement.classList.contains('dark')) { document.documentElement.classList.remove('dark'); localStorage.setItem('theme', 'light'); } else { document.documentElement.classList.add('dark'); localStorage.setItem('theme', 'dark'); } setInitialThemeIcon(); }
 
-  function openMobileMenu() {
-    if (sidebar && sidebarOverlay) {
-        sidebar.classList.remove('-translate-x-full');
-        sidebar.classList.add('translate-x-0');
-        sidebarOverlay.classList.remove('hidden');
-        document.body.classList.add('overflow-hidden', 'md:overflow-auto');
-    }
-  }
+  // --- Dashboard Widget Functions ---
+  async function fetchAndDisplayPerformanceInsights() { const insightsList = document.getElementById('keyPerformanceInsightsList'); if (!insightsList) return; insightsList.innerHTML = `<li class="flex items-start space-x-2"><i data-lucide="loader-2" class="w-4 h-4 text-gray-400 animate-spin mt-0.5 shrink-0"></i><span>Loading insights...</span></li>`; lucide.createIcons(); const data = await apiRequest('/dashboard-data/performance-insights'); if (!data) { insightsList.innerHTML = `<li class="flex items-start space-x-2 text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 shrink-0"></i><span>Failed to load insights.</span></li>`; lucide.createIcons(); return; } let insightsHTML = ''; const { fuel_efficiency, maintenance_compliance } = data; if (fuel_efficiency) { let trendColor = 'text-gray-500 dark:text-gray-400', trendText = 'steady'; if (fuel_efficiency.trend === 'up') { trendColor = 'text-green-500'; trendText = 'improving'; } else if (fuel_efficiency.trend === 'down') { trendColor = 'text-red-500'; trendText = 'worsening'; } const percentageText = fuel_efficiency.percentage_change !== null ? `(${fuel_efficiency.percentage_change > 0 ? '+' : ''}${fuel_efficiency.percentage_change}%)` : '(No prior data)'; insightsHTML += `<li class="flex items-start space-x-2"><i data-lucide="droplet" class="w-4 h-4 text-blue-500 mt-0.5 shrink-0"></i><div><span>Fuel Efficiency is <span class="${trendColor} font-semibold">${trendText}</span>.</span><span class="block text-gray-400 dark:text-gray-500 text-xs">Consumption vs last month ${percentageText}.</span></div></li>`; } if (maintenance_compliance) { insightsHTML += `<li class="flex items-start space-x-2"><i data-lucide="wrench" class="w-4 h-4 text-yellow-500 mt-0.5 shrink-0"></i><div><span><span class="font-semibold">${maintenance_compliance.total_maintenance_records}</span> maintenance records logged.</span><span class="block text-gray-400 dark:text-gray-500 text-xs">Total historical tasks.</span></div></li>`; } insightsList.innerHTML = insightsHTML || `<li>No performance data available.</li>`; lucide.createIcons(); }
+  async function fetchAndDisplayAlerts() { const alertsList = document.getElementById('notificationsList'); const notificationCountSpan = document.getElementById('notificationCount'); if (!alertsList || !notificationCountSpan) return; alertsList.innerHTML = `<div class="flex items-start space-x-2 p-2.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><i data-lucide="loader-2" class="w-5 h-5 text-gray-400 animate-spin mt-0.5 flex-shrink-0"></i><p class="text-xs text-gray-700 dark:text-gray-300">Loading alerts...</p></div>`; lucide.createIcons(); const data = await apiRequest('/dashboard-data/alerts'); if (!data) { alertsList.innerHTML = `<div class="flex items-start space-x-2 text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 shrink-0"></i><p class="text-xs">Failed to load alerts.</p></div>`; notificationCountSpan.textContent = '0'; lucide.createIcons(); return; } notificationCountSpan.textContent = data.total_alerts || '0'; let alertsHTML = ''; const createAlertItemHTML = (alert, icon, colorClass) => { if (!alert) return ''; return `<div class="flex items-start space-x-2 p-2.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><i data-lucide="${icon}" class="w-5 h-5 ${colorClass} mt-0.5 flex-shrink-0"></i><div><p class="text-xs font-semibold text-gray-800 dark:text-gray-200">${alert.plate_number}</p><p class="text-xs text-gray-600 dark:text-gray-300">${alert.message}</p></div></div>`; }; alertsHTML += createAlertItemHTML(data.critical_panne, 'shield-alert', 'text-red-500'); alertsHTML += createAlertItemHTML(data.maintenance_alert, 'calendar-clock', 'text-blue-500'); alertsHTML += createAlertItemHTML(data.trip_alert, 'route', 'text-purple-500'); if (data.total_alerts === 0) { alertsHTML = `<div class="flex items-center justify-center text-center p-4"><div class="text-gray-500 dark:text-gray-400"><i data-lucide="check-circle" class="w-8 h-8 mx-auto mb-2 text-green-500"></i><p class="text-xs">All clear! No new alerts.</p></div></div>`; } alertsList.innerHTML = alertsHTML; lucide.createIcons(); }
+  async function initializeDashboardWidgets() { await Promise.all([ fetchAndDisplayPerformanceInsights(), fetchAndDisplayAlerts() ]); }
 
-  function closeMobileMenu() {
-    if (sidebar && sidebarOverlay) {
-        sidebar.classList.add('-translate-x-full');
-        sidebar.classList.remove('translate-x-0');
-        sidebarOverlay.classList.add('hidden');
-        document.body.classList.remove('overflow-hidden');
-    }
-  }
-  
-  // --- Theme Toggle ---
-  const themeToggleButton = document.getElementById('theme-toggle-header');
-  function setInitialThemeIcon() {
-    if (themeToggleButton) {
-        if (document.documentElement.classList.contains('dark')) {
-            themeToggleButton.innerHTML = '<i data-lucide="sun" class="w-5 h-5"></i>';
-        } else {
-            themeToggleButton.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>';
-        }
-        lucide.createIcons();
-    }
-  }
-
-
-  // --- MODAL CONTROL (largely reusable, ensure IDs are correct) ---
-  function closeModal(modalId) {
-    document.getElementById(modalId)?.classList.add('hidden');
-    document.body.style.overflow = '';
-  }
-  function openModal(modalId) {
-    document.getElementById(modalId)?.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeAddReparationModal() {
-    closeModal('addReparationModal');
-    reparationToEditId = null;
-    document.getElementById('addReparationForm')?.reset();
-    const submitButton = document.getElementById('reparationSubmitButton');
-    if (submitButton) submitButton.disabled = false;
-  }
+  // --- MODAL CONTROL ---
+  function closeModal(modalId) { document.getElementById(modalId)?.classList.add('hidden'); document.body.style.overflow = ''; }
+  function openModal(modalId) { document.getElementById(modalId)?.classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+  function closeAddReparationModal() { closeModal('addReparationModal'); reparationToEditId = null; document.getElementById('addReparationForm')?.reset(); const submitButton = document.getElementById('reparationSubmitButton'); if (submitButton) submitButton.disabled = false; }
   function closeViewReparationModal() { closeModal('viewReparationModal'); }
-  function closeGenericConfirmModal() {
-    closeModal('genericConfirmModal');
-    currentConfirmAction = null; currentActionData = null;
-  }
-  function closeInfoStatusModal() {
-    if (infoStatusModalTimeout) { clearTimeout(infoStatusModalTimeout); infoStatusModalTimeout = null; }
-    closeModal('infoStatusModal');
-  }
-
-  function openGenericConfirmModal(title, message, confirmButtonText, confirmButtonIcon, onConfirmCallback, actionData = null) {
-    document.getElementById('genericConfirmModalTitle').textContent = title;
-    document.getElementById('genericConfirmModalMessage').textContent = message;
-    const confirmBtn = document.getElementById('genericConfirmModalConfirmBtn');
-    confirmBtn.innerHTML = `<i data-lucide="${confirmButtonIcon || 'check-circle'}" class="w-4 h-4 mr-1"></i> ${confirmButtonText || 'Confirm'}`;
-    confirmBtn.className = `px-4 py-2 text-white rounded-lg flex items-center gap-2 ${
-        confirmButtonIcon === 'trash-2' ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'
-    }`;
-    lucide.createIcons();
-    currentConfirmAction = onConfirmCallback; currentActionData = actionData;
-    openModal('genericConfirmModal');
-  }
-
-  function openInfoStatusModal(title, message, type = 'success', autoCloseDelay = 4000) {
-    const titleEl = document.getElementById('infoStatusModalTitle');
-    const messageEl = document.getElementById('infoStatusModalMessage');
-    const iconContainer = document.getElementById('infoStatusModalIconContainer');
-    const okButton = document.getElementById('infoStatusModalOkButton');
-
-    titleEl.textContent = title; messageEl.textContent = message;
-    if (infoStatusModalTimeout) clearTimeout(infoStatusModalTimeout);
-
-    let iconName = 'info', iconColorClass = 'text-blue-600', bgColorClass = 'bg-blue-100', btnClass = 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500';
-    if (type === 'success') {
-        iconName = 'check-circle-2'; iconColorClass = 'text-green-600'; bgColorClass = 'bg-green-100'; btnClass = 'bg-green-600 hover:bg-green-700 focus:ring-green-500';
-    } else if (type === 'error') {
-        iconName = 'alert-triangle'; iconColorClass = 'text-red-600'; bgColorClass = 'bg-red-100'; btnClass = 'bg-red-600 hover:bg-red-700 focus:ring-red-500';
-    } else if (type === 'warning') {
-        iconName = 'alert-octagon'; iconColorClass = 'text-yellow-500'; bgColorClass = 'bg-yellow-100'; btnClass = 'bg-yellow-500 hover:bg-yellow-600 focus:ring-yellow-400';
-    }
-    iconContainer.className = `mx-auto flex items-center justify-center h-12 w-12 rounded-full ${bgColorClass} mb-4`;
-    iconContainer.innerHTML = `<i data-lucide="${iconName}" class="h-6 w-6 ${iconColorClass}"></i>`;
-    okButton.className = `inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white ${btnClass} focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm`;
-    lucide.createIcons();
-    openModal('infoStatusModal');
-    if (autoCloseDelay > 0 && type !== 'error') { 
-        infoStatusModalTimeout = setTimeout(closeInfoStatusModal, autoCloseDelay);
-    }
-  }
+  function closeGenericConfirmModal() { closeModal('genericConfirmModal'); currentConfirmAction = null; currentActionData = null; }
+  function closeInfoStatusModal() { if (infoStatusModalTimeout) { clearTimeout(infoStatusModalTimeout); infoStatusModalTimeout = null; } closeModal('infoStatusModal'); }
+  function openGenericConfirmModal(title, message, confirmButtonText, confirmButtonIcon, onConfirmCallback, actionData = null) { document.getElementById('genericConfirmModalTitle').textContent = title; document.getElementById('genericConfirmModalMessage').textContent = message; const confirmBtn = document.getElementById('genericConfirmModalConfirmBtn'); confirmBtn.innerHTML = `<i data-lucide="${confirmButtonIcon || 'check-circle'}" class="w-4 h-4 mr-1"></i> ${confirmButtonText || 'Confirm'}`; confirmBtn.className = `px-4 py-2 text-white rounded-lg flex items-center gap-2 ${ confirmButtonIcon === 'trash-2' ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600' }`; lucide.createIcons(); currentConfirmAction = onConfirmCallback; currentActionData = actionData; openModal('genericConfirmModal'); }
+  function openInfoStatusModal(title, message, type = 'success', autoCloseDelay = 4000) { const titleEl = document.getElementById('infoStatusModalTitle'); const messageEl = document.getElementById('infoStatusModalMessage'); const iconContainer = document.getElementById('infoStatusModalIconContainer'); const okButton = document.getElementById('infoStatusModalOkButton'); titleEl.textContent = title; messageEl.textContent = message; if (infoStatusModalTimeout) clearTimeout(infoStatusModalTimeout); let iconName = 'info', iconColorClass = 'text-blue-600', bgColorClass = 'bg-blue-100', btnClass = 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'; if (type === 'success') { iconName = 'check-circle-2'; iconColorClass = 'text-green-600'; bgColorClass = 'bg-green-100'; btnClass = 'bg-green-600 hover:bg-green-700 focus:ring-green-500'; } else if (type === 'error') { iconName = 'alert-triangle'; iconColorClass = 'text-red-600'; bgColorClass = 'bg-red-100'; btnClass = 'bg-red-600 hover:bg-red-700 focus:ring-red-500'; } else if (type === 'warning') { iconName = 'alert-octagon'; iconColorClass = 'text-yellow-500'; bgColorClass = 'bg-yellow-100'; btnClass = 'bg-yellow-500 hover:bg-yellow-600 focus:ring-yellow-400'; } iconContainer.className = `mx-auto flex items-center justify-center h-12 w-12 rounded-full ${bgColorClass} mb-4`; iconContainer.innerHTML = `<i data-lucide="${iconName}" class="h-6 w-6 ${iconColorClass}"></i>`; okButton.className = `inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white ${btnClass} focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm`; lucide.createIcons(); openModal('infoStatusModal'); if (autoCloseDelay > 0 && type !== 'error') { infoStatusModalTimeout = setTimeout(closeInfoStatusModal, autoCloseDelay); } }
 
   // --- DOMContentLoaded & Event Listeners ---
   document.addEventListener('DOMContentLoaded', async () => {
       lucide.createIcons();
       updateUserInfoDisplay();
       
-      themeToggleButton?.addEventListener('click', () => {
-        document.documentElement.classList.toggle('dark');
-        setInitialThemeIcon(); 
-      });
+      themeToggleButton?.addEventListener('click', toggleTheme);
       setInitialThemeIcon(); 
 
       mobileMenuButton?.addEventListener('click', openMobileMenu);
       sidebarCloseButton?.addEventListener('click', closeMobileMenu);
       sidebarOverlay?.addEventListener('click', closeMobileMenu);
       document.querySelectorAll('#sidebar nav a').forEach(link => {
-          link.addEventListener('click', () => {
-              if (window.innerWidth < 768) { // md breakpoint
-                  closeMobileMenu();
-              }
-          });
+          link.addEventListener('click', () => { if (window.innerWidth < 768) closeMobileMenu(); });
       });
 
       ['addReparationModal', 'viewReparationModal', 'genericConfirmModal'].forEach(modalId => {
@@ -570,35 +494,20 @@
       document.getElementById('closeViewReparationModalButtonTop')?.addEventListener('click', closeViewReparationModal);
       document.getElementById('closeViewReparationModalButtonBottom')?.addEventListener('click', closeViewReparationModal);
       document.getElementById('closeGenericConfirmModalButtonX')?.addEventListener('click', closeGenericConfirmModal);
-      document.getElementById('cancelGenericConfirmModalButton')?.addEventListener('click', () => {
-          closeGenericConfirmModal();
-          const reparationSubmitButton = document.getElementById('reparationSubmitButton');
-          if (reparationSubmitButton && !document.getElementById('addReparationModal')?.classList.contains('hidden')) {
-               reparationSubmitButton.disabled = false;
-          }
-      });
-
-      document.getElementById('genericConfirmModalConfirmBtn')?.addEventListener('click', async () => {
-        if (typeof currentConfirmAction === 'function') {
-             try { await currentConfirmAction(currentActionData); }
-             catch (error) {
-                console.error("Error in currentConfirmAction:", error);
-                const reparationSubmitButton = document.getElementById('reparationSubmitButton');
-                if (reparationSubmitButton && !document.getElementById('addReparationModal')?.classList.contains('hidden')) {
-                     reparationSubmitButton.disabled = false;
-                }
-             }
-        }
-        closeGenericConfirmModal();
-      });
+      document.getElementById('cancelGenericConfirmModalButton')?.addEventListener('click', () => { closeGenericConfirmModal(); const submitBtn = document.getElementById('reparationSubmitButton'); if (submitBtn) submitBtn.disabled = false; });
+      document.getElementById('genericConfirmModalConfirmBtn')?.addEventListener('click', async () => { if (typeof currentConfirmAction === 'function') await currentConfirmAction(currentActionData); closeGenericConfirmModal(); });
 
       document.getElementById('global-logout-btn')?.addEventListener('click', (e) => {
           e.preventDefault();
           localStorage.removeItem('accessToken');
           openInfoStatusModal('Logged Out', 'You have been successfully logged out.', 'success', 2500);
-          setTimeout(() => window.location.href = LOGIN_PAGE_URL, 1500); 
-          updateUserInfoDisplay(); allReparations = [];
-          fetchAndRenderReparations();
+          updateUserInfoDisplay();
+          allReparations = [];
+          renderReparationsTable();
+          document.getElementById('keyPerformanceInsightsList').innerHTML = `<li class="flex items-start space-x-2 text-gray-500"><i data-lucide="log-in" class="w-4 h-4 mt-0.5 shrink-0"></i><span>Please log in to see insights.</span></li>`;
+          document.getElementById('notificationsList').innerHTML = `<div class="flex items-start space-x-2 text-gray-500 p-2.5"><i data-lucide="log-in" class="w-5 h-5 mt-0.5 shrink-0"></i><p class="text-xs">Please log in to see alerts.</p></div>`;
+          document.getElementById('notificationCount').textContent = '0';
+          lucide.createIcons();
       });
 
       document.getElementById('openAddReparationModalButton')?.addEventListener('click', openAddReparationModal);
@@ -606,50 +515,39 @@
       document.getElementById('exportPdfButton')?.addEventListener('click', exportReparationsPDF);
       document.getElementById('reparationSearch')?.addEventListener('input', () => { currentReparationPage = 1; fetchAndRenderReparations(); });
       document.getElementById('reparationStatusFilter')?.addEventListener('change', (event) => applyReparationStatusFilter(event.target.value));
-
       document.getElementById('repair-date-filter-today')?.addEventListener('click', () => applyRepairDateFilter('today'));
       document.getElementById('repair-date-filter-last7')?.addEventListener('click', () => applyRepairDateFilter('last7days'));
       document.getElementById('repair-date-filter-last30')?.addEventListener('click', () => applyRepairDateFilter('last30days'));
       document.getElementById('repair-date-filter-all')?.addEventListener('click', () => applyRepairDateFilter('all'));
       document.getElementById('repair-date-filter-custom-btn')?.addEventListener('click', toggleReparationCustomDateRange);
       document.getElementById('applyCustomDateFilterButton')?.addEventListener('click', applyReparationCustomDateFilter);
-
       document.getElementById('addReparationForm')?.addEventListener('submit', handleReparationFormSubmit);
 
       await initializeReparationSection();
   });
 
-  function getISODateString(date) {
-      if (!date) return null;
-      const d = new Date(date);
-      return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
-  }
-  function getISODateTimeString(date) { 
-      if (!date) return '';
-      const d = new Date(date);
-      const tzoffset = d.getTimezoneOffset() * 60000;
-      const localISOTime = new Date(d.getTime() - tzoffset).toISOString().slice(0, 16);
-      return localISOTime;
-  }
-  function getDateRange(filterType) {
-    const today = new Date(); today.setHours(0,0,0,0);
-    let sD = new Date(today), eD = new Date(today); eD.setHours(23,59,59,999);
-    if (filterType === 'last7days') sD.setDate(today.getDate()-6);
-    else if (filterType === 'last30days') sD.setDate(today.getDate()-29);
-    else if (filterType === 'all') return {startDate:null,endDate:null};
-    return {startDate:getISODateString(sD),endDate:getISODateString(eD)};
-  }
+  // --- Helpers & Initializers ---
+  function getISODateString(date) { if (!date) return null; const d = new Date(date); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  function getISODateTimeString(date) { if (!date) return ''; const d = new Date(date); const tzoffset = d.getTimezoneOffset() * 60000; return new Date(d.getTime() - tzoffset).toISOString().slice(0, 16); }
+  function getDateRange(filterType) { const today = new Date(); today.setHours(0,0,0,0); let sD = new Date(today), eD = new Date(today); eD.setHours(23,59,59,999); if (filterType === 'last7days') sD.setDate(today.getDate()-6); else if (filterType === 'last30days') sD.setDate(today.getDate()-29); else if (filterType === 'all') return {startDate:null,endDate:null}; return {startDate:getISODateString(sD),endDate:getISODateString(eD)}; }
 
   async function initializeReparationSection() {
     await populateReparationLookupData();
-    await fetchAndRenderReparations({isInitialLoadForGuest: !getAuthToken()});
+    await fetchAndRenderReparations();
+    if(getAuthToken()) {
+        await initializeDashboardWidgets();
+    }
     setActiveRepairDateFilterButton('all');
     document.getElementById('reparationStatusFilter').value = '';
   }
 
   async function populateReparationLookupData() {
-    allPannesForDropdown = await apiRequest(PANNES_API_ENDPOINT + '?limit=1000') || [];
-    allGaragesForDropdown = await apiRequest(GARAGES_API_ENDPOINT + '?limit=1000') || [];
+    [allPannesForDropdown, allGaragesForDropdown] = await Promise.all([
+        apiRequest(PANNES_API_ENDPOINT + '?limit=200'),
+        apiRequest(GARAGES_API_ENDPOINT + '?limit=200')
+    ]);
+    allPannesForDropdown = allPannesForDropdown || [];
+    allGaragesForDropdown = allGaragesForDropdown || [];
     populateReparationDropdowns();
   }
 
@@ -659,16 +557,11 @@
         panneSelect.innerHTML = '<option value="">Select Panne (Issue)</option>';
         (allPannesForDropdown || []).forEach(panne => {
             let panneDisplayText = `Panne ID: ${panne.id}`;
-            if (panne.description) {
-                panneDisplayText += ` - ${panne.description.substring(0, 50)}${panne.description.length > 50 ? '...' : ''}`;
-            }
-            if (panne.vehicle && panne.vehicle.plate_number) { 
-                panneDisplayText += ` (Vehicle: ${panne.vehicle.plate_number})`;
-            }
+            if (panne.description) { panneDisplayText += ` - ${panne.description.substring(0, 50)}${panne.description.length > 50 ? '...' : ''}`; }
+            if (panne.vehicle && panne.vehicle.plate_number) { panneDisplayText += ` (Vehicle: ${panne.vehicle.plate_number})`; }
             panneSelect.add(new Option(panneDisplayText, panne.id));
         });
     }
-
     const garageSelect = document.getElementById('reparation_garage_id_form');
     if (garageSelect) {
         garageSelect.innerHTML = '<option value="">Select Garage</option>';
@@ -677,7 +570,6 @@
             garageSelect.add(new Option(displayText, garage.id));
         });
     }
-
     const statusSelectForm = document.getElementById('reparation_status_form');
     if (statusSelectForm) {
         statusSelectForm.innerHTML = '';
@@ -686,51 +578,31 @@
     }
   }
 
-  function applyRepairDateFilter(filterType) {
-    activeRepairDateFilter = filterType; customRepairFilterStartDate = null; customRepairFilterEndDate = null;
-    document.getElementById('reparationCustomDateRange').classList.add('hidden');
-    setActiveRepairDateFilterButton(filterType); currentReparationPage = 1;
-    fetchAndRenderReparations();
-  }
-  function toggleReparationCustomDateRange() {
-    document.getElementById('reparationCustomDateRange').classList.toggle('hidden');
-    if (!document.getElementById('reparationCustomDateRange').classList.contains('hidden')) setActiveRepairDateFilterButton('repair-date-filter-custom-btn');
-    else if (activeRepairDateFilter === 'custom') applyRepairDateFilter('all'); 
-  }
-  function applyReparationCustomDateFilter() {
-    const startDate = document.getElementById('reparationCustomStartDate').value;
-    const endDate = document.getElementById('reparationCustomEndDate').value;
-    if (!startDate || !endDate) { openInfoStatusModal("Input Error","Please select both start and end dates.", "error"); return; }
-    if (new Date(startDate) > new Date(endDate)) { openInfoStatusModal("Input Error", "Start date cannot be after end date.", "error"); return; }
-    activeRepairDateFilter = 'custom'; customRepairFilterStartDate = startDate; customRepairFilterEndDate = endDate;
-    setActiveRepairDateFilterButton('repair-date-filter-custom-btn'); currentReparationPage = 1;
-    fetchAndRenderReparations();
-  }
-  function applyReparationStatusFilter(statusValue) {
-      activeReparationStatusFilter = statusValue; currentReparationPage = 1; fetchAndRenderReparations();
-  }
-  function setActiveRepairDateFilterButton(filterId) {
-    document.querySelectorAll('#reparation-section .date-filter-btn').forEach(btn => btn.classList.remove('active'));
-    const activeBtn = document.getElementById(filterId.startsWith('repair-date-filter-') ? filterId : `repair-date-filter-${filterId}`);
-    if (activeBtn) activeBtn.classList.add('active');
-  }
+  // --- Filter Logic ---
+  function applyRepairDateFilter(filterType) { activeRepairDateFilter = filterType; customRepairFilterStartDate = null; customRepairFilterEndDate = null; document.getElementById('reparationCustomDateRange').classList.add('hidden'); setActiveRepairDateFilterButton(filterType); currentReparationPage = 1; fetchAndRenderReparations(); }
+  function toggleReparationCustomDateRange() { document.getElementById('reparationCustomDateRange').classList.toggle('hidden'); if (!document.getElementById('reparationCustomDateRange').classList.contains('hidden')) setActiveRepairDateFilterButton('repair-date-filter-custom-btn'); else if (activeRepairDateFilter === 'custom') applyRepairDateFilter('all'); }
+  function applyReparationCustomDateFilter() { const startDate = document.getElementById('reparationCustomStartDate').value; const endDate = document.getElementById('reparationCustomEndDate').value; if (!startDate || !endDate) { openInfoStatusModal("Input Error","Please select both start and end dates.", "error"); return; } if (new Date(startDate) > new Date(endDate)) { openInfoStatusModal("Input Error", "Start date cannot be after end date.", "error"); return; } activeRepairDateFilter = 'custom'; customRepairFilterStartDate = startDate; customRepairFilterEndDate = endDate; setActiveRepairDateFilterButton('repair-date-filter-custom-btn'); currentReparationPage = 1; fetchAndRenderReparations(); }
+  function applyReparationStatusFilter(statusValue) { activeReparationStatusFilter = statusValue; currentReparationPage = 1; fetchAndRenderReparations(); }
+  function setActiveRepairDateFilterButton(filterId) { document.querySelectorAll('#reparation-section .date-filter-btn').forEach(btn => btn.classList.remove('active')); const activeBtn = document.getElementById(filterId.startsWith('repair-date-filter-') ? filterId : `repair-date-filter-${filterId}`); if (activeBtn) activeBtn.classList.add('active'); }
 
-  async function fetchAndRenderReparations(options = {}) {
-    if (!getAuthToken() && !options.isInitialLoadForGuest) {
-        allReparations = []; renderReparationsTable(); return;
+  // --- Data Fetching & Rendering ---
+  async function fetchAndRenderReparations() {
+    if (!getAuthToken()) {
+        allReparations = []; 
+        renderReparationsTable(); 
+        return;
     }
-    let queryParams = `skip=${(currentReparationPage - 1) * reparationsPerPage}&limit=${reparationsPerPage}`;
+    let queryParams = `limit=${reparationsPerPage}&skip=${(currentReparationPage - 1) * reparationsPerPage}`;
     const searchTerm = document.getElementById('reparationSearch').value;
     if (searchTerm) queryParams += `&search=${encodeURIComponent(searchTerm)}`;
     if (activeReparationStatusFilter) queryParams += `&status_filter=${encodeURIComponent(activeReparationStatusFilter)}`;
-
     let range = getDateRange(activeRepairDateFilter);
     if (activeRepairDateFilter === 'custom' && customRepairFilterStartDate && customRepairFilterEndDate) {
         range = { startDate: customRepairFilterStartDate, endDate: customRepairFilterEndDate };
     }
     if (range?.startDate) queryParams += `&start_date=${encodeURIComponent(range.startDate)}`;
     if (range?.endDate) queryParams += `&end_date=${encodeURIComponent(range.endDate)}`;
-
+    
     const data = await apiRequest(`${REPARATION_API_ENDPOINT}?${queryParams}`);
     allReparations = Array.isArray(data) ? data : [];
     renderReparationsTable();
@@ -738,25 +610,23 @@
 
   function renderReparationsTable() {
     const reparationsBody = document.getElementById('reparationsBody');
-    if (!getAuthToken() && allReparations.length === 0) {
+    if (!getAuthToken()) {
         reparationsBody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-red-500">Please log in to view reparation records.</td></tr>`;
         document.getElementById('reparationsCount').textContent = '0 records';
         document.getElementById('reparationsPagination').innerHTML = '';
         return;
     }
-    const recordsToDisplay = allReparations;
-    reparationsBody.innerHTML = recordsToDisplay.length > 0 ? recordsToDisplay.map(rep => {
-      const panneDisplay = rep.panne ? (rep.panne.description || `ID ${rep.panne.id || rep.panne_id}`) : `Panne ID ${rep.panne_id}`;
-      const garageDisplay = rep.garage ? (rep.garage.nom_garage || `ID ${rep.garage.id || rep.garage_id}`) : `Garage ID ${rep.garage_id}`;
-      const statusFormatted = rep.status.charAt(0).toUpperCase() + rep.status.slice(1).replace(/_/g, ' ');
-      const statusColor = rep.status === "Inprogress" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200" :
-                          rep.status === "Completed" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" :
-                          "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+    const paginatedRecords = allReparations;
+    reparationsBody.innerHTML = paginatedRecords.length > 0 ? paginatedRecords.map(rep => {
+      const panneDisplay = rep.panne ? (rep.panne.description || `ID ${rep.panne_id}`) : `Panne ID ${rep.panne_id}`;
+      const garageDisplay = rep.garage ? (rep.garage.nom_garage || `ID ${rep.garage_id}`) : `Garage ID ${rep.garage_id}`;
+      const statusFormatted = rep.status.charAt(0).toUpperCase() + rep.status.slice(1);
+      const statusColor = rep.status === "Inprogress" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200" : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
       return `<tr class="border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50" data-id="${rep.id}">
                 <td class="py-3 px-2">${rep.id}</td>
-                <td class="px-2">${panneDisplay}</td>
+                <td class="px-2" title="${panneDisplay}">${panneDisplay.substring(0, 30)}${panneDisplay.length > 30 ? '...' : ''}</td>
                 <td class="px-2">${garageDisplay}</td>
-                <td class="px-2">${new Date(rep.repair_date).toLocaleString()}</td>
+                <td class="px-2">${new Date(rep.repair_date).toLocaleDateString()}</td>
                 <td class="px-2 text-right">${rep.cost != null ? parseFloat(rep.cost).toFixed(2) : '0.00'}</td>
                 <td class="px-2 truncate max-w-[150px]" title="${rep.receipt}">${rep.receipt}</td>
                 <td class="px-2"><span class="px-2 py-1 text-xs font-medium rounded-full ${statusColor}">${statusFormatted}</span></td>
@@ -765,156 +635,26 @@
                   <button onclick="openEditReparationModal(${rep.id})" class="text-blue-600 dark:text-blue-400 p-1 ml-1" title="Edit"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
                   <button onclick="openConfirmDeleteReparationModal(${rep.id})" class="text-red-600 dark:text-red-400 p-1 ml-1" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                 </td></tr>`;
-    }).join('') : `<tr><td colspan="8" class="text-center py-8 text-gray-500">No reparation records found${document.getElementById('reparationSearch').value || activeRepairDateFilter !== 'all' || activeReparationStatusFilter ? ' matching criteria.' : (allReparations.length === 0 && getAuthToken() ? '. Try adding one!' : '')}</td></tr>`;
+    }).join('') : `<tr><td colspan="8" class="text-center py-8 text-gray-500">No reparation records found matching your criteria.</td></tr>`;
     lucide.createIcons();
-    const startRecord = recordsToDisplay.length > 0 ? (currentReparationPage - 1) * reparationsPerPage + 1 : 0;
-    const endRecord = (currentReparationPage - 1) * reparationsPerPage + recordsToDisplay.length;
-    document.getElementById('reparationsCount').textContent = recordsToDisplay.length > 0 ? `Showing ${startRecord} to ${endRecord}` : '0 records';
-    renderReparationsPagination(recordsToDisplay.length === reparationsPerPage && recordsToDisplay.length > 0); 
+    const startRecord = paginatedRecords.length > 0 ? (currentReparationPage - 1) * reparationsPerPage + 1 : 0;
+    const endRecord = (currentReparationPage - 1) * reparationsPerPage + paginatedRecords.length;
+    document.getElementById('reparationsCount').textContent = `Showing ${startRecord} to ${endRecord}`;
+    renderReparationsPagination(paginatedRecords.length === reparationsPerPage);
   }
 
-  function renderReparationsPagination(hasNextPage) {
-    const paginationContainer = document.getElementById('reparationsPagination');
-    paginationContainer.innerHTML = '';
-    if (currentReparationPage === 1 && !hasNextPage && allReparations.length === 0) return;
+  function renderReparationsPagination(hasNextPage) { const paginationContainer = document.getElementById('reparationsPagination'); paginationContainer.innerHTML = ''; if (currentReparationPage === 1 && !hasNextPage) return; const btnClasses = "px-3 py-1.5 text-sm rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-900 focus:ring-blue-500"; const itemClasses = "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"; const disabledClasses = "bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed"; const prevButton = Object.assign(document.createElement('button'), { innerHTML: `<i data-lucide="chevron-left" class="w-4 h-4 inline-block mr-1"></i> Prev`, className: `${btnClasses} ${currentReparationPage === 1 ? disabledClasses : itemClasses}`, disabled: currentReparationPage === 1, onclick: () => { if(currentReparationPage > 1) {currentReparationPage--; fetchAndRenderReparations();} } }); const pageInfo = Object.assign(document.createElement('span'), { className: "px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400", textContent: `Page ${currentReparationPage}` }); const nextButton = Object.assign(document.createElement('button'), { innerHTML: `Next <i data-lucide="chevron-right" class="w-4 h-4 inline-block ml-1"></i>`, className: `${btnClasses} ${!hasNextPage ? disabledClasses : itemClasses}`, disabled: !hasNextPage, onclick: () => { if(hasNextPage) {currentReparationPage++; fetchAndRenderReparations();} } }); paginationContainer.append(prevButton, pageInfo, nextButton); lucide.createIcons(); }
+  
+  // --- Modal & Form Handling ---
+  function openAddReparationModal() { if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to add a reparation record.", "error", 0); return; } reparationToEditId = null; document.getElementById('addReparationForm')?.reset(); document.getElementById('reparationModalTitle').textContent = "Add New Reparation"; document.getElementById('reparationSubmitButton').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4 mr-1"></i> Add Reparation`; document.getElementById('reparationSubmitButton').disabled = false; document.getElementById('reparation_repair_date_form').value = getISODateTimeString(new Date()); lucide.createIcons(); openModal('addReparationModal'); }
+  async function openEditReparationModal(id) { if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to edit.", "error", 0); return; } const reparation = await apiRequest(`${REPARATION_API_ENDPOINT}${id}`); if (!reparation) { openInfoStatusModal("Error","Could not fetch reparation details.", "error", 0); return; } reparationToEditId = id; document.getElementById('reparationModalTitle').textContent = "Edit Reparation Record"; document.getElementById('reparationSubmitButton').innerHTML = `<i data-lucide="save" class="w-4 h-4 mr-1"></i> Save Changes`; document.getElementById('reparationSubmitButton').disabled = false; document.getElementById('reparationId_form').value = reparation.id; document.getElementById('reparation_panne_id_form').value = reparation.panne_id; document.getElementById('reparation_garage_id_form').value = reparation.garage_id; document.getElementById('reparation_repair_date_form').value = getISODateTimeString(new Date(reparation.repair_date)); document.getElementById('reparation_cost_form').value = reparation.cost != null ? reparation.cost.toFixed(2) : ''; document.getElementById('reparation_receipt_form').value = reparation.receipt || ''; document.getElementById('reparation_status_form').value = reparation.status; lucide.createIcons(); openModal('addReparationModal'); }
+  async function openViewReparationModal(id) { if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to view.", "error", 0); return; } const reparation = await apiRequest(`${REPARATION_API_ENDPOINT}${id}`); if (!reparation) { openInfoStatusModal("Error", "Could not fetch reparation details.", "error", 0); return; } const panneDisplay = reparation.panne ? (reparation.panne.description || `ID ${reparation.panne_id}`) : `Panne ID ${reparation.panne_id}`; const garageDisplay = reparation.garage ? (reparation.garage.nom_garage || `ID ${reparation.garage_id}`) : `Garage ID ${reparation.garage_id}`; document.getElementById('view-reparation-id').textContent = reparation.id; document.getElementById('view-reparation-panne').textContent = panneDisplay; document.getElementById('view-reparation-garage').textContent = garageDisplay; document.getElementById('view-reparation-repair_date').textContent = new Date(reparation.repair_date).toLocaleString(); document.getElementById('view-reparation-cost').textContent = reparation.cost != null ? `$${parseFloat(reparation.cost).toFixed(2)}` : 'N/A'; document.getElementById('view-reparation-receipt').textContent = reparation.receipt || 'N/A'; document.getElementById('view-reparation-status').textContent = reparation.status.charAt(0).toUpperCase() + reparation.status.slice(1).replace(/_/g, ' '); openModal('viewReparationModal'); }
+  async function handleReparationFormSubmit(event) { event.preventDefault(); if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in.", "error", 0); return; } const submitButton = document.getElementById('reparationSubmitButton'); if (submitButton.disabled) return; submitButton.disabled = true; const repairDateValue = document.getElementById('reparation_repair_date_form').value; if (!repairDateValue) { openInfoStatusModal("Validation Error", "Repair Date is required.", "error", 0); submitButton.disabled = false; return; } const repairDateTime = new Date(repairDateValue); if (isNaN(repairDateTime.getTime())) { openInfoStatusModal("Validation Error", "Invalid Repair Date.", "error", 0); submitButton.disabled = false; return; } const formData = { panne_id: parseInt(document.getElementById('reparation_panne_id_form').value), garage_id: parseInt(document.getElementById('reparation_garage_id_form').value), repair_date: repairDateTime.toISOString(), cost: parseFloat(document.getElementById('reparation_cost_form').value) || 0.0, receipt: document.getElementById('reparation_receipt_form').value.trim(), status: document.getElementById('reparation_status_form').value }; if (!formData.panne_id || !formData.garage_id || !formData.receipt || !formData.status) { openInfoStatusModal("Validation Error", "Panne, Garage, Receipt, and Status are required.", "error", 0); submitButton.disabled = false; return; } if (formData.cost < 0) { openInfoStatusModal("Validation Error", "Cost cannot be negative.", "error", 0); submitButton.disabled = false; return; } const actionType = reparationToEditId ? "update" : "add"; openGenericConfirmModal( reparationToEditId ? "Confirm Update" : "Confirm Add Reparation", `Are you sure you want to ${actionType} this reparation record?`, reparationToEditId ? "Update" : "Add", reparationToEditId ? "save" : "plus-circle", async (data) => { try { const result = reparationToEditId ? await apiRequest(`${REPARATION_API_ENDPOINT}${reparationToEditId}`, 'PUT', data) : await apiRequest(REPARATION_API_ENDPOINT, 'POST', data); if (result) { openInfoStatusModal("Success", `Reparation record ${actionType}ed successfully!`, "success"); closeAddReparationModal(); await fetchAndRenderReparations(); } else if (submitButton && !document.getElementById('addReparationModal')?.classList.contains('hidden')) { submitButton.disabled = false; } } catch (error) { console.error(`Error during ${actionType} reparation record:`, error); if (submitButton && !document.getElementById('addReparationModal')?.classList.contains('hidden')) submitButton.disabled = false; } }, formData ); }
+  function openConfirmDeleteReparationModal(id) { if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to delete.", "error", 0); return; } openGenericConfirmModal( "Confirm Deletion", `Are you sure you want to permanently delete reparation record ID: ${id}?`, "Delete", "trash-2", async (recordIdToDelete) => { const result = await apiRequest(`${REPARATION_API_ENDPOINT}${recordIdToDelete}`, 'DELETE'); if (result === true) { openInfoStatusModal("Success", `Reparation record ID: ${recordIdToDelete} deleted.`, "success"); await fetchAndRenderReparations(); } }, id ); }
 
-    const btnClasses = "px-3 py-1.5 text-sm rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-900 focus:ring-blue-500";
-    const itemClasses = "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700";
-    const disabledClasses = "bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed";
-    const prevButton = Object.assign(document.createElement('button'), {
-        innerHTML: `<i data-lucide="chevron-left" class="w-4 h-4 inline-block mr-1"></i> Prev`,
-        className: `${btnClasses} ${currentReparationPage === 1 ? disabledClasses : itemClasses}`,
-        disabled: currentReparationPage === 1,
-        onclick: () => { if(currentReparationPage > 1) {currentReparationPage--; fetchAndRenderReparations();} }
-    });
-    const pageInfo = Object.assign(document.createElement('span'), {
-        className: "px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400", textContent: `Page ${currentReparationPage}`
-    });
-    const nextButton = Object.assign(document.createElement('button'), {
-        innerHTML: `Next <i data-lucide="chevron-right" class="w-4 h-4 inline-block ml-1"></i>`,
-        className: `${btnClasses} ${!hasNextPage ? disabledClasses : itemClasses}`,
-        disabled: !hasNextPage,
-        onclick: () => { if(hasNextPage) {currentReparationPage++; fetchAndRenderReparations();} }
-    });
-    paginationContainer.append(prevButton, pageInfo, nextButton);
-    lucide.createIcons();
-  }
-
-  function openAddReparationModal() {
-    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to add a reparation record.", "error", 0); return; }
-    reparationToEditId = null;
-    document.getElementById('addReparationForm')?.reset();
-    document.getElementById('reparationModalTitle').textContent = "Add New Reparation";
-    document.getElementById('reparationSubmitButton').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4 mr-1"></i> Add Reparation`;
-    document.getElementById('reparationSubmitButton').disabled = false;
-    document.getElementById('reparation_repair_date_form').value = getISODateTimeString(new Date());
-    lucide.createIcons();
-    openModal('addReparationModal');
-  }
-
-  async function openEditReparationModal(id) {
-    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to edit.", "error", 0); return; }
-    const reparation = await apiRequest(`${REPARATION_API_ENDPOINT}${id}`);
-    if (!reparation) { openInfoStatusModal("Error","Could not fetch reparation details.", "error", 0); return; }
-    reparationToEditId = id;
-    document.getElementById('reparationModalTitle').textContent = "Edit Reparation Record";
-    document.getElementById('reparationSubmitButton').innerHTML = `<i data-lucide="save" class="w-4 h-4 mr-1"></i> Save Changes`;
-    document.getElementById('reparationSubmitButton').disabled = false;
-    document.getElementById('reparationId_form').value = reparation.id;
-    document.getElementById('reparation_panne_id_form').value = reparation.panne_id;
-    document.getElementById('reparation_garage_id_form').value = reparation.garage_id;
-    document.getElementById('reparation_repair_date_form').value = getISODateTimeString(new Date(reparation.repair_date));
-    document.getElementById('reparation_cost_form').value = reparation.cost != null ? reparation.cost.toFixed(2) : '';
-    document.getElementById('reparation_receipt_form').value = reparation.receipt || '';
-    document.getElementById('reparation_status_form').value = reparation.status;
-    lucide.createIcons();
-    openModal('addReparationModal');
-  }
-
-  async function openViewReparationModal(id) {
-    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to view.", "error", 0); return; }
-    const reparation = await apiRequest(`${REPARATION_API_ENDPOINT}${id}`);
-    if (!reparation) { openInfoStatusModal("Error", "Could not fetch reparation details.", "error", 0); return; }
-    const panneDisplay = reparation.panne ? (reparation.panne.description || `ID ${reparation.panne.id || reparation.panne_id}`) : `Panne ID ${reparation.panne_id}`;
-    const garageDisplay = reparation.garage ? (reparation.garage.nom_garage || `ID ${reparation.garage.id || reparation.garage_id}`) : `Garage ID ${reparation.garage_id}`;
-    document.getElementById('view-reparation-id').textContent = reparation.id;
-    document.getElementById('view-reparation-panne').textContent = panneDisplay;
-    document.getElementById('view-reparation-garage').textContent = garageDisplay;
-    document.getElementById('view-reparation-repair_date').textContent = new Date(reparation.repair_date).toLocaleString();
-    document.getElementById('view-reparation-cost').textContent = reparation.cost != null ? parseFloat(reparation.cost).toFixed(2) : 'N/A';
-    document.getElementById('view-reparation-receipt').textContent = reparation.receipt || 'N/A';
-    document.getElementById('view-reparation-status').textContent = reparation.status.charAt(0).toUpperCase() + reparation.status.slice(1).replace(/_/g, ' ');
-    openModal('viewReparationModal');
-  }
-
-  async function handleReparationFormSubmit(event) {
-    event.preventDefault();
-    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in.", "error", 0); return; }
-    const submitButton = document.getElementById('reparationSubmitButton');
-    if (submitButton.disabled) return;
-    submitButton.disabled = true;
-
-    const repairDateValue = document.getElementById('reparation_repair_date_form').value;
-    if (!repairDateValue) { openInfoStatusModal("Validation Error", "Repair Date is required.", "error", 0); submitButton.disabled = false; return; }
-    const repairDateTime = new Date(repairDateValue);
-    if (isNaN(repairDateTime.getTime())) { openInfoStatusModal("Validation Error", "Invalid Repair Date.", "error", 0); submitButton.disabled = false; return; }
-
-    const formData = {
-      panne_id: parseInt(document.getElementById('reparation_panne_id_form').value),
-      garage_id: parseInt(document.getElementById('reparation_garage_id_form').value),
-      repair_date: repairDateTime.toISOString(),
-      cost: parseFloat(document.getElementById('reparation_cost_form').value) || 0.0,
-      receipt: document.getElementById('reparation_receipt_form').value.trim(),
-      status: document.getElementById('reparation_status_form').value
-    };
-
-    if (!formData.panne_id || !formData.garage_id || !formData.receipt || !formData.status) {
-      openInfoStatusModal("Validation Error", "Panne, Garage, Receipt, and Status are required.", "error", 0); submitButton.disabled = false; return;
-    }
-    if (formData.cost < 0) {
-        openInfoStatusModal("Validation Error", "Cost cannot be negative.", "error", 0); submitButton.disabled = false; return;
-    }
-
-    const actionType = reparationToEditId ? "update" : "add";
-    openGenericConfirmModal( reparationToEditId ? "Confirm Update" : "Confirm Add Reparation",
-        `Are you sure you want to ${actionType} this reparation record?`,
-        reparationToEditId ? "Update" : "Add", reparationToEditId ? "save" : "plus-circle",
-        async (data) => {
-            try {
-                const result = reparationToEditId
-                    ? await apiRequest(`${REPARATION_API_ENDPOINT}${reparationToEditId}`, 'PUT', data)
-                    : await apiRequest(REPARATION_API_ENDPOINT, 'POST', data);
-                if (result) {
-                    openInfoStatusModal("Success", `Reparation record ${actionType}ed successfully!`, "success");
-                    closeAddReparationModal();
-                    await fetchAndRenderReparations();
-                } else if (submitButton && !document.getElementById('addReparationModal')?.classList.contains('hidden')) {
-                    submitButton.disabled = false;
-                }
-            } catch (error) {
-                console.error(`Error during ${actionType} reparation record:`, error);
-                 if (submitButton && !document.getElementById('addReparationModal')?.classList.contains('hidden')) submitButton.disabled = false;
-            }
-        }, formData
-    );
-  }
-
-  function openConfirmDeleteReparationModal(id) {
-      if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to delete.", "error", 0); return; }
-      openGenericConfirmModal( "Confirm Deletion", `Are you sure you want to permanently delete reparation record ID: ${id}?`, "Delete", "trash-2",
-        async (recordIdToDelete) => {
-            const result = await apiRequest(`${REPARATION_API_ENDPOINT}${recordIdToDelete}`, 'DELETE');
-            if (result === true) {
-                openInfoStatusModal("Success", `Reparation record ID: ${recordIdToDelete} deleted.`, "success");
-                if(allReparations.length === 1 && currentReparationPage > 1) currentReparationPage--;
-                await fetchAndRenderReparations();
-            }
-        }, id
-      );
-  }
-
+  // --- Export Functions ---
   async function getReparationsForExport() {
-    let queryParams = `limit=10000`;
+    let queryParams = `limit=200`; // Use a valid, high limit for export
     const searchTerm = document.getElementById('reparationSearch').value;
     if (searchTerm) queryParams += `&search=${encodeURIComponent(searchTerm)}`;
     if (activeReparationStatusFilter) queryParams += `&status_filter=${encodeURIComponent(activeReparationStatusFilter)}`;
@@ -939,8 +679,8 @@
         }
         const data = recordsToExport.map(rep => ({
             ID: rep.id,
-            'Panne Info': rep.panne ? (rep.panne.description || `ID ${rep.panne.id || rep.panne_id}`) : `Panne ID ${rep.panne_id}`,
-            'Garage Name': rep.garage ? (rep.garage.nom_garage || `ID ${rep.garage.id || rep.garage_id}`) : `Garage ID ${rep.garage_id}`,
+            'Panne Info': rep.panne ? (rep.panne.description || `ID ${rep.panne_id}`) : `Panne ID ${rep.panne_id}`,
+            'Garage Name': rep.garage ? (rep.garage.nom_garage || `ID ${rep.garage_id}`) : `Garage ID ${rep.garage_id}`,
             'Repair Date': new Date(rep.repair_date).toLocaleString(),
             Cost: rep.cost != null ? parseFloat(rep.cost).toFixed(2) : '0.00',
             Receipt: rep.receipt,
@@ -973,11 +713,11 @@
         const headers = [['ID', 'Panne', 'Garage', 'Repair Date', 'Cost', 'Receipt', 'Status']];
         const data = recordsToExport.map(rep => [
             rep.id,
-            rep.panne ? ((rep.panne.description || `ID ${rep.panne.id || rep.panne_id}`).substring(0,30) + ( (rep.panne.description || "").length > 30 ? "..." : "")) : `Panne ID ${rep.panne_id}`,
-            rep.garage ? ((rep.garage.nom_garage || `ID ${rep.garage.id || rep.garage_id}`).substring(0,30) + ( (rep.garage.nom_garage || "").length > 30 ? "..." : "")): `Garage ID ${rep.garage_id}`,
+            (rep.panne?.description || `ID ${rep.panne_id}`).substring(0, 30),
+            (rep.garage?.nom_garage || `ID ${rep.garage_id}`).substring(0, 30),
             new Date(rep.repair_date).toLocaleDateString(),
             rep.cost != null ? parseFloat(rep.cost).toFixed(2) : '0.00',
-            (rep.receipt || "").substring(0,30) + ( (rep.receipt || "").length > 30 ? "..." : ""),
+            (rep.receipt || "").substring(0, 30),
             rep.status
         ]);
         doc.autoTable({
@@ -985,7 +725,7 @@
             headStyles:{fillColor:[66, 135, 245], textColor:255},
              columnStyles: {
                 0: { cellWidth: 15 }, 1: { cellWidth: 45 }, 2: { cellWidth: 45 },
-                3: { cellWidth: 30 }, 4: { cellWidth: 20 }, 5: { cellWidth: 40 },
+                3: { cellWidth: 30 }, 4: { cellWidth: 20, halign: 'right' }, 5: { cellWidth: 40 },
                 6: { cellWidth: 25 }
             }
         });

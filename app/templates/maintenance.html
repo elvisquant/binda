@@ -71,7 +71,7 @@
           <i data-lucide="droplet" class="w-5 h-5"></i><a href="fuel">Fuel</a>
         </li>
         <li id="maintenance-nav-link" class="flex items-center space-x-3 text-blue-600 dark:text-blue-400 font-semibold bg-blue-50 dark:bg-gray-700 p-2 rounded-md transition-colors">
-          <i data-lucide="tool" class="w-5 h-5"></i><a href="maintenance">Maintenance</a>
+          <i data-lucide="settings" class="w-5 h-5"></i><a href="maintenance">Maintenance</a>
         </li>
         <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
           <i data-lucide="route" class="w-5 h-5"></i><a href="trip">Trip</a>
@@ -180,15 +180,31 @@
         </main>
 
         <!-- Right Sidebar -->
-        <aside class="w-1/5 bg-white dark:bg-gray-800 p-4 space-y-6 shadow-md hidden lg:block flex-shrink-0 overflow-y-auto border-l dark:border-gray-700">
+         <aside class="w-1/5 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden lg:block flex-shrink-0 border-l dark:border-gray-700 overflow-y-auto">
             <div class="flex justify-end items-center">
-              <div>
-                  <div class="text-sm font-semibold text-right" id="userDisplayNameRightSidebar">User</div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400 text-right">Admin</div>
-              </div>
+                <div class="text-right">
+                    <div class="text-sm font-semibold text-gray-800 dark:text-white" id="userDisplayNameRightSidebar">User</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">Fleet Analyst</div>
+                </div>
+                <img src="https://i.pravatar.cc/40?u=analyst_jane_doe" alt="Analyst" class="w-10 h-10 rounded-full ml-2 object-cover">
             </div>
-            <div><h4 class="font-bold mb-4 text-lg">Recent Updates</h4><div class="flex flex-col space-y-6 relative"><div class="absolute left-5 top-0 bottom-0 w-0.5 bg-blue-500"></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">New maintenance logged</p><p class="text-sm text-gray-500 dark:text-gray-400">1 minute ago</p></div></div><div class="flex items-start space-x-4 relative"><div class="w-3 h-3 bg-blue-500 rounded-full z-10 mt-1.5 ml-4"></div><div class="ml-2"><p class="font-medium">Vehicle status updated</p><p class="text-sm text-gray-500 dark:text-gray-400">5 minutes ago</p></div></div></div></div>
-            <div class="mt-8"><h4 class="font-bold mb-4 text-lg">Quick Actions</h4><div class="grid grid-cols-2 gap-2"><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="file-plus-2" class="w-5 h-5 mb-1"></i><span class="text-xs">New Report</span></button><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="sliders-horizontal" class="w-5 h-5 mb-1"></i><span class="text-xs">Filters</span></button><button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="help-circle" class="w-5 h-5 mb-1"></i><span class="text-xs">Help</span></button><button id="quick-logout-btn" class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="log-out" class="w-5 h-5 mb-1"></i><span class="text-xs">Logout</span></button></div></div>
+            <hr class="dark:border-gray-700/50">
+            <div>
+                <h4 class="font-semibold mb-3 text-gray-700 dark:text-gray-200">Key Performance Insights</h4>
+                <ul id="keyPerformanceInsightsList" class="text-xs space-y-2.5 text-gray-600 dark:text-gray-300">
+                    <li class="flex items-start space-x-2"><i data-lucide="loader-2" class="w-4 h-4 text-gray-400 animate-spin mt-0.5 shrink-0"></i><span>Loading insights...</span></li>
+                </ul>
+            </div>
+            <hr class="dark:border-gray-700/50">
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <h4 class="font-semibold text-gray-700 dark:text-gray-200">Alerts & Notifications</h4>
+                    <a href="#" id="viewAllNotificationsLink" class="text-xs text-primary dark:text-primary-light hover:underline">View All (<span id="notificationCount">0</span>)</a>
+                </div>
+                <div id="notificationsList" class="space-y-3 max-h-40 overflow-y-auto pr-1">
+                     <div class="flex items-start space-x-2 p-2.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><i data-lucide="loader-2" class="w-5 h-5 text-gray-400 animate-spin mt-0.5 flex-shrink-0"></i><p class="text-xs text-gray-700 dark:text-gray-300">Loading alerts...</p></div>
+                </div>
+            </div>
         </aside>
       </div>
     </div>
@@ -321,7 +337,7 @@
 
 
 <script>
-   const API_BASE_URL = '';
+  const API_BASE_URL = '';
   const LOGIN_PAGE_URL = '/login';
 
   // --- Authentication Helper ---
@@ -340,11 +356,8 @@
         if (token) {
             const decoded = parseJwt(token);
             userDisplayElement.textContent = (decoded && decoded.sub) ? decoded.sub : 'User (Authenticated)';
-            // If you have role display elements in header/sidebar, update them here too
-            // e.g., document.getElementById('userRoleDisplayHeader').textContent = decoded.role || 'User';
         } else {
             userDisplayElement.textContent = 'Guest';
-            // e.g., document.getElementById('userRoleDisplayHeader').textContent = '';
         }
     });
   }
@@ -352,12 +365,13 @@
   async function apiRequest(endpoint, method = 'GET', body = null) {
     const token = getAuthToken();
     const headers = { 'Content-Type': 'application/json' };
-    const publicEndpoints = ['/category_maintenance/', '/garage/', '/vehicle/'];
-    const isPublic = publicEndpoints.some(publicEp => endpoint.startsWith(publicEp) && method === 'GET');
-
-    if (token && !isPublic) headers['Authorization'] = `Bearer ${token}`;
-    else if (!token && !isPublic && !endpoint.startsWith('/login')) { console.warn(`WARN: Protected endpoint ${endpoint} called without token.`); }
-
+    
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    } else {
+        console.warn(`WARN: Protected endpoint ${endpoint} called without token.`);
+    }
+    
     const config = { method, headers };
     if (body) config.body = JSON.stringify(body);
 
@@ -366,7 +380,7 @@
       const responseForJson = response.clone();
       const responseForText = response.clone();
 
-      if (response.status === 401 && !isPublic && !endpoint.endsWith('/login/')) {
+      if (response.status === 401) {
         openInfoStatusModal("Authentication Error", "Session expired or unauthorized. Please log in again.", "error", 5000);
         return null;
       }
@@ -384,9 +398,7 @@
       if (!response.ok) {
         const errorDetail = responseData.detail || (typeof responseData === 'object' ? JSON.stringify(responseData) : responseData) || 'Unknown error from server.';
         console.error(`API Error for ${endpoint}: ${response.status}`, errorDetail);
-        if (!(response.status === 401 && endpoint.endsWith('/login/'))) {
-            openInfoStatusModal(`API Error: ${response.status}`, errorDetail, "error");
-        }
+        openInfoStatusModal(`API Error: ${response.status}`, errorDetail, "error");
         return null;
       }
       return responseData;
@@ -403,15 +415,12 @@
   const maintenancesPerPage = 5;
   let currentMaintenancePage = 1;
   let maintenanceToEditId = null;
-
   let activeMaintenanceDateFilter = 'all';
   let customMaintenanceFilterStartDate = null;
   let customMaintenanceFilterEndDate = null;
-
   let allMaintenanceCategories = [];
   let allVehiclesForDropdown = [];
   let allGaragesForDropdown = [];
-
   let currentConfirmAction = null;
   let currentActionData = null;
   let infoStatusModalTimeout = null;
@@ -444,13 +453,102 @@
   const themeToggleButton = document.getElementById('theme-toggle-header');
   function setInitialThemeIcon() {
     if (themeToggleButton) {
-        if (document.documentElement.classList.contains('dark')) {
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
             themeToggleButton.innerHTML = '<i data-lucide="sun" class="w-5 h-5"></i>';
         } else {
+            document.documentElement.classList.remove('dark');
             themeToggleButton.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>';
         }
         lucide.createIcons();
     }
+  }
+
+  function toggleTheme() {
+    if (document.documentElement.classList.contains('dark')) {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+    } else {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+    }
+    setInitialThemeIcon();
+  }
+
+  // --- Right Sidebar Widget Functions ---
+  async function fetchAndDisplayPerformanceInsights() {
+      const insightsList = document.getElementById('keyPerformanceInsightsList');
+      if (!insightsList) return;
+
+      insightsList.innerHTML = `<li class="flex items-start space-x-2"><i data-lucide="loader-2" class="w-4 h-4 text-gray-400 animate-spin mt-0.5 shrink-0"></i><span>Loading insights...</span></li>`;
+      lucide.createIcons();
+
+      const data = await apiRequest('/dashboard-data/performance-insights');
+      if (!data) {
+          insightsList.innerHTML = `<li class="flex items-start space-x-2 text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 shrink-0"></i><span>Failed to load insights.</span></li>`;
+          lucide.createIcons();
+          return;
+      }
+
+      let insightsHTML = '';
+      const { fuel_efficiency, maintenance_compliance } = data;
+      if (fuel_efficiency) {
+          let trendColor = 'text-gray-500 dark:text-gray-400';
+          let trendText = 'steady';
+          if (fuel_efficiency.trend === 'up') {
+              trendColor = 'text-green-500';
+              trendText = 'improving';
+          } else if (fuel_efficiency.trend === 'down') {
+              trendColor = 'text-red-500';
+              trendText = 'worsening';
+          }
+          const percentageText = fuel_efficiency.percentage_change !== null ? `(${fuel_efficiency.percentage_change > 0 ? '+' : ''}${fuel_efficiency.percentage_change}%)` : '(No prior data)';
+          insightsHTML += `<li class="flex items-start space-x-2"><i data-lucide="droplet" class="w-4 h-4 text-blue-500 mt-0.5 shrink-0"></i><div><span>Fuel Efficiency is <span class="${trendColor} font-semibold">${trendText}</span>.</span><span class="block text-gray-400 dark:text-gray-500 text-xs">Consumption vs last month ${percentageText}.</span></div></li>`;
+      }
+      if (maintenance_compliance) {
+          insightsHTML += `<li class="flex items-start space-x-2"><i data-lucide="wrench" class="w-4 h-4 text-yellow-500 mt-0.5 shrink-0"></i><div><span><span class="font-semibold">${maintenance_compliance.total_maintenance_records}</span> maintenance records logged.</span><span class="block text-gray-400 dark:text-gray-500 text-xs">Total historical tasks.</span></div></li>`;
+      }
+      insightsList.innerHTML = insightsHTML || `<li>No performance data available.</li>`;
+      lucide.createIcons();
+  }
+
+  async function fetchAndDisplayAlerts() {
+      const alertsList = document.getElementById('notificationsList');
+      const notificationCountSpan = document.getElementById('notificationCount');
+      if (!alertsList || !notificationCountSpan) return;
+
+      alertsList.innerHTML = `<div class="flex items-start space-x-2 p-2.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><i data-lucide="loader-2" class="w-5 h-5 text-gray-400 animate-spin mt-0.5 flex-shrink-0"></i><p class="text-xs text-gray-700 dark:text-gray-300">Loading alerts...</p></div>`;
+      lucide.createIcons();
+
+      const data = await apiRequest('/dashboard-data/alerts');
+      if (!data) {
+          alertsList.innerHTML = `<div class="flex items-start space-x-2 text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 shrink-0"></i><p class="text-xs">Failed to load alerts.</p></div>`;
+          notificationCountSpan.textContent = '0';
+          lucide.createIcons();
+          return;
+      }
+
+      notificationCountSpan.textContent = data.total_alerts || '0';
+      let alertsHTML = '';
+      const createAlertItemHTML = (alert, icon, colorClass) => {
+          if (!alert) return '';
+          return `<div class="flex items-start space-x-2 p-2.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><i data-lucide="${icon}" class="w-5 h-5 ${colorClass} mt-0.5 flex-shrink-0"></i><div><p class="text-xs font-semibold text-gray-800 dark:text-gray-200">${alert.plate_number}</p><p class="text-xs text-gray-600 dark:text-gray-300">${alert.message}</p></div></div>`;
+      };
+      alertsHTML += createAlertItemHTML(data.critical_panne, 'shield-alert', 'text-red-500');
+      alertsHTML += createAlertItemHTML(data.maintenance_alert, 'calendar-clock', 'text-blue-500');
+      alertsHTML += createAlertItemHTML(data.trip_alert, 'route', 'text-purple-500');
+      if (data.total_alerts === 0) {
+          alertsHTML = `<div class="flex items-center justify-center text-center p-4"><div class="text-gray-500 dark:text-gray-400"><i data-lucide="check-circle" class="w-8 h-8 mx-auto mb-2 text-green-500"></i><p class="text-xs">All clear! No new alerts.</p></div></div>`;
+      }
+      alertsList.innerHTML = alertsHTML;
+      lucide.createIcons();
+  }
+  
+  async function initializeDashboardWidgets() {
+      await Promise.all([
+          fetchAndDisplayPerformanceInsights(),
+          fetchAndDisplayAlerts()
+      ]);
   }
 
   // --- MODAL CONTROL FUNCTIONS ---
@@ -462,17 +560,26 @@
     const submitButton = document.getElementById('maintenanceSubmitButton');
     if (submitButton) submitButton.disabled = false; 
   }
+
   function closeViewMaintenanceModal() {
-    document.getElementById('viewMaintenanceModal').classList.add('hidden'); document.body.style.overflow = '';
+    document.getElementById('viewMaintenanceModal').classList.add('hidden');
+    document.body.style.overflow = '';
   }
+
   function closeGenericConfirmModal() {
     document.getElementById('genericConfirmModal').classList.add('hidden');
     document.body.style.overflow = '';
-    currentConfirmAction = null; currentActionData = null;
+    currentConfirmAction = null;
+    currentActionData = null;
   }
+
   function closeInfoStatusModal() {
-    if (infoStatusModalTimeout) { clearTimeout(infoStatusModalTimeout); infoStatusModalTimeout = null; }
-    document.getElementById('infoStatusModal').classList.add('hidden'); document.body.style.overflow = '';
+    if (infoStatusModalTimeout) {
+        clearTimeout(infoStatusModalTimeout);
+        infoStatusModalTimeout = null;
+    }
+    document.getElementById('infoStatusModal').classList.add('hidden');
+    document.body.style.overflow = '';
   }
 
   function openGenericConfirmModal(title, message, confirmButtonText, confirmButtonIcon, onConfirmCallback, actionData = null) {
@@ -488,8 +595,10 @@
         confirmBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
     }
     lucide.createIcons();
-    currentConfirmAction = onConfirmCallback; currentActionData = actionData;
-    document.getElementById('genericConfirmModal').classList.remove('hidden'); document.body.style.overflow = 'hidden';
+    currentConfirmAction = onConfirmCallback;
+    currentActionData = actionData;
+    document.getElementById('genericConfirmModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
   }
 
   function openInfoStatusModal(title, message, type = 'success', autoCloseDelay = 3000) {
@@ -499,7 +608,8 @@
     const iconContainer = document.getElementById('infoStatusModalIconContainer');
     const okButton = document.getElementById('infoStatusModalOkButton');
 
-    titleEl.textContent = title; messageEl.textContent = message;
+    titleEl.textContent = title;
+    messageEl.textContent = message;
     if (infoStatusModalTimeout) clearTimeout(infoStatusModalTimeout);
     iconContainer.innerHTML = '';
     let iconName = 'info', iconColorClass = 'text-blue-600', bgColorClass = 'bg-blue-100', btnClass = 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500';
@@ -513,7 +623,8 @@
     iconContainer.innerHTML = `<i data-lucide="${iconName}" class="h-6 w-6 ${iconColorClass}"></i>`;
     okButton.className = `inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white ${btnClass} focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm`;
     lucide.createIcons();
-    modal.classList.remove('hidden'); document.body.style.overflow = 'hidden';
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
     if (autoCloseDelay > 0) {
         infoStatusModalTimeout = setTimeout(() => { closeInfoStatusModal(); }, autoCloseDelay);
     }
@@ -524,10 +635,7 @@
       lucide.createIcons();
       updateUserInfoDisplay();
       
-      themeToggleButton?.addEventListener('click', () => {
-        document.documentElement.classList.toggle('dark');
-        setInitialThemeIcon(); 
-      });
+      themeToggleButton?.addEventListener('click', toggleTheme);
       setInitialThemeIcon();
 
       mobileMenuButton?.addEventListener('click', openMobileMenu);
@@ -535,12 +643,11 @@
       sidebarOverlay?.addEventListener('click', closeMobileMenu);
        document.querySelectorAll('#sidebar nav a').forEach(link => {
           link.addEventListener('click', () => {
-              if (window.innerWidth < 768) { // md breakpoint
+              if (window.innerWidth < 768) {
                   closeMobileMenu();
               }
           });
       });
-
 
       document.getElementById('addMaintenanceModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeAddMaintenanceModal(); });
       document.getElementById('viewMaintenanceModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeViewMaintenanceModal(); });
@@ -580,12 +687,16 @@
           e.preventDefault();
           localStorage.removeItem('accessToken');
           openInfoStatusModal('Logged Out', 'You have been successfully logged out.', 'success', 2500);
-          updateUserInfoDisplay(); allMaintenances = [];
-          fetchAndRenderMaintenances(); 
+          updateUserInfoDisplay();
+          allMaintenances = [];
+          fetchAndRenderMaintenances();
+          document.getElementById('keyPerformanceInsightsList').innerHTML = `<li class="flex items-start space-x-2 text-gray-500"><i data-lucide="log-in" class="w-4 h-4 mt-0.5 shrink-0"></i><span>Please log in to see insights.</span></li>`;
+          document.getElementById('notificationsList').innerHTML = `<div class="flex items-start space-x-2 text-gray-500 p-2.5"><i data-lucide="log-in" class="w-5 h-5 mt-0.5 shrink-0"></i><p class="text-xs">Please log in to see alerts.</p></div>`;
+          document.getElementById('notificationCount').textContent = '0';
+          lucide.createIcons();
       };
       document.getElementById('global-logout-btn')?.addEventListener('click', handleLogout);
-      document.getElementById('quick-logout-btn')?.addEventListener('click', handleLogout);
-
+      
       document.getElementById('openAddMaintenanceModalButton')?.addEventListener('click', openAddMaintenanceModal);
       document.getElementById('exportExcelButton')?.addEventListener('click', exportMaintenancesExcel);
       document.getElementById('exportPdfButton')?.addEventListener('click', exportMaintenancesPDF);
@@ -619,14 +730,22 @@
   // --- Initialization & Dropdown Population ---
   async function initializeMaintenanceSection() {
     await populateLookupData(); 
-    await fetchAndRenderMaintenances(); 
+    await fetchAndRenderMaintenances();
+    if (getAuthToken()) {
+      await initializeDashboardWidgets();
+    }
     setActiveMaintenanceDateFilterButton('all');
   }
 
   async function populateLookupData() {
-    allMaintenanceCategories = await apiRequest('/category_maintenance/?limit=200') || [];
-    allVehiclesForDropdown = await apiRequest('/vehicle/?limit=1000') || [];
-    allGaragesForDropdown = await apiRequest('/garage/?limit=200') || [];
+    [allMaintenanceCategories, allVehiclesForDropdown, allGaragesForDropdown] = await Promise.all([
+      apiRequest('/category_maintenance/?limit=200'),
+      apiRequest('/vehicle/?limit=1000'),
+      apiRequest('/garage/?limit=200')
+    ]);
+    allMaintenanceCategories = allMaintenanceCategories || [];
+    allVehiclesForDropdown = allVehiclesForDropdown || [];
+    allGaragesForDropdown = allGaragesForDropdown || [];
     populateMaintenanceDropdowns();
   }
 
@@ -637,12 +756,17 @@
         (data || []).forEach(item => {
             const option = document.createElement('option');
             option.value = item[valueField];
+            let textContent = '';
             if (textField.includes('+')) {
                 const fields = textField.split('+').map(f => f.trim());
-                option.textContent = fields.map(f => item[f] || 'N/A').join(' ') + (item.plate_number ? ` (${item.plate_number})` : '');
+                textContent = fields.map(f => item[f] || '').join(' ').trim();
+                if (item.plate_number) {
+                    textContent += ` (${item.plate_number})`;
+                }
             } else {
-                option.textContent = item[textField] || `ID: ${item[valueField]}`;
+                textContent = item[textField] || `ID: ${item[valueField]}`;
             }
+            option.textContent = textContent;
             select.appendChild(option);
         });
     };
@@ -653,9 +777,13 @@
 
   // --- Filter Logic ---
   function applyMaintenanceDateFilter(filterType) {
-    activeMaintenanceDateFilter = filterType; customMaintenanceFilterStartDate = null; customMaintenanceFilterEndDate = null;
+    activeMaintenanceDateFilter = filterType;
+    customMaintenanceFilterStartDate = null;
+    customMaintenanceFilterEndDate = null;
     document.getElementById('maintenanceCustomDateRange').classList.add('hidden');
-    setActiveMaintenanceDateFilterButton(filterType); currentMaintenancePage = 1; renderMaintenancesTable();
+    setActiveMaintenanceDateFilterButton(filterType);
+    currentMaintenancePage = 1;
+    renderMaintenancesTable();
   }
   function toggleMaintenanceCustomDateRange() {
     document.getElementById('maintenanceCustomDateRange').classList.toggle('hidden');
@@ -670,8 +798,12 @@
     const endDate = document.getElementById('maintenanceCustomEndDate').value;
     if (!startDate || !endDate) { openInfoStatusModal("Input Error","Please select both start and end dates.", "error"); return; }
     if (new Date(startDate) > new Date(endDate)) { openInfoStatusModal("Input Error", "Start date cannot be after end date.", "error"); return; }
-    activeMaintenanceDateFilter = 'custom'; customMaintenanceFilterStartDate = startDate; customMaintenanceFilterEndDate = endDate;
-    setActiveMaintenanceDateFilterButton('maintenance-filter-custom-btn'); currentMaintenancePage = 1; renderMaintenancesTable();
+    activeMaintenanceDateFilter = 'custom';
+    customMaintenanceFilterStartDate = startDate;
+    customMaintenanceFilterEndDate = endDate;
+    setActiveMaintenanceDateFilterButton('maintenance-filter-custom-btn');
+    currentMaintenancePage = 1;
+    renderMaintenancesTable();
   }
   function setActiveMaintenanceDateFilterButton(filterId) {
     document.querySelectorAll('#maintenance-section .date-filter-btn').forEach(btn => btn.classList.remove('active'));
@@ -681,26 +813,21 @@
 
   // --- CRUD & Table Rendering ---
   async function fetchAndRenderMaintenances(options = {}) {
-    if (!getAuthToken() && !options.isInitialLoadForGuest) { 
+    if (!getAuthToken()) { 
         allMaintenances = []; 
         renderMaintenancesTable(); 
         return;
     }
 
-    const data = await apiRequest(`/maintenance/?limit=10000&skip=0`);
+    const data = await apiRequest(`/maintenance/?limit=10000`);
     allMaintenances = Array.isArray(data) ? data : [];
 
     const totalPages = Math.ceil(allMaintenances.length / maintenancesPerPage);
 
     if (options.goToLastPage) {
         currentMaintenancePage = totalPages > 0 ? totalPages : 1;
-    } else {
-        if (currentMaintenancePage > totalPages) {
-            currentMaintenancePage = totalPages > 0 ? totalPages : 1;
-        }
-        if (allMaintenances.length === 0) {
-            currentMaintenancePage = 1;
-        }
+    } else if (currentMaintenancePage > totalPages) {
+        currentMaintenancePage = totalPages > 0 ? totalPages : 1;
     }
     renderMaintenancesTable();
   }
@@ -729,10 +856,10 @@
     const searchTerm = document.getElementById('maintenanceSearch').value.toLowerCase();
     if (searchTerm) {
       recordsToDisplay = recordsToDisplay.filter(m => {
-        const cat = (allMaintenanceCategories.find(c => c.id === m.cat_maintenance_id)?.cat_maintenance.toLowerCase()) || '';
-        const veh = allVehiclesForDropdown.find(v => v.id === m.vehicle_id);
-        const vehText = veh ? `${veh.make||''} ${veh.model||''} ${veh.plate_number||''}`.toLowerCase() : '';
-        const gar = (allGaragesForDropdown.find(g => g.id === m.garage_id)?.nom_garage.toLowerCase()) || '';
+        const cat = m.category_maintenance?.cat_maintenance.toLowerCase() || '';
+        const veh = m.vehicle;
+        const vehText = veh ? `${veh.make_ref?.vehicle_make||''} ${veh.model_ref?.vehicle_model||''} ${veh.plate_number||''}`.toLowerCase() : '';
+        const gar = m.garage?.nom_garage.toLowerCase() || '';
         const receipt = m.receipt ? m.receipt.toLowerCase() : '';
         return (m.id.toString().includes(searchTerm)) || cat.includes(searchTerm) || vehText.includes(searchTerm) ||
                (m.maintenance_cost.toString().includes(searchTerm)) || receipt.includes(searchTerm) || gar.includes(searchTerm);
@@ -744,10 +871,10 @@
     const maintenancesBody = document.getElementById('maintenancesBody');
 
     maintenancesBody.innerHTML = paginatedRecords.length > 0 ? paginatedRecords.map(m => {
-      const catName = (allMaintenanceCategories.find(c => c.id === m.cat_maintenance_id)?.cat_maintenance) || `Cat.ID ${m.cat_maintenance_id}`;
-      const veh = allVehiclesForDropdown.find(v => v.id === m.vehicle_id);
-      const vehName = veh ? `${veh.make||'N/A'} ${veh.model||'N/A'} (${veh.plate_number||'N/A'})` : `Veh.ID ${m.vehicle_id}`;
-      const garName = (allGaragesForDropdown.find(g => g.id === m.garage_id)?.nom_garage) || `Gar.ID ${m.garage_id}`;
+      const catName = m.category_maintenance?.cat_maintenance || `Cat.ID ${m.cat_maintenance_id}`;
+      const veh = m.vehicle;
+      const vehName = veh ? `${veh.make_ref?.vehicle_make||'N/A'} ${veh.model_ref?.vehicle_model||'N/A'} (${veh.plate_number||'N/A'})` : `Veh.ID ${m.vehicle_id}`;
+      const garName = m.garage?.nom_garage || `Gar.ID ${m.garage_id}`;
       return `<tr class="border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50" data-id="${m.id}">
                 <td class="py-3 px-2">${m.id}</td>
                 <td class="px-2">${catName}</td>
@@ -775,14 +902,13 @@
 
     const btnClasses = "px-3 py-1.5 text-sm rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-900 focus:ring-blue-500";
     const itemClasses = "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700";
-    const activeClasses = "bg-blue-500 text-white border border-blue-500 hover:bg-blue-600";
     const disabledClasses = "bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed";
 
-    const createButton = (text, lucideIcon, pageNum, isDisabled = false, isActive = false) => {
+    const createButton = (text, lucideIcon, pageNum, isDisabled = false) => {
         const button = document.createElement('button');
         if (lucideIcon) button.innerHTML = `<i data-lucide="${lucideIcon}" class="w-4 h-4 inline-block mr-1"></i> `;
         button.appendChild(document.createTextNode(text));
-        button.className = `${btnClasses} ${isDisabled ? disabledClasses : (isActive ? activeClasses : itemClasses)}`;
+        button.className = `${btnClasses} ${isDisabled ? disabledClasses : itemClasses}`;
         if (!isDisabled) button.onclick = () => { currentMaintenancePage = pageNum; renderMaintenancesTable(); }; 
         else button.disabled = true;
         return button;
@@ -835,10 +961,10 @@
     if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to view records.", "error"); return; }
     const m = await apiRequest(`/maintenance/${id}`);
     if (!m) { openInfoStatusModal("Error", "Could not fetch record details.", "error"); return; }
-    const catName = (allMaintenanceCategories.find(c => c.id === m.cat_maintenance_id)?.cat_maintenance) || `Cat.ID ${m.cat_maintenance_id}`;
-    const veh = allVehiclesForDropdown.find(v => v.id === m.vehicle_id);
-    const vehName = veh ? `${veh.make||'N/A'} ${veh.model||'N/A'} (${veh.plate_number||'N/A'})` : `Veh.ID ${m.vehicle_id}`;
-    const garName = (allGaragesForDropdown.find(g => g.id === m.garage_id)?.nom_garage) || `Gar.ID ${m.garage_id}`;
+    const catName = m.category_maintenance?.cat_maintenance || `Cat.ID ${m.cat_maintenance_id}`;
+    const veh = m.vehicle;
+    const vehName = veh ? `${veh.make_ref?.vehicle_make||'N/A'} ${veh.model_ref?.vehicle_model||'N/A'} (${veh.plate_number||'N/A'})` : `Veh.ID ${m.vehicle_id}`;
+    const garName = m.garage?.nom_garage || `Gar.ID ${m.garage_id}`;
 
     document.getElementById('view-maintenance-id').textContent = m.id;
     document.getElementById('view-maintenance-category').textContent = catName;
@@ -948,10 +1074,10 @@
     const searchTerm = document.getElementById('maintenanceSearch').value.toLowerCase();
     if (searchTerm) {
       recordsToExport = recordsToExport.filter(m => {
-        const cat = (allMaintenanceCategories.find(c => c.id === m.cat_maintenance_id)?.cat_maintenance.toLowerCase()) || '';
-        const veh = allVehiclesForDropdown.find(v => v.id === m.vehicle_id);
-        const vehText = veh ? `${veh.make||''} ${veh.model||''} ${veh.plate_number||''}`.toLowerCase() : '';
-        const gar = (allGaragesForDropdown.find(g => g.id === m.garage_id)?.nom_garage.toLowerCase()) || '';
+        const cat = m.category_maintenance?.cat_maintenance.toLowerCase() || '';
+        const veh = m.vehicle;
+        const vehText = veh ? `${veh.make_ref?.vehicle_make||''} ${veh.model_ref?.vehicle_model||''} ${veh.plate_number||''}`.toLowerCase() : '';
+        const gar = m.garage?.nom_garage.toLowerCase() || '';
         const receipt = m.receipt ? m.receipt.toLowerCase() : '';
         return (m.id.toString().includes(searchTerm)) || cat.includes(searchTerm) || vehText.includes(searchTerm) ||
                (m.maintenance_cost.toString().includes(searchTerm)) || receipt.includes(searchTerm) || gar.includes(searchTerm);
@@ -965,11 +1091,11 @@
     if (records.length === 0) { openInfoStatusModal("Info", "No data to export based on current filters.", "info"); return; }
     const data = records.map(m => ({
         ID: m.id,
-        Category: (allMaintenanceCategories.find(c => c.id === m.cat_maintenance_id)?.cat_maintenance) || `Cat.ID ${m.cat_maintenance_id}`,
-        Vehicle: ((v=allVehiclesForDropdown.find(ve=>ve.id===m.vehicle_id)) => v ? `${v.make||'N/A'} ${v.model||'N/A'} (${v.plate_number||'N/A'})` : `Veh.ID ${m.vehicle_id}`)(),
+        Category: m.category_maintenance?.cat_maintenance || `Cat.ID ${m.cat_maintenance_id}`,
+        Vehicle: m.vehicle ? `${m.vehicle.make_ref?.vehicle_make||'N/A'} ${m.vehicle.model_ref?.vehicle_model||'N/A'} (${m.vehicle.plate_number||'N/A'})` : `Veh.ID ${m.vehicle_id}`,
         Cost: parseFloat(m.maintenance_cost).toFixed(2),
         Receipt: m.receipt,
-        Garage: (allGaragesForDropdown.find(g => g.id === m.garage_id)?.nom_garage) || `Gar.ID ${m.garage_id}`,
+        Garage: m.garage?.nom_garage || `Gar.ID ${m.garage_id}`,
         'Maintenance Date': new Date(m.maintenance_date).toLocaleDateString(),
         'Created At': new Date(m.created_at).toLocaleString()
     }));
@@ -988,11 +1114,11 @@
     const headers = [['ID', 'Category', 'Vehicle (Plate)', 'Cost ($)', 'Receipt (Ref)', 'Garage', 'Maint. Date']];
     const data = records.map(m => [
         m.id,
-        (allMaintenanceCategories.find(c => c.id === m.cat_maintenance_id)?.cat_maintenance) || `Cat.ID ${m.cat_maintenance_id}`,
-        (allVehiclesForDropdown.find(v => v.id === m.vehicle_id)?.plate_number) || `Veh.ID ${m.vehicle_id}`,
+        m.category_maintenance?.cat_maintenance || `Cat.ID ${m.cat_maintenance_id}`,
+        m.vehicle?.plate_number || `Veh.ID ${m.vehicle_id}`,
         parseFloat(m.maintenance_cost).toFixed(2),
         m.receipt ? m.receipt.substring(0,20)+(m.receipt.length > 20 ? '...' : '') : 'N/A',
-        (allGaragesForDropdown.find(g => g.id === m.garage_id)?.nom_garage) || `Gar.ID ${m.garage_id}`,
+        m.garage?.nom_garage || `Gar.ID ${m.garage_id}`,
         new Date(m.maintenance_date).toLocaleDateString()
     ]);
     doc.autoTable({ head: headers, body: data, startY: 25, theme:'grid', headStyles:{fillColor:[59,130,246],textColor:255},
