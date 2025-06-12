@@ -23,14 +23,15 @@
     .dark .view-detail-label { color: #d1d5db; }
     .view-detail-value { color: #1f2937; }
     .dark .view-detail-value { color: #f9fafb; }
+    select:disabled { background-color: #e5e7eb; cursor: not-allowed; }
+    .dark select:disabled { background-color: #374151; color: #9ca3af; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
   </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
 
-<!-- Main application wrapper -->
 <div class="flex h-screen">
 
-    <!-- Sidebar (Left) - Modified for responsiveness -->
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg 
                              transform -translate-x-full transition-transform duration-300 ease-in-out 
                              md:relative md:translate-x-0 md:shadow-lg md:border-r dark:border-gray-700 
@@ -39,7 +40,6 @@
         <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
           <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
         </div>
-        <!-- Close button for mobile sidebar -->
         <button id="sidebar-close-button" class="md:hidden text-gray-700 dark:text-gray-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
           <i data-lucide="x" class="w-6 h-6"></i>
         </button>
@@ -52,9 +52,6 @@
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
               <i data-lucide="pie-chart" class="w-5 h-5"></i><a href="analytics">Analytics</a>
             </li>
-            <!--li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="users" class="w-5 h-5"></i><a href="users">User</a>
-            </!li-->
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
               <i data-lucide="user" class="w-5 h-5"></i><a href="driver">Driver</a>
             </li>
@@ -85,35 +82,26 @@
        </div>
     </aside>
 
-    <!-- Overlay for mobile menu -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
     
-    <!-- Content Area Wrapper (Header + Main Content + Right Sidebar) -->
     <div class="flex-1 flex flex-col overflow-hidden">
       
-      <!-- Header (Mobile Hamburger, Desktop Title, Theme Toggle, User Info) -->
       <header class="bg-white dark:bg-gray-800 shadow p-3 flex justify-between items-center flex-shrink-0 h-16">
-          <!-- Hamburger Menu Button - visible only on mobile -->
           <button id="mobile-menu-button" class="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none p-2">
               <i data-lucide="menu" class="w-6 h-6"></i>
           </button>
           
-          <!-- Mobile Title - visible only on mobile -->
           <div class="text-lg font-bold text-primary dark:text-primary-light md:hidden">
               FleetDash
           </div>
 
-          <!-- Desktop Title/Context - hidden on mobile -->
           <div class="hidden md:block text-xl font-semibold text-gray-700 dark:text-gray-200">
               Reparation Management
           </div>
           
-          <!-- Right side of header: Theme Toggle & User Info -->
           <div class="flex items-center space-x-3">
               <button id="theme-toggle-header" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
-                  <!-- Icon will be set by JS -->
               </button>
-              <!-- User info for desktop header - hidden on mobile -->
               <div class="hidden md:flex items-center space-x-2">
                   <div class="text-sm font-semibold" id="userDisplayNameHeader">User</div>
                   <div class="text-xs text-gray-500 dark:text-gray-400" id="userRoleDisplayHeader">Role</div>
@@ -121,10 +109,8 @@
           </div>
       </header>
 
-      <!-- Main scrollable content area (Main Page Content + Right Sidebar) -->
       <div class="flex-1 flex overflow-hidden">
         <main class="flex-1 overflow-y-auto p-6">
-          <!-- Reparation Table Section -->
           <section id="reparation-section" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
             <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
               <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-2 sm:mb-0">Reparation Records</h2>
@@ -132,7 +118,7 @@
                 <button id="openAddReparationModalButton" class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 text-sm shadow-sm">
                   <i data-lucide="plus" class="w-4 h-4"></i> Add Reparation
                 </button>
-                <input type="text" id="reparationSearch" placeholder="Search (receipt, status, cost, panne, garage...)" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
+                <input type="text" id="reparationSearch" placeholder="Search (receipt, status, cost, garage...)" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
               </div>
               <div class="flex flex-wrap gap-2 items-center">
                 <button id="exportExcelButton" class="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 text-sm shadow-sm">📄 Excel</button>
@@ -172,7 +158,7 @@
                 <thead>
                   <tr class="border-b dark:border-gray-700">
                     <th class="py-3 px-2 font-semibold">ID</th>
-                    <th class="px-2 font-semibold">Panne (Issue)</th>
+                    <th class="px-2 font-semibold">Panne Category</th>
                     <th class="px-2 font-semibold">Garage</th>
                     <th class="px-2 font-semibold">Repair Date</th>
                     <th class="px-2 font-semibold">Cost</th>
@@ -191,7 +177,6 @@
           </section>
         </main>
 
-        <!-- Right Sidebar -->
        <aside class="w-1/5 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden lg:block flex-shrink-0 border-l dark:border-gray-700 overflow-y-auto">
             <div class="flex justify-end items-center">
                 <div class="text-right">
@@ -222,8 +207,6 @@
     </div>
 </div>
 
-
-<!-- Add/Edit Reparation Modal -->
 <div id="addReparationModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
   <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
     <div class="p-6">
@@ -280,7 +263,6 @@
   </div>
 </div>
 
-<!-- View Reparation Record Modal -->
 <div id="viewReparationModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
   <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
     <div class="p-6">
@@ -308,7 +290,6 @@
   </div>
 </div>
 
-<!-- Generic Confirmation Modal -->
 <div id="genericConfirmModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
   <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md">
     <div class="p-6">
@@ -329,12 +310,10 @@
   </div>
 </div>
 
-<!-- Information/Status Modal -->
 <div id="infoStatusModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
   <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md">
     <div class="p-6 text-center">
       <div id="infoStatusModalIconContainer" class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-        {/* Icon set by JS */}
       </div>
       <h3 id="infoStatusModalTitle" class="text-lg font-medium text-gray-900 dark:text-white mb-2">Status</h3>
       <div class="mt-2">
@@ -348,14 +327,12 @@
 </div>
 
 <script>
-  // --- Configuration ---
   const API_ROOT_URL = ''; 
   const REPARATION_API_ENDPOINT = '/reparation/'; 
   const PANNES_API_ENDPOINT = '/panne/';       
   const GARAGES_API_ENDPOINT = '/garage/';     
   const LOGIN_PAGE_URL = '/login';         
 
-  // --- Authentication Helper ---
   function getAuthToken() { return localStorage.getItem('accessToken'); }
   function parseJwt(token) { try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { console.error("JWT Parse Error:", e); return null; }}
 
@@ -436,7 +413,6 @@
     }
   }
 
-  // --- Global Variables ---
   let allReparations = [];
   const reparationsPerPage = 10;
   let currentReparationPage = 1;
@@ -451,15 +427,12 @@
   let currentActionData = null;
   let infoStatusModalTimeout = null;
 
-  // --- Sidebar & Theme ---
   const sidebar = document.getElementById('sidebar'); const mobileMenuButton = document.getElementById('mobile-menu-button'); const sidebarCloseButton = document.getElementById('sidebar-close-button'); const sidebarOverlay = document.getElementById('sidebar-overlay'); const themeToggleButton = document.getElementById('theme-toggle-header'); function openMobileMenu() { if (sidebar && sidebarOverlay) { sidebar.classList.remove('-translate-x-full'); sidebar.classList.add('translate-x-0'); sidebarOverlay.classList.remove('hidden'); document.body.classList.add('overflow-hidden', 'md:overflow-auto'); } } function closeMobileMenu() { if (sidebar && sidebarOverlay) { sidebar.classList.add('-translate-x-full'); sidebar.classList.remove('translate-x-0'); sidebarOverlay.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); } } function setInitialThemeIcon() { if (themeToggleButton) { if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { document.documentElement.classList.add('dark'); themeToggleButton.innerHTML = '<i data-lucide="sun" class="w-5 h-5"></i>'; } else { document.documentElement.classList.remove('dark'); themeToggleButton.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>'; } lucide.createIcons(); } } function toggleTheme() { if (document.documentElement.classList.contains('dark')) { document.documentElement.classList.remove('dark'); localStorage.setItem('theme', 'light'); } else { document.documentElement.classList.add('dark'); localStorage.setItem('theme', 'dark'); } setInitialThemeIcon(); }
 
-  // --- Dashboard Widget Functions ---
   async function fetchAndDisplayPerformanceInsights() { const insightsList = document.getElementById('keyPerformanceInsightsList'); if (!insightsList) return; insightsList.innerHTML = `<li class="flex items-start space-x-2"><i data-lucide="loader-2" class="w-4 h-4 text-gray-400 animate-spin mt-0.5 shrink-0"></i><span>Loading insights...</span></li>`; lucide.createIcons(); const data = await apiRequest('/dashboard-data/performance-insights'); if (!data) { insightsList.innerHTML = `<li class="flex items-start space-x-2 text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 shrink-0"></i><span>Failed to load insights.</span></li>`; lucide.createIcons(); return; } let insightsHTML = ''; const { fuel_efficiency, maintenance_compliance } = data; if (fuel_efficiency) { let trendColor = 'text-gray-500 dark:text-gray-400', trendText = 'steady'; if (fuel_efficiency.trend === 'up') { trendColor = 'text-green-500'; trendText = 'improving'; } else if (fuel_efficiency.trend === 'down') { trendColor = 'text-red-500'; trendText = 'worsening'; } const percentageText = fuel_efficiency.percentage_change !== null ? `(${fuel_efficiency.percentage_change > 0 ? '+' : ''}${fuel_efficiency.percentage_change}%)` : '(No prior data)'; insightsHTML += `<li class="flex items-start space-x-2"><i data-lucide="droplet" class="w-4 h-4 text-blue-500 mt-0.5 shrink-0"></i><div><span>Fuel Efficiency is <span class="${trendColor} font-semibold">${trendText}</span>.</span><span class="block text-gray-400 dark:text-gray-500 text-xs">Consumption vs last month ${percentageText}.</span></div></li>`; } if (maintenance_compliance) { insightsHTML += `<li class="flex items-start space-x-2"><i data-lucide="wrench" class="w-4 h-4 text-yellow-500 mt-0.5 shrink-0"></i><div><span><span class="font-semibold">${maintenance_compliance.total_maintenance_records}</span> maintenance records logged.</span><span class="block text-gray-400 dark:text-gray-500 text-xs">Total historical tasks.</span></div></li>`; } insightsList.innerHTML = insightsHTML || `<li>No performance data available.</li>`; lucide.createIcons(); }
   async function fetchAndDisplayAlerts() { const alertsList = document.getElementById('notificationsList'); const notificationCountSpan = document.getElementById('notificationCount'); if (!alertsList || !notificationCountSpan) return; alertsList.innerHTML = `<div class="flex items-start space-x-2 p-2.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><i data-lucide="loader-2" class="w-5 h-5 text-gray-400 animate-spin mt-0.5 flex-shrink-0"></i><p class="text-xs text-gray-700 dark:text-gray-300">Loading alerts...</p></div>`; lucide.createIcons(); const data = await apiRequest('/dashboard-data/alerts'); if (!data) { alertsList.innerHTML = `<div class="flex items-start space-x-2 text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 shrink-0"></i><p class="text-xs">Failed to load alerts.</p></div>`; notificationCountSpan.textContent = '0'; lucide.createIcons(); return; } notificationCountSpan.textContent = data.total_alerts || '0'; let alertsHTML = ''; const createAlertItemHTML = (alert, icon, colorClass) => { if (!alert) return ''; return `<div class="flex items-start space-x-2 p-2.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><i data-lucide="${icon}" class="w-5 h-5 ${colorClass} mt-0.5 flex-shrink-0"></i><div><p class="text-xs font-semibold text-gray-800 dark:text-gray-200">${alert.plate_number}</p><p class="text-xs text-gray-600 dark:text-gray-300">${alert.message}</p></div></div>`; }; alertsHTML += createAlertItemHTML(data.critical_panne, 'shield-alert', 'text-red-500'); alertsHTML += createAlertItemHTML(data.maintenance_alert, 'calendar-clock', 'text-blue-500'); alertsHTML += createAlertItemHTML(data.trip_alert, 'route', 'text-purple-500'); if (data.total_alerts === 0) { alertsHTML = `<div class="flex items-center justify-center text-center p-4"><div class="text-gray-500 dark:text-gray-400"><i data-lucide="check-circle" class="w-8 h-8 mx-auto mb-2 text-green-500"></i><p class="text-xs">All clear! No new alerts.</p></div></div>`; } alertsList.innerHTML = alertsHTML; lucide.createIcons(); }
   async function initializeDashboardWidgets() { await Promise.all([ fetchAndDisplayPerformanceInsights(), fetchAndDisplayAlerts() ]); }
 
-  // --- MODAL CONTROL ---
   function closeModal(modalId) { document.getElementById(modalId)?.classList.add('hidden'); document.body.style.overflow = ''; }
   function openModal(modalId) { document.getElementById(modalId)?.classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
   function closeAddReparationModal() { closeModal('addReparationModal'); reparationToEditId = null; document.getElementById('addReparationForm')?.reset(); const submitButton = document.getElementById('reparationSubmitButton'); if (submitButton) submitButton.disabled = false; }
@@ -469,7 +442,6 @@
   function openGenericConfirmModal(title, message, confirmButtonText, confirmButtonIcon, onConfirmCallback, actionData = null) { document.getElementById('genericConfirmModalTitle').textContent = title; document.getElementById('genericConfirmModalMessage').textContent = message; const confirmBtn = document.getElementById('genericConfirmModalConfirmBtn'); confirmBtn.innerHTML = `<i data-lucide="${confirmButtonIcon || 'check-circle'}" class="w-4 h-4 mr-1"></i> ${confirmButtonText || 'Confirm'}`; confirmBtn.className = `px-4 py-2 text-white rounded-lg flex items-center gap-2 ${ confirmButtonIcon === 'trash-2' ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600' }`; lucide.createIcons(); currentConfirmAction = onConfirmCallback; currentActionData = actionData; openModal('genericConfirmModal'); }
   function openInfoStatusModal(title, message, type = 'success', autoCloseDelay = 4000) { const titleEl = document.getElementById('infoStatusModalTitle'); const messageEl = document.getElementById('infoStatusModalMessage'); const iconContainer = document.getElementById('infoStatusModalIconContainer'); const okButton = document.getElementById('infoStatusModalOkButton'); titleEl.textContent = title; messageEl.textContent = message; if (infoStatusModalTimeout) clearTimeout(infoStatusModalTimeout); let iconName = 'info', iconColorClass = 'text-blue-600', bgColorClass = 'bg-blue-100', btnClass = 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'; if (type === 'success') { iconName = 'check-circle-2'; iconColorClass = 'text-green-600'; bgColorClass = 'bg-green-100'; btnClass = 'bg-green-600 hover:bg-green-700 focus:ring-green-500'; } else if (type === 'error') { iconName = 'alert-triangle'; iconColorClass = 'text-red-600'; bgColorClass = 'bg-red-100'; btnClass = 'bg-red-600 hover:bg-red-700 focus:ring-red-500'; } else if (type === 'warning') { iconName = 'alert-octagon'; iconColorClass = 'text-yellow-500'; bgColorClass = 'bg-yellow-100'; btnClass = 'bg-yellow-500 hover:bg-yellow-600 focus:ring-yellow-400'; } iconContainer.className = `mx-auto flex items-center justify-center h-12 w-12 rounded-full ${bgColorClass} mb-4`; iconContainer.innerHTML = `<i data-lucide="${iconName}" class="h-6 w-6 ${iconColorClass}"></i>`; okButton.className = `inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white ${btnClass} focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm`; lucide.createIcons(); openModal('infoStatusModal'); if (autoCloseDelay > 0 && type !== 'error') { infoStatusModalTimeout = setTimeout(closeInfoStatusModal, autoCloseDelay); } }
 
-  // --- DOMContentLoaded & Event Listeners ---
   document.addEventListener('DOMContentLoaded', async () => {
       lucide.createIcons();
       updateUserInfoDisplay();
@@ -526,7 +498,6 @@
       await initializeReparationSection();
   });
 
-  // --- Helpers & Initializers ---
   function getISODateString(date) { if (!date) return null; const d = new Date(date); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
   function getISODateTimeString(date) { if (!date) return ''; const d = new Date(date); const tzoffset = d.getTimezoneOffset() * 60000; return new Date(d.getTime() - tzoffset).toISOString().slice(0, 16); }
   function getDateRange(filterType) { const today = new Date(); today.setHours(0,0,0,0); let sD = new Date(today), eD = new Date(today); eD.setHours(23,59,59,999); if (filterType === 'last7days') sD.setDate(today.getDate()-6); else if (filterType === 'last30days') sD.setDate(today.getDate()-29); else if (filterType === 'all') return {startDate:null,endDate:null}; return {startDate:getISODateString(sD),endDate:getISODateString(eD)}; }
@@ -548,44 +519,20 @@
     ]);
     allPannesForDropdown = allPannesForDropdown || [];
     allGaragesForDropdown = allGaragesForDropdown || [];
-    populateReparationDropdowns();
   }
 
-  function populateReparationDropdowns() {
-    const panneSelect = document.getElementById('reparation_panne_id_form');
-    if (panneSelect) {
-        panneSelect.innerHTML = '<option value="">Select Panne (Issue)</option>';
-        (allPannesForDropdown || []).forEach(panne => {
-            let panneDisplayText = `Panne ID: ${panne.id}`;
-            if (panne.description) { panneDisplayText += ` - ${panne.description.substring(0, 50)}${panne.description.length > 50 ? '...' : ''}`; }
-            if (panne.vehicle && panne.vehicle.plate_number) { panneDisplayText += ` (Vehicle: ${panne.vehicle.plate_number})`; }
-            panneSelect.add(new Option(panneDisplayText, panne.id));
-        });
-    }
-    const garageSelect = document.getElementById('reparation_garage_id_form');
-    if (garageSelect) {
-        garageSelect.innerHTML = '<option value="">Select Garage</option>';
-        (allGaragesForDropdown || []).forEach(garage => {
-            const displayText = garage.nom_garage ? `${garage.nom_garage} (ID: ${garage.id})` : `Garage ID: ${garage.id}`;
-            garageSelect.add(new Option(displayText, garage.id));
-        });
-    }
-    const statusSelectForm = document.getElementById('reparation_status_form');
-    if (statusSelectForm) {
-        statusSelectForm.innerHTML = '';
-        const statuses = [ {value: "Inprogress", text: "In Progress"}, {value: "Completed", text: "Completed"} ];
-        statuses.forEach(s => statusSelectForm.add(new Option(s.text, s.value)));
-    }
+  function getPanneCategoryName(panneId) {
+    if (!panneId || !allPannesForDropdown) return 'N/A';
+    const panne = allPannesForDropdown.find(p => p.id === panneId);
+    return panne?.category_panne?.panne_name || 'N/A';
   }
 
-  // --- Filter Logic ---
   function applyRepairDateFilter(filterType) { activeRepairDateFilter = filterType; customRepairFilterStartDate = null; customRepairFilterEndDate = null; document.getElementById('reparationCustomDateRange').classList.add('hidden'); setActiveRepairDateFilterButton(filterType); currentReparationPage = 1; fetchAndRenderReparations(); }
   function toggleReparationCustomDateRange() { document.getElementById('reparationCustomDateRange').classList.toggle('hidden'); if (!document.getElementById('reparationCustomDateRange').classList.contains('hidden')) setActiveRepairDateFilterButton('repair-date-filter-custom-btn'); else if (activeRepairDateFilter === 'custom') applyRepairDateFilter('all'); }
   function applyReparationCustomDateFilter() { const startDate = document.getElementById('reparationCustomStartDate').value; const endDate = document.getElementById('reparationCustomEndDate').value; if (!startDate || !endDate) { openInfoStatusModal("Input Error","Please select both start and end dates.", "error"); return; } if (new Date(startDate) > new Date(endDate)) { openInfoStatusModal("Input Error", "Start date cannot be after end date.", "error"); return; } activeRepairDateFilter = 'custom'; customRepairFilterStartDate = startDate; customRepairFilterEndDate = endDate; setActiveRepairDateFilterButton('repair-date-filter-custom-btn'); currentReparationPage = 1; fetchAndRenderReparations(); }
   function applyReparationStatusFilter(statusValue) { activeReparationStatusFilter = statusValue; currentReparationPage = 1; fetchAndRenderReparations(); }
   function setActiveRepairDateFilterButton(filterId) { document.querySelectorAll('#reparation-section .date-filter-btn').forEach(btn => btn.classList.remove('active')); const activeBtn = document.getElementById(filterId.startsWith('repair-date-filter-') ? filterId : `repair-date-filter-${filterId}`); if (activeBtn) activeBtn.classList.add('active'); }
 
-  // --- Data Fetching & Rendering ---
   async function fetchAndRenderReparations() {
     if (!getAuthToken()) {
         allReparations = []; 
@@ -616,15 +563,17 @@
         document.getElementById('reparationsPagination').innerHTML = '';
         return;
     }
-    const paginatedRecords = allReparations;
-    reparationsBody.innerHTML = paginatedRecords.length > 0 ? paginatedRecords.map(rep => {
-      const panneDisplay = rep.panne ? (rep.panne.description || `ID ${rep.panne_id}`) : `Panne ID ${rep.panne_id}`;
-      const garageDisplay = rep.garage ? (rep.garage.nom_garage || `ID ${rep.garage_id}`) : `Garage ID ${rep.garage_id}`;
+
+    reparationsBody.innerHTML = allReparations.length > 0 ? allReparations.map(rep => {
+      const isCompleted = rep.status === 'Completed';
+      const panneDisplay = getPanneCategoryName(rep.panne_id);
+      const garageDisplay = rep.garage?.nom_garage || `Garage ID ${rep.garage_id}`;
       const statusFormatted = rep.status.charAt(0).toUpperCase() + rep.status.slice(1);
-      const statusColor = rep.status === "Inprogress" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200" : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      const statusColor = isCompleted ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+      
       return `<tr class="border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50" data-id="${rep.id}">
                 <td class="py-3 px-2">${rep.id}</td>
-                <td class="px-2" title="${panneDisplay}">${panneDisplay.substring(0, 30)}${panneDisplay.length > 30 ? '...' : ''}</td>
+                <td class="px-2" title="${panneDisplay}">${panneDisplay}</td>
                 <td class="px-2">${garageDisplay}</td>
                 <td class="px-2">${new Date(rep.repair_date).toLocaleDateString()}</td>
                 <td class="px-2 text-right">${rep.cost != null ? parseFloat(rep.cost).toFixed(2) : '0.00'}</td>
@@ -632,29 +581,183 @@
                 <td class="px-2"><span class="px-2 py-1 text-xs font-medium rounded-full ${statusColor}">${statusFormatted}</span></td>
                 <td class="px-2 text-center whitespace-nowrap">
                   <button onclick="openViewReparationModal(${rep.id})" class="text-green-600 dark:text-green-400 p-1" title="View"><i data-lucide="eye" class="w-4 h-4"></i></button>
-                  <button onclick="openEditReparationModal(${rep.id})" class="text-blue-600 dark:text-blue-400 p-1 ml-1" title="Edit"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                  <button onclick="openConfirmDeleteReparationModal(${rep.id})" class="text-red-600 dark:text-red-400 p-1 ml-1" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                  <button onclick="openEditReparationModal(${rep.id})" class="text-blue-600 dark:text-blue-400 p-1 ml-1" title="Edit" ${isCompleted ? 'disabled' : ''}><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                  <button onclick="openConfirmDeleteReparationModal(${rep.id})" class="text-red-600 dark:text-red-400 p-1 ml-1" title="Delete" ${isCompleted ? 'disabled' : ''}><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                 </td></tr>`;
     }).join('') : `<tr><td colspan="8" class="text-center py-8 text-gray-500">No reparation records found matching your criteria.</td></tr>`;
     lucide.createIcons();
-    const startRecord = paginatedRecords.length > 0 ? (currentReparationPage - 1) * reparationsPerPage + 1 : 0;
-    const endRecord = (currentReparationPage - 1) * reparationsPerPage + paginatedRecords.length;
+    const startRecord = allReparations.length > 0 ? (currentReparationPage - 1) * reparationsPerPage + 1 : 0;
+    const endRecord = (currentReparationPage - 1) * reparationsPerPage + allReparations.length;
     document.getElementById('reparationsCount').textContent = `Showing ${startRecord} to ${endRecord}`;
-    renderReparationsPagination(paginatedRecords.length === reparationsPerPage);
+    renderReparationsPagination(allReparations.length === reparationsPerPage);
   }
 
   function renderReparationsPagination(hasNextPage) { const paginationContainer = document.getElementById('reparationsPagination'); paginationContainer.innerHTML = ''; if (currentReparationPage === 1 && !hasNextPage) return; const btnClasses = "px-3 py-1.5 text-sm rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-900 focus:ring-blue-500"; const itemClasses = "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"; const disabledClasses = "bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed"; const prevButton = Object.assign(document.createElement('button'), { innerHTML: `<i data-lucide="chevron-left" class="w-4 h-4 inline-block mr-1"></i> Prev`, className: `${btnClasses} ${currentReparationPage === 1 ? disabledClasses : itemClasses}`, disabled: currentReparationPage === 1, onclick: () => { if(currentReparationPage > 1) {currentReparationPage--; fetchAndRenderReparations();} } }); const pageInfo = Object.assign(document.createElement('span'), { className: "px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400", textContent: `Page ${currentReparationPage}` }); const nextButton = Object.assign(document.createElement('button'), { innerHTML: `Next <i data-lucide="chevron-right" class="w-4 h-4 inline-block ml-1"></i>`, className: `${btnClasses} ${!hasNextPage ? disabledClasses : itemClasses}`, disabled: !hasNextPage, onclick: () => { if(hasNextPage) {currentReparationPage++; fetchAndRenderReparations();} } }); paginationContainer.append(prevButton, pageInfo, nextButton); lucide.createIcons(); }
   
-  // --- Modal & Form Handling ---
-  function openAddReparationModal() { if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to add a reparation record.", "error", 0); return; } reparationToEditId = null; document.getElementById('addReparationForm')?.reset(); document.getElementById('reparationModalTitle').textContent = "Add New Reparation"; document.getElementById('reparationSubmitButton').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4 mr-1"></i> Add Reparation`; document.getElementById('reparationSubmitButton').disabled = false; document.getElementById('reparation_repair_date_form').value = getISODateTimeString(new Date()); lucide.createIcons(); openModal('addReparationModal'); }
-  async function openEditReparationModal(id) { if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to edit.", "error", 0); return; } const reparation = await apiRequest(`${REPARATION_API_ENDPOINT}${id}`); if (!reparation) { openInfoStatusModal("Error","Could not fetch reparation details.", "error", 0); return; } reparationToEditId = id; document.getElementById('reparationModalTitle').textContent = "Edit Reparation Record"; document.getElementById('reparationSubmitButton').innerHTML = `<i data-lucide="save" class="w-4 h-4 mr-1"></i> Save Changes`; document.getElementById('reparationSubmitButton').disabled = false; document.getElementById('reparationId_form').value = reparation.id; document.getElementById('reparation_panne_id_form').value = reparation.panne_id; document.getElementById('reparation_garage_id_form').value = reparation.garage_id; document.getElementById('reparation_repair_date_form').value = getISODateTimeString(new Date(reparation.repair_date)); document.getElementById('reparation_cost_form').value = reparation.cost != null ? reparation.cost.toFixed(2) : ''; document.getElementById('reparation_receipt_form').value = reparation.receipt || ''; document.getElementById('reparation_status_form').value = reparation.status; lucide.createIcons(); openModal('addReparationModal'); }
-  async function openViewReparationModal(id) { if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to view.", "error", 0); return; } const reparation = await apiRequest(`${REPARATION_API_ENDPOINT}${id}`); if (!reparation) { openInfoStatusModal("Error", "Could not fetch reparation details.", "error", 0); return; } const panneDisplay = reparation.panne ? (reparation.panne.description || `ID ${reparation.panne_id}`) : `Panne ID ${reparation.panne_id}`; const garageDisplay = reparation.garage ? (reparation.garage.nom_garage || `ID ${reparation.garage_id}`) : `Garage ID ${reparation.garage_id}`; document.getElementById('view-reparation-id').textContent = reparation.id; document.getElementById('view-reparation-panne').textContent = panneDisplay; document.getElementById('view-reparation-garage').textContent = garageDisplay; document.getElementById('view-reparation-repair_date').textContent = new Date(reparation.repair_date).toLocaleString(); document.getElementById('view-reparation-cost').textContent = reparation.cost != null ? `$${parseFloat(reparation.cost).toFixed(2)}` : 'N/A'; document.getElementById('view-reparation-receipt').textContent = reparation.receipt || 'N/A'; document.getElementById('view-reparation-status').textContent = reparation.status.charAt(0).toUpperCase() + reparation.status.slice(1).replace(/_/g, ' '); openModal('viewReparationModal'); }
-  async function handleReparationFormSubmit(event) { event.preventDefault(); if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in.", "error", 0); return; } const submitButton = document.getElementById('reparationSubmitButton'); if (submitButton.disabled) return; submitButton.disabled = true; const repairDateValue = document.getElementById('reparation_repair_date_form').value; if (!repairDateValue) { openInfoStatusModal("Validation Error", "Repair Date is required.", "error", 0); submitButton.disabled = false; return; } const repairDateTime = new Date(repairDateValue); if (isNaN(repairDateTime.getTime())) { openInfoStatusModal("Validation Error", "Invalid Repair Date.", "error", 0); submitButton.disabled = false; return; } const formData = { panne_id: parseInt(document.getElementById('reparation_panne_id_form').value), garage_id: parseInt(document.getElementById('reparation_garage_id_form').value), repair_date: repairDateTime.toISOString(), cost: parseFloat(document.getElementById('reparation_cost_form').value) || 0.0, receipt: document.getElementById('reparation_receipt_form').value.trim(), status: document.getElementById('reparation_status_form').value }; if (!formData.panne_id || !formData.garage_id || !formData.receipt || !formData.status) { openInfoStatusModal("Validation Error", "Panne, Garage, Receipt, and Status are required.", "error", 0); submitButton.disabled = false; return; } if (formData.cost < 0) { openInfoStatusModal("Validation Error", "Cost cannot be negative.", "error", 0); submitButton.disabled = false; return; } const actionType = reparationToEditId ? "update" : "add"; openGenericConfirmModal( reparationToEditId ? "Confirm Update" : "Confirm Add Reparation", `Are you sure you want to ${actionType} this reparation record?`, reparationToEditId ? "Update" : "Add", reparationToEditId ? "save" : "plus-circle", async (data) => { try { const result = reparationToEditId ? await apiRequest(`${REPARATION_API_ENDPOINT}${reparationToEditId}`, 'PUT', data) : await apiRequest(REPARATION_API_ENDPOINT, 'POST', data); if (result) { openInfoStatusModal("Success", `Reparation record ${actionType}ed successfully!`, "success"); closeAddReparationModal(); await fetchAndRenderReparations(); } else if (submitButton && !document.getElementById('addReparationModal')?.classList.contains('hidden')) { submitButton.disabled = false; } } catch (error) { console.error(`Error during ${actionType} reparation record:`, error); if (submitButton && !document.getElementById('addReparationModal')?.classList.contains('hidden')) submitButton.disabled = false; } }, formData ); }
+  async function openAddReparationModal() { 
+    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to add a reparation record.", "error", 0); return; }
+    reparationToEditId = null;
+    document.getElementById('addReparationForm')?.reset();
+    document.getElementById('reparationModalTitle').textContent = "Add New Reparation";
+    document.getElementById('reparationSubmitButton').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4 mr-1"></i> Add Reparation`;
+    document.getElementById('reparationSubmitButton').disabled = false;
+    document.getElementById('reparation_panne_id_form').disabled = false;
+    document.getElementById('reparation_repair_date_form').value = getISODateTimeString(new Date());
+
+    const panneSelect = document.getElementById('reparation_panne_id_form');
+    const garageSelect = document.getElementById('reparation_garage_id_form');
+    panneSelect.innerHTML = '<option value="">Loading Pannes...</option>';
+    garageSelect.innerHTML = '<option value="">Loading Garages...</option>';
+    openModal('addReparationModal');
+    
+    await populateReparationLookupData();
+    
+    panneSelect.innerHTML = '<option value="">Select Panne (Issue)</option>';
+    const activePannes = (allPannesForDropdown || []).filter(p => p.status === 'active');
+    if (activePannes.length === 0) {
+      panneSelect.innerHTML = '<option value="">No Active Pannes Available</option>';
+    } else {
+      activePannes.forEach(panne => {
+          let panneDisplayText = `${getPanneCategoryName(panne.id)} - ID: ${panne.id}`;
+          if (panne.vehicle?.plate_number) {
+              panneDisplayText += ` (Vehicle: ${panne.vehicle.plate_number})`;
+          }
+          panneSelect.add(new Option(panneDisplayText, panne.id));
+      });
+    }
+
+    garageSelect.innerHTML = '<option value="">Select Garage</option>';
+    (allGaragesForDropdown || []).forEach(garage => {
+        const displayText = garage.nom_garage ? `${garage.nom_garage} (ID: ${garage.id})` : `Garage ID: ${garage.id}`;
+        garageSelect.add(new Option(displayText, garage.id));
+    });
+
+    lucide.createIcons();
+  }
+  
+  async function openEditReparationModal(id) {
+    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to edit.", "error", 0); return; }
+    const reparation = await apiRequest(`${REPARATION_API_ENDPOINT}${id}`);
+    if (!reparation) { openInfoStatusModal("Error","Could not fetch reparation details.", "error", 0); return; }
+    reparationToEditId = id;
+    
+    openModal('addReparationModal');
+    
+    const panneSelect = document.getElementById('reparation_panne_id_form');
+    panneSelect.innerHTML = '';
+    const garageSelect = document.getElementById('reparation_garage_id_form');
+    garageSelect.innerHTML = '';
+    
+    document.getElementById('reparationModalTitle').textContent = "Edit Reparation Record";
+    document.getElementById('reparationSubmitButton').innerHTML = `<i data-lucide="save" class="w-4 h-4 mr-1"></i> Save Changes`;
+    document.getElementById('reparationSubmitButton').disabled = false;
+    document.getElementById('reparationId_form').value = reparation.id;
+    
+    const selectedPanne = allPannesForDropdown.find(p => p.id === reparation.panne_id);
+    if (selectedPanne) {
+        let panneDisplayText = `${getPanneCategoryName(selectedPanne.id)} - ID: ${selectedPanne.id}`;
+        if (selectedPanne.vehicle?.plate_number) {
+            panneDisplayText += ` (Vehicle: ${selectedPanne.vehicle.plate_number})`;
+        }
+        panneSelect.add(new Option(panneDisplayText, selectedPanne.id));
+    }
+    panneSelect.value = reparation.panne_id;
+    panneSelect.disabled = true;
+
+    (allGaragesForDropdown || []).forEach(garage => {
+        const displayText = garage.nom_garage ? `${garage.nom_garage} (ID: ${garage.id})` : `Garage ID: ${garage.id}`;
+        garageSelect.add(new Option(displayText, garage.id));
+    });
+    garageSelect.value = reparation.garage_id;
+
+    document.getElementById('reparation_repair_date_form').value = getISODateTimeString(new Date(reparation.repair_date));
+    document.getElementById('reparation_cost_form').value = reparation.cost != null ? reparation.cost.toFixed(2) : '';
+    document.getElementById('reparation_receipt_form').value = reparation.receipt || '';
+    document.getElementById('reparation_status_form').value = reparation.status;
+    lucide.createIcons();
+  }
+  
+  async function openViewReparationModal(id) {
+    if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to view.", "error", 0); return; }
+    const reparation = await apiRequest(`${REPARATION_API_ENDPOINT}${id}`);
+    if (!reparation) { openInfoStatusModal("Error", "Could not fetch reparation details.", "error", 0); return; }
+    const panneDisplay = getPanneCategoryName(reparation.panne_id);
+    const garageDisplay = reparation.garage?.nom_garage || `Garage ID ${reparation.garage_id}`;
+    document.getElementById('view-reparation-id').textContent = reparation.id;
+    document.getElementById('view-reparation-panne').textContent = panneDisplay;
+    document.getElementById('view-reparation-garage').textContent = garageDisplay;
+    document.getElementById('view-reparation-repair_date').textContent = new Date(reparation.repair_date).toLocaleString();
+    document.getElementById('view-reparation-cost').textContent = reparation.cost != null ? `$${parseFloat(reparation.cost).toFixed(2)}` : 'N/A';
+    document.getElementById('view-reparation-receipt').textContent = reparation.receipt || 'N/A';
+    document.getElementById('view-reparation-status').textContent = reparation.status.charAt(0).toUpperCase() + reparation.status.slice(1).replace(/_/g, ' ');
+    openModal('viewReparationModal');
+  }
+  
+  async function handleReparationFormSubmit(event) {
+    event.preventDefault();
+    if (!getAuthToken()) { openInfoStatusModal("Authentication Required", "Please log in.", "error", 0); return; }
+    const submitButton = document.getElementById('reparationSubmitButton');
+    if (submitButton.disabled) return;
+    submitButton.disabled = true;
+
+    const repairDateValue = document.getElementById('reparation_repair_date_form').value;
+    if (!repairDateValue) { openInfoStatusModal("Validation Error", "Repair Date is required.", "error", 0); submitButton.disabled = false; return; }
+    const repairDateTime = new Date(repairDateValue);
+    if (isNaN(repairDateTime.getTime())) { openInfoStatusModal("Validation Error", "Invalid Repair Date.", "error", 0); submitButton.disabled = false; return; }
+
+    const formData = {
+        panne_id: parseInt(document.getElementById('reparation_panne_id_form').value),
+        garage_id: parseInt(document.getElementById('reparation_garage_id_form').value),
+        repair_date: repairDateTime.toISOString(),
+        cost: parseFloat(document.getElementById('reparation_cost_form').value) || 0.0,
+        receipt: document.getElementById('reparation_receipt_form').value.trim(),
+        status: document.getElementById('reparation_status_form').value
+    };
+
+    if (!formData.panne_id || !formData.garage_id || !formData.receipt || !formData.status) { openInfoStatusModal("Validation Error", "Panne, Garage, Receipt, and Status are required.", "error", 0); submitButton.disabled = false; return; }
+    if (formData.cost < 0) { openInfoStatusModal("Validation Error", "Cost cannot be negative.", "error", 0); submitButton.disabled = false; return; }
+
+    const actionType = reparationToEditId ? "update" : "add";
+    openGenericConfirmModal(
+        reparationToEditId ? "Confirm Update" : "Confirm Add Reparation", `Are you sure you want to ${actionType} this reparation record?`,
+        reparationToEditId ? "Update" : "Add", reparationToEditId ? "save" : "plus-circle",
+        async (data) => {
+            try {
+                const result = reparationToEditId ? await apiRequest(`${REPARATION_API_ENDPOINT}${reparationToEditId}`, 'PUT', data) : await apiRequest(REPARATION_API_ENDPOINT, 'POST', data);
+                if (result) {
+                    let panneUpdateFailed = false;
+                    if (data.status === 'Completed' && data.panne_id) {
+                        const panneToUpdate = allPannesForDropdown.find(p => p.id === data.panne_id);
+                        if(panneToUpdate) {
+                            panneToUpdate.status = 'Resolved';
+                            const panneUpdateResult = await apiRequest(`${PANNES_API_ENDPOINT}${data.panne_id}`, 'PUT', panneToUpdate);
+                            if (!panneUpdateResult) {
+                                panneUpdateFailed = true;
+                                console.error(`Failed to update Panne ID ${data.panne_id} status.`);
+                            }
+                        }
+                    }
+                    if (panneUpdateFailed) {
+                        openInfoStatusModal("Partial Success", `Reparation record saved, but the linked issue (Panne ID: ${data.panne_id}) could not be automatically updated to 'Resolved'. Please update it manually.`, "warning", 8000 );
+                    } else {
+                        openInfoStatusModal("Success", `Reparation record ${actionType}d successfully!`, "success");
+                    }
+                    closeAddReparationModal();
+                    await initializeReparationSection();
+                } else if (submitButton && !document.getElementById('addReparationModal')?.classList.contains('hidden')) {
+                    submitButton.disabled = false;
+                }
+            } catch (error) {
+                console.error(`Error during ${actionType} reparation record:`, error);
+                if (submitButton && !document.getElementById('addReparationModal')?.classList.contains('hidden')) { submitButton.disabled = false; }
+            }
+        }, formData );
+  }
+
   function openConfirmDeleteReparationModal(id) { if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to delete.", "error", 0); return; } openGenericConfirmModal( "Confirm Deletion", `Are you sure you want to permanently delete reparation record ID: ${id}?`, "Delete", "trash-2", async (recordIdToDelete) => { const result = await apiRequest(`${REPARATION_API_ENDPOINT}${recordIdToDelete}`, 'DELETE'); if (result === true) { openInfoStatusModal("Success", `Reparation record ID: ${recordIdToDelete} deleted.`, "success"); await fetchAndRenderReparations(); } }, id ); }
 
-  // --- Export Functions ---
   async function getReparationsForExport() {
-    let queryParams = `limit=200`; // Use a valid, high limit for export
+    let queryParams = `limit=200`;
     const searchTerm = document.getElementById('reparationSearch').value;
     if (searchTerm) queryParams += `&search=${encodeURIComponent(searchTerm)}`;
     if (activeReparationStatusFilter) queryParams += `&status_filter=${encodeURIComponent(activeReparationStatusFilter)}`;
@@ -679,8 +782,8 @@
         }
         const data = recordsToExport.map(rep => ({
             ID: rep.id,
-            'Panne Info': rep.panne ? (rep.panne.description || `ID ${rep.panne_id}`) : `Panne ID ${rep.panne_id}`,
-            'Garage Name': rep.garage ? (rep.garage.nom_garage || `ID ${rep.garage_id}`) : `Garage ID ${rep.garage_id}`,
+            'Panne Category': getPanneCategoryName(rep.panne_id),
+            'Garage Name': rep.garage?.nom_garage || `Garage ID ${rep.garage_id}`,
             'Repair Date': new Date(rep.repair_date).toLocaleString(),
             Cost: rep.cost != null ? parseFloat(rep.cost).toFixed(2) : '0.00',
             Receipt: rep.receipt,
@@ -710,10 +813,10 @@
         if (typeof doc.autoTable !== 'function') { openInfoStatusModal("Error", "PDF AutoTable plugin is not loaded.", "error", 0); return; }
 
         doc.setFontSize(18); doc.text('Reparation Records', 14, 15);
-        const headers = [['ID', 'Panne', 'Garage', 'Repair Date', 'Cost', 'Receipt', 'Status']];
+        const headers = [['ID', 'Panne Category', 'Garage', 'Repair Date', 'Cost', 'Receipt', 'Status']];
         const data = recordsToExport.map(rep => [
             rep.id,
-            (rep.panne?.description || `ID ${rep.panne_id}`).substring(0, 30),
+            getPanneCategoryName(rep.panne_id),
             (rep.garage?.nom_garage || `ID ${rep.garage_id}`).substring(0, 30),
             new Date(rep.repair_date).toLocaleDateString(),
             rep.cost != null ? parseFloat(rep.cost).toFixed(2) : '0.00',

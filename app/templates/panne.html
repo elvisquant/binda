@@ -23,6 +23,7 @@
     .dark .view-detail-label { color: #d1d5db; }
     .view-detail-value { color: #1f2937; }
     .dark .view-detail-value { color: #f9fafb; }
+    /* The custom CSS is no longer needed; we will use Tailwind's `disabled:` variants */
   </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
@@ -30,7 +31,7 @@
 <!-- Main application wrapper -->
 <div class="flex h-screen">
 
-    <!-- Sidebar (Left) - Modified for responsiveness -->
+    <!-- Sidebar (Left) -->
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg 
                              transform -translate-x-full transition-transform duration-300 ease-in-out 
                              md:relative md:translate-x-0 md:shadow-lg md:border-r dark:border-gray-700 
@@ -39,7 +40,6 @@
         <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
           <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
         </div>
-        <!-- Close button for mobile sidebar -->
         <button id="sidebar-close-button" class="md:hidden text-gray-700 dark:text-gray-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
           <i data-lucide="x" class="w-6 h-6"></i>
         </button>
@@ -52,9 +52,6 @@
         <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
           <i data-lucide="pie-chart" class="w-5 h-5"></i><a href="analytics">Analytics</a>
         </li>
-        <!--li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-          <i data-lucide="users" class="w-5 h-5"></i><a href="users">User</a>
-        </!li-->
         <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
           <i data-lucide="user" class="w-5 h-5"></i><a href="driver">Driver</a>
         </li>
@@ -71,7 +68,7 @@
           <i data-lucide="droplet" class="w-5 h-5"></i><a href="fuel">Fuel</a>
         </li>
         <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-          <i data-lucide="settings" class="w-5 h-5"></i><a href="maintenance">Maintenance</a> <!-- Changed icon from settings to tool to match original intent -->
+          <i data-lucide="settings" class="w-5 h-5"></i><a href="maintenance">Maintenance</a>
         </li>
         <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
           <i data-lucide="route" class="w-5 h-5"></i><a href="trip">Trip</a>
@@ -88,32 +85,23 @@
     <!-- Overlay for mobile menu -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
     
-    <!-- Content Area Wrapper (Header + Main Content + Right Sidebar) -->
+    <!-- Content Area Wrapper -->
     <div class="flex-1 flex flex-col overflow-hidden">
       
-      <!-- Header (Mobile Hamburger, Desktop Title, Theme Toggle, User Info) -->
+      <!-- Header -->
       <header class="bg-white dark:bg-gray-800 shadow p-3 flex justify-between items-center flex-shrink-0 h-16">
-          <!-- Hamburger Menu Button - visible only on mobile -->
           <button id="mobile-menu-button" class="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none p-2">
               <i data-lucide="menu" class="w-6 h-6"></i>
           </button>
-          
-          <!-- Mobile Title - visible only on mobile -->
           <div class="text-lg font-bold text-primary dark:text-primary-light md:hidden">
               FleetDash
           </div>
-
-          <!-- Desktop Title/Context - hidden on mobile -->
           <div class="hidden md:block text-xl font-semibold text-gray-700 dark:text-gray-200">
               Panne (Issue) Management
           </div>
-          
-          <!-- Right side of header: Theme Toggle & User Info -->
           <div class="flex items-center space-x-3">
               <button id="theme-toggle-header" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
-                  <!-- Icon will be set by JS -->
               </button>
-              <!-- User info for desktop header - hidden on mobile -->
               <div class="hidden md:flex items-center space-x-2">
                   <div class="text-sm font-semibold" id="userDisplayNameHeader">User</div>
                   <div class="text-xs text-gray-500 dark:text-gray-400">Admin</div>
@@ -121,7 +109,7 @@
           </div>
       </header>
 
-      <!-- Main scrollable content area (Main Page Content + Right Sidebar) -->
+      <!-- Main scrollable content area -->
       <div class="flex-1 flex overflow-hidden">
         <main class="flex-1 overflow-y-auto p-6">
           <!-- Panne Table Section -->
@@ -174,7 +162,7 @@
                 <thead>
                   <tr class="border-b dark:border-gray-700">
                     <th class="py-3 px-2 font-semibold">ID</th>
-                    <th class="px-2 font-semibold">Vehicle</th>
+                    <th class="px-2 font-semibold">Vehicle (Plate)</th>
                     <th class="px-2 font-semibold">Category</th>
                     <th class="px-2 font-semibold">Status</th>
                     <th class="px-2 font-semibold">Panne Date</th>
@@ -254,15 +242,6 @@
           <textarea id="panne_description_form" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Describe the issue..."></textarea>
         </div>
         <div>
-          <label for="panne_status_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-          <select id="panne_status_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-            <option value="active">Active</option>
-            <option value="in_progress">In Progress</option>
-            <option value="resolved">Resolved</option>
-            <option value="closed">Closed</option>
-          </select>
-        </div>
-        <div>
           <label for="panne_date_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Panne Date</label>
           <input type="datetime-local" id="panne_date_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
         </div>
@@ -290,7 +269,7 @@
       <div id="viewPanneDetails" class="space-y-3 text-sm">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-2">
             <span class="view-detail-label sm:col-span-1">Panne ID:</span><span id="view-panne-id" class="view-detail-value sm:col-span-2"></span>
-            <span class="view-detail-label sm:col-span-1">Vehicle:</span><span id="view-panne-vehicle" class="view-detail-value sm:col-span-2"></span>
+            <span class="view-detail-label sm:col-span-1">Vehicle (Plate):</span><span id="view-panne-vehicle" class="view-detail-value sm:col-span-2"></span>
             <span class="view-detail-label sm:col-span-1">Category:</span><span id="view-panne-category" class="view-detail-value sm:col-span-2"></span>
             <span class="view-detail-label sm:col-span-1">Description:</span><span id="view-panne-description" class="view-detail-value sm:col-span-2 whitespace-pre-wrap"></span>
             <span class="view-detail-label sm:col-span-1">Status:</span><span id="view-panne-status" class="view-detail-value sm:col-span-2"></span>
@@ -319,7 +298,7 @@
       <div class="flex justify-end gap-3 pt-4">
         <button id="cancelGenericConfirmModalButton" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
         <button id="genericConfirmModalConfirmBtn" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center gap-2">
-          {/* Content set by JS */} Confirm
+          Confirm
         </button>
       </div>
     </div>
@@ -331,7 +310,6 @@
   <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md">
     <div class="p-6 text-center">
       <div id="infoStatusModalIconContainer" class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-        {/* Icon set by JS */}
       </div>
       <h3 id="infoStatusModalTitle" class="text-lg font-medium text-gray-900 dark:text-white mb-2">Status</h3>
       <div class="mt-2">
@@ -349,6 +327,7 @@
   // --- Configuration ---
   const API_BASE_URL = '';
   const LOGIN_PAGE_URL = '/login';
+  const VEHICLE_STATUS_OUT_OF_SERVICE = 'hors_service'; 
 
   // --- Authentication Helper ---
   function getAuthToken() { return localStorage.getItem('accessToken'); }
@@ -356,56 +335,33 @@
 
   function updateUserInfoDisplay() {
     const token = getAuthToken();
-    const userDisplayElements = [
-        document.getElementById('userDisplayNameHeader'),
-        document.getElementById('userDisplayNameRightSidebar')
-    ];
-
-  
-
-    userDisplayElements.forEach(userDisplayElement => {
-        if (!userDisplayElement) return;
-        if (token) {
-            const decoded = parseJwt(token);
-            userDisplayElement.textContent = (decoded && decoded.sub) ? decoded.sub : 'User (Authenticated)';
-        } else {
-            userDisplayElement.textContent = 'Guest';
-        }
+    const userDisplayElements = [ document.getElementById('userDisplayNameHeader'), document.getElementById('userDisplayNameRightSidebar') ];
+    userDisplayElements.forEach(el => {
+        if (!el) return;
+        if (token) { const decoded = parseJwt(token); el.textContent = (decoded && decoded.sub) ? decoded.sub : 'User'; } 
+        else { el.textContent = 'Guest'; }
     });
   }
 
   async function apiRequest(endpoint, method = 'GET', body = null) {
     const token = getAuthToken();
     const headers = { 'Content-Type': 'application/json' };
-
-    if (token) {
-         headers['Authorization'] = `Bearer ${token}`;
-    } else if (!endpoint.startsWith('/login')) {
-        console.warn(`WARN: Protected endpoint ${endpoint} called without token.`);
-    }
-
+    if (token) { headers['Authorization'] = `Bearer ${token}`; } 
+    else if (!endpoint.startsWith('/login')) { console.warn(`WARN: Protected endpoint ${endpoint} called without token.`); }
     const config = { method, headers };
     if (body) config.body = JSON.stringify(body);
-
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-      if (response.status === 401 && !endpoint.endsWith('/login/')) {
-        openInfoStatusModal("Authentication Error", "Session expired or unauthorized. Please log in again.", "error", 5000);
-        return null;
-      }
+      if (response.status === 401 && !endpoint.endsWith('/login/')) { openInfoStatusModal("Authentication Error", "Session expired or unauthorized. Please log in again.", "error", 5000); return null; }
       if (response.status === 204) return true; 
-
       const responseData = await response.json().catch(async () => { 
           const text = await response.text(); 
-          console.error(`JSON Parse Error for ${endpoint}. Status: ${response.status}. Response Text (first 100 chars): ${text.substring(0,100)}...`);
-          if (!response.ok) { 
-              return Promise.reject({ detail: text || `Server error ${response.status}` });
-          }
-          throw new Error(`Invalid JSON response from server (status ${response.status}). Check console for raw response.`);
+          console.error(`JSON Parse Error for ${endpoint}. Status: ${response.status}. Response: ${text.substring(0,100)}...`);
+          if (!response.ok) return Promise.reject({ detail: text || `Server error ${response.status}` });
+          throw new Error(`Invalid JSON response from server (status ${response.status}).`);
       });
-
       if (!response.ok) {
-        const errorDetail = responseData.detail || (typeof responseData === 'object' ? JSON.stringify(responseData) : responseData) || 'Unknown server error.';
+        const errorDetail = responseData.detail || JSON.stringify(responseData) || 'Unknown server error.';
         console.error(`API Error for ${endpoint}: ${response.status}`, errorDetail);
          if (!(response.status === 401 && endpoint.endsWith('/login/'))) { 
             const errorMsg = Array.isArray(errorDetail) ? errorDetail.map(e => e.msg || e.detail).join(', ') : errorDetail;
@@ -416,8 +372,7 @@
       return responseData;
     } catch (error) { 
       console.error(`Network/Catch Error during API request to ${endpoint}:`, error);
-      const errorMessage = error.detail || error.message || "A network or request error occurred.";
-      openInfoStatusModal("Request Error", errorMessage, "error");
+      openInfoStatusModal("Request Error", error.detail || error.message || "A network or request error occurred.", "error");
       return null;
     }
   }
@@ -457,24 +412,9 @@
 
   // --- DOMContentLoaded & Event Listeners ---
   document.addEventListener('DOMContentLoaded', async () => {
-      lucide.createIcons();
-      updateUserInfoDisplay();
-      
-      themeToggleButton?.addEventListener('click', toggleTheme);
-      setInitialThemeIcon(); 
-
-      mobileMenuButton?.addEventListener('click', openMobileMenu);
-      sidebarCloseButton?.addEventListener('click', closeMobileMenu);
-      sidebarOverlay?.addEventListener('click', closeMobileMenu);
-      document.querySelectorAll('#sidebar nav a').forEach(link => {
-          link.addEventListener('click', () => { if (window.innerWidth < 768) closeMobileMenu(); });
-      });
-
-      ['addPanneModal', 'viewPanneModal', 'genericConfirmModal'].forEach(modalId => {
-        document.getElementById(modalId)?.addEventListener('click', e => { if (e.target.id === modalId) closeModal(modalId); });
-      });
+      lucide.createIcons(); updateUserInfoDisplay(); themeToggleButton?.addEventListener('click', toggleTheme); setInitialThemeIcon(); mobileMenuButton?.addEventListener('click', openMobileMenu); sidebarCloseButton?.addEventListener('click', closeMobileMenu); sidebarOverlay?.addEventListener('click', closeMobileMenu); document.querySelectorAll('#sidebar nav a').forEach(link => { link.addEventListener('click', () => { if (window.innerWidth < 768) closeMobileMenu(); }); });
+      ['addPanneModal', 'viewPanneModal', 'genericConfirmModal'].forEach(modalId => { document.getElementById(modalId)?.addEventListener('click', e => { if (e.target.id === modalId) closeModal(modalId); }); });
       document.getElementById('infoStatusModal')?.addEventListener('click', e => { if (e.target.id === 'infoStatusModal' || e.target.closest('#infoStatusModalOkButton')) closeInfoStatusModal(); });
-
       document.getElementById('closeAddPanneModalButtonTop')?.addEventListener('click', closeAddPanneModal);
       document.getElementById('cancelAddPanneModalButton')?.addEventListener('click', closeAddPanneModal);
       document.getElementById('closeViewPanneModalButtonTop')?.addEventListener('click', closeViewPanneModal);
@@ -482,21 +422,8 @@
       document.getElementById('closeGenericConfirmModalButtonX')?.addEventListener('click', closeGenericConfirmModal);
       document.getElementById('cancelGenericConfirmModalButton')?.addEventListener('click', () => { closeGenericConfirmModal(); const submitBtn = document.getElementById('panneSubmitButton'); if (submitBtn) submitBtn.disabled = false; });
       document.getElementById('genericConfirmModalConfirmBtn')?.addEventListener('click', async () => { if (typeof currentConfirmAction === 'function') await currentConfirmAction(currentActionData); closeGenericConfirmModal(); });
-
-      const handleLogout = (e) => {
-          e.preventDefault();
-          localStorage.removeItem('accessToken');
-          openInfoStatusModal('Logged Out', 'You have been successfully logged out.', 'success', 2500);
-          updateUserInfoDisplay();
-          allPannes = [];
-          renderPannesTable();
-          document.getElementById('keyPerformanceInsightsList').innerHTML = `<li class="flex items-start space-x-2 text-gray-500"><i data-lucide="log-in" class="w-4 h-4 mt-0.5 shrink-0"></i><span>Please log in to see insights.</span></li>`;
-          document.getElementById('notificationsList').innerHTML = `<div class="flex items-start space-x-2 text-gray-500 p-2.5"><i data-lucide="log-in" class="w-5 h-5 mt-0.5 shrink-0"></i><p class="text-xs">Please log in to see alerts.</p></div>`;
-          document.getElementById('notificationCount').textContent = '0';
-          lucide.createIcons();
-      };
+      const handleLogout = (e) => { e.preventDefault(); localStorage.removeItem('accessToken'); openInfoStatusModal('Logged Out', 'You have been successfully logged out.', 'success', 2500); updateUserInfoDisplay(); allPannes = []; renderPannesTable(); document.getElementById('keyPerformanceInsightsList').innerHTML = `<li class="flex items-start space-x-2 text-gray-500"><i data-lucide="log-in" class="w-4 h-4 mt-0.5 shrink-0"></i><span>Please log in to see insights.</span></li>`; document.getElementById('notificationsList').innerHTML = `<div class="flex items-start space-x-2 text-gray-500 p-2.5"><i data-lucide="log-in" class="w-5 h-5 mt-0.5 shrink-0"></i><p class="text-xs">Please log in to see alerts.</p></div>`; document.getElementById('notificationCount').textContent = '0'; lucide.createIcons(); };
       document.getElementById('global-logout-btn')?.addEventListener('click', handleLogout);
-
       document.getElementById('openAddPanneModalButton')?.addEventListener('click', openAddPanneModal);
       document.getElementById('exportExcelButton')?.addEventListener('click', exportPannesExcel);
       document.getElementById('exportPdfButton')?.addEventListener('click', exportPannesPDF);
@@ -509,7 +436,6 @@
       document.getElementById('panne-date-filter-custom-btn')?.addEventListener('click', togglePanneCustomDateRange);
       document.getElementById('applyCustomDateFilterButton')?.addEventListener('click', applyPanneCustomDateFilter);
       document.getElementById('addPanneForm')?.addEventListener('submit', handlePanneFormSubmit);
-
       await initializePanneSection();
   });
 
@@ -521,16 +447,14 @@
   async function initializePanneSection() {
     await populatePanneLookupData();
     await fetchAndRenderPannes();
-    if(getAuthToken()){
-        await initializeDashboardWidgets();
-    }
+    if(getAuthToken()) await initializeDashboardWidgets();
     setActivePanneDateFilterButton('all');
     document.getElementById('panneStatusFilter').value = '';
   }
 
   async function populatePanneLookupData() {
     [allVehiclesForDropdown, allPanneCategoriesForDropdown] = await Promise.all([
-        apiRequest('/vehicle/?limit=200'),
+        apiRequest('/vehicle/?limit=1000'),
         apiRequest('/category_panne/?limit=200')
     ]);
     allVehiclesForDropdown = allVehiclesForDropdown || [];
@@ -539,22 +463,17 @@
   }
 
   function populatePanneDropdowns() {
-    const populateSelect = (selectId, data, valueField, displayFields, placeholder) => {
+    const populateSelect = (selectId, data, valueField, placeholder, textCallback) => {
         const select = document.getElementById(selectId);
         if (!select) return;
         select.innerHTML = `<option value="">${placeholder}</option>`;
         (data || []).forEach(item => {
-            const option = new Option();
-            option.value = item[valueField];
-            option.textContent = displayFields.map(field => item[field] || '').join(' ').trim() || `ID: ${item[valueField]}`;
-            if(selectId === 'panne_vehicle_id_form') {
-                 option.textContent = `${item.make || ''} ${item.model || ''} (${item.plate_number || 'N/A'})`.trim();
-            }
+            const option = new Option(textCallback(item), item[valueField]);
             select.appendChild(option);
         });
     };
-    populateSelect('panne_vehicle_id_form', allVehiclesForDropdown, 'id', ['make', 'model', 'plate_number'], 'Select Vehicle');
-    populateSelect('panne_category_id_form', allPanneCategoriesForDropdown, 'id', ['panne_name'], 'Select Panne Category');
+    populateSelect('panne_vehicle_id_form', allVehiclesForDropdown, 'id', 'Select Vehicle', item => `${item.make || ''} ${item.model || ''} (${item.plate_number || 'N/A'})`.trim());
+    populateSelect('panne_category_id_form', allPanneCategoriesForDropdown, 'id', 'Select Panne Category', item => item.panne_name || `ID: ${item.id}`);
   }
 
   // --- Filter Logic ---
@@ -566,30 +485,19 @@
 
   // --- CRUD & Table Rendering ---
   async function fetchAndRenderPannes() {
-    if (!getAuthToken()) {
-        allPannes = []; 
-        renderPannesTable();
-        return;
-    }
-    const data = await apiRequest(`/panne/?limit=200`); // Fetch a reasonable number of recent pannes
+    if (!getAuthToken()) { allPannes = []; renderPannesTable(); return; }
+    const data = await apiRequest(`/panne/?limit=1000`);
     allPannes = Array.isArray(data) ? data : [];
     renderPannesTable();
   }
 
   function getFilteredPannes() {
       let records = [...allPannes];
-      if (activePanneStatusFilter) {
-          records = records.filter(p => p.status === activePanneStatusFilter);
-      }
+      if (activePanneStatusFilter) records = records.filter(p => p.status === activePanneStatusFilter);
       if (activePanneDateFilter !== 'all') {
-          const range = (activePanneDateFilter === 'custom' && customPanneFilterStartDate && customPanneFilterEndDate)
-              ? { startDate: customPanneFilterStartDate, endDate: customPanneFilterEndDate }
-              : getDateRange(activePanneDateFilter);
+          const range = (activePanneDateFilter === 'custom' && customPanneFilterStartDate && customPanneFilterEndDate) ? { startDate: customPanneFilterStartDate, endDate: customPanneFilterEndDate } : getDateRange(activePanneDateFilter);
           if (range.startDate && range.endDate) {
-              records = records.filter(p => {
-                  const panneDate = getISODateString(new Date(p.panne_date));
-                  return panneDate >= range.startDate && panneDate <= range.endDate;
-              });
+              records = records.filter(p => { const panneDate = getISODateString(new Date(p.panne_date)); return panneDate >= range.startDate && panneDate <= range.endDate; });
           }
       }
       const searchTerm = document.getElementById('panneSearch').value.toLowerCase();
@@ -597,10 +505,8 @@
           records = records.filter(p => {
               const vehicleText = (p.vehicle ? `${p.vehicle.make || ''} ${p.vehicle.model || ''} ${p.vehicle.plate_number || ''}` : '').toLowerCase();
               const categoryText = (p.category_panne?.panne_name || '').toLowerCase();
-              const descriptionText = (p.description || '').toLowerCase();
               const statusText = (p.status || '').toLowerCase();
-              return vehicleText.includes(searchTerm) || categoryText.includes(searchTerm) ||
-                     descriptionText.includes(searchTerm) || statusText.includes(searchTerm);
+              return vehicleText.includes(searchTerm) || categoryText.includes(searchTerm) || statusText.includes(searchTerm);
           });
       }
       return records;
@@ -614,19 +520,24 @@
         document.getElementById('pannesPagination').innerHTML = '';
         return;
     }
+
     const filteredRecords = getFilteredPannes();
     const totalRecords = filteredRecords.length;
     const totalPages = Math.ceil(totalRecords / pannesPerPage);
     if (currentPannePage > totalPages) currentPannePage = totalPages || 1;
-
     const start = (currentPannePage - 1) * pannesPerPage;
     const paginatedRecords = filteredRecords.slice(start, start + pannesPerPage);
 
     pannesBody.innerHTML = paginatedRecords.length > 0 ? paginatedRecords.map(p => {
-      const vehicleDisplay = p.vehicle ? `${p.vehicle.make || ''} ${p.vehicle.model || ''} (${p.vehicle.plate_number || 'N/A'})` : 'N/A';
+      // Correctly check the status, making it case-insensitive for robustness.
+      const isResolved = p.status.toLowerCase() === 'resolved'; 
+      
+      const vehicleDisplay = p.vehicle?.plate_number || 'N/A';
       const categoryDisplay = p.category_panne?.panne_name || 'N/A';
       const statusFormatted = p.status.charAt(0).toUpperCase() + p.status.slice(1).replace(/_/g, ' ');
-      const statusColor = p.status === "active" ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200" : p.status === "in_progress" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200" : p.status === "resolved" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+      const statusColor = p.status === "active" ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200" : p.status === "in_progress" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200" : isResolved ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+
+      // Use Tailwind's disabled variants for styling, which is more reliable.
       return `<tr class="border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50" data-id="${p.id}">
                 <td class="py-3 px-2">${p.id}</td>
                 <td class="px-2">${vehicleDisplay}</td>
@@ -635,10 +546,24 @@
                 <td class="px-2">${new Date(p.panne_date).toLocaleDateString()}</td>
                 <td class="px-2 text-center whitespace-nowrap">
                   <button onclick="openViewPanneModal(${p.id})" class="text-green-600 dark:text-green-400 p-1" title="View"><i data-lucide="eye" class="w-4 h-4"></i></button>
-                  <button onclick="openEditPanneModal(${p.id})" class="text-blue-600 dark:text-blue-400 p-1 ml-1" title="Edit"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                  <button onclick="openConfirmDeletePanneModal(${p.id})" class="text-red-600 dark:text-red-400 p-1 ml-1" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                </td></tr>`;
+                  
+                  <button onclick="openEditPanneModal(${p.id})" 
+                          class="text-blue-600 dark:text-blue-400 p-1 ml-1 disabled:opacity-50 disabled:cursor-not-allowed" 
+                          title="${isResolved ? 'Cannot edit a resolved issue' : 'Edit'}" 
+                          ${isResolved ? 'disabled' : ''}>
+                          <i data-lucide="edit-2" class="w-4 h-4"></i>
+                  </button>
+
+                  <button onclick="openConfirmDeletePanneModal(${p.id})" 
+                          class="text-red-600 dark:text-red-400 p-1 ml-1 disabled:opacity-50 disabled:cursor-not-allowed" 
+                          title="${isResolved ? 'Cannot delete a resolved issue' : 'Delete'}" 
+                          ${isResolved ? 'disabled' : ''}>
+                          <i data-lucide="trash-2" class="w-4 h-4"></i>
+                  </button>
+                </td>
+              </tr>`;
     }).join('') : `<tr><td colspan="6" class="text-center py-8 text-gray-500">No panne records found matching your criteria.</td></tr>`;
+    
     lucide.createIcons();
     const startRecord = totalRecords > 0 ? start + 1 : 0;
     const endRecord = start + paginatedRecords.length;
@@ -646,18 +571,118 @@
     renderPannesPagination(totalRecords);
   }
 
+
   function renderPannesPagination(totalRecords) { const totalPages = Math.ceil(totalRecords / pannesPerPage); const paginationContainer = document.getElementById('pannesPagination'); paginationContainer.innerHTML = ''; if (totalPages <= 1) return; const btnClasses = "px-3 py-1.5 text-sm rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-900 focus:ring-blue-500"; const itemClasses = "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"; const disabledClasses = "bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed"; const prevButton = Object.assign(document.createElement('button'), { innerHTML: `<i data-lucide="chevron-left" class="w-4 h-4 inline-block mr-1"></i> Prev`, className: `${btnClasses} ${currentPannePage === 1 ? disabledClasses : itemClasses}`, disabled: currentPannePage === 1, onclick: () => { if(currentPannePage > 1) {currentPannePage--; renderPannesTable();} } }); const pageInfo = Object.assign(document.createElement('span'), { className: "px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400", textContent: `Page ${currentPannePage} of ${totalPages}` }); const nextButton = Object.assign(document.createElement('button'), { innerHTML: `Next <i data-lucide="chevron-right" class="w-4 h-4 inline-block ml-1"></i>`, className: `${btnClasses} ${currentPannePage >= totalPages ? disabledClasses : itemClasses}`, disabled: currentPannePage >= totalPages, onclick: () => { if(currentPannePage < totalPages) {currentPannePage++; renderPannesTable();} } }); paginationContainer.append(prevButton, pageInfo, nextButton); lucide.createIcons(); }
 
   // --- Modal & Form Handling ---
   function openAddPanneModal() { if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to add a panne record.", "error"); return; } panneToEditId = null; document.getElementById('addPanneForm').reset(); document.getElementById('panneModalTitle').textContent = "Add New Panne (Issue)"; document.getElementById('panneSubmitButton').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4 mr-1"></i> Add Panne`; document.getElementById('panneSubmitButton').disabled = false; document.getElementById('panne_date_form').value = getISODateTimeString(new Date()); lucide.createIcons(); openModal('addPanneModal'); }
-  async function openEditPanneModal(id) { if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to edit.", "error"); return; } const panne = await apiRequest(`/panne/${id}`); if (!panne) { openInfoStatusModal("Error","Could not fetch panne details.", "error"); return; } panneToEditId = id; document.getElementById('panneModalTitle').textContent = "Edit Panne (Issue) Record"; document.getElementById('panneSubmitButton').innerHTML = `<i data-lucide="save" class="w-4 h-4 mr-1"></i> Save Changes`; document.getElementById('panneSubmitButton').disabled = false; document.getElementById('panneId_form').value = panne.id; document.getElementById('panne_vehicle_id_form').value = panne.vehicle_id; document.getElementById('panne_category_id_form').value = panne.category_panne_id; document.getElementById('panne_description_form').value = panne.description || ''; document.getElementById('panne_status_form').value = panne.status; document.getElementById('panne_date_form').value = getISODateTimeString(new Date(panne.panne_date)); lucide.createIcons(); openModal('addPanneModal'); }
-  async function openViewPanneModal(id) { if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to view.", "error"); return; } const panne = await apiRequest(`/panne/${id}`); if (!panne) { openInfoStatusModal("Error", "Could not fetch panne details.", "error"); return; } const vehicleDisplay = panne.vehicle ? `${panne.vehicle.make || 'N/A'} ${panne.vehicle.model || 'N/A'} (${panne.vehicle.plate_number || 'N/A'})` : 'N/A'; const categoryDisplay = panne.category_panne?.panne_name || 'N/A'; document.getElementById('view-panne-id').textContent = panne.id; document.getElementById('view-panne-vehicle').textContent = vehicleDisplay; document.getElementById('view-panne-category').textContent = categoryDisplay; document.getElementById('view-panne-description').textContent = panne.description || 'N/A'; document.getElementById('view-panne-status').textContent = panne.status.charAt(0).toUpperCase() + panne.status.slice(1).replace(/_/g, ' '); document.getElementById('view-panne-panne_date').textContent = new Date(panne.panne_date).toLocaleString(); document.getElementById('view-panne-created_at').textContent = new Date(panne.created_at).toLocaleString(); openModal('viewPanneModal'); }
-  async function handlePanneFormSubmit(event) { event.preventDefault(); if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in.", "error"); return; } const submitButton = document.getElementById('panneSubmitButton'); if (submitButton.disabled) return; submitButton.disabled = true; const panneDateValue = document.getElementById('panne_date_form').value; if (!panneDateValue) { openInfoStatusModal("Validation Error", "Panne Date is required.", "error"); submitButton.disabled = false; return; } const panneDateTime = new Date(panneDateValue); if (isNaN(panneDateTime.getTime())) { openInfoStatusModal("Validation Error", "Invalid Panne Date.", "error"); submitButton.disabled = false; return; } if (panneDateTime > new Date()) { openInfoStatusModal("Validation Error", "Panne Date cannot be in the future.", "error"); submitButton.disabled = false; return; } const formData = { vehicle_id: parseInt(document.getElementById('panne_vehicle_id_form').value), category_panne_id: parseInt(document.getElementById('panne_category_id_form').value), description: document.getElementById('panne_description_form').value.trim() || null, status: document.getElementById('panne_status_form').value, panne_date: panneDateTime.toISOString() }; if (!formData.vehicle_id || !formData.category_panne_id || !formData.status ) { openInfoStatusModal("Validation Error", "Vehicle, Category, and Status are required.", "error"); submitButton.disabled = false; return; } const actionType = panneToEditId ? "update" : "add"; openGenericConfirmModal( panneToEditId ? "Confirm Update" : "Confirm Add Panne", `Are you sure you want to ${actionType} this panne record?`, panneToEditId ? "Update" : "Add", panneToEditId ? "save" : "plus-circle", async (data) => { try { const result = panneToEditId ? await apiRequest(`/panne/${panneToEditId}`, 'PUT', data) : await apiRequest('/panne/', 'POST', data); if (result) { openInfoStatusModal("Success", `Panne record ${actionType}d successfully!`, "success"); closeAddPanneModal(); await fetchAndRenderPannes(); } else if (submitButton) { submitButton.disabled = false; } } catch (error) { console.error(`Error during ${actionType} panne record:`, error); if (submitButton) submitButton.disabled = false; } }, formData ); }
+  async function openEditPanneModal(id) { if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to edit.", "error"); return; } const panne = await apiRequest(`/panne/${id}`); if (!panne) { openInfoStatusModal("Error","Could not fetch panne details.", "error"); return; } panneToEditId = id; document.getElementById('panneModalTitle').textContent = "Edit Panne (Issue) Record"; document.getElementById('panneSubmitButton').innerHTML = `<i data-lucide="save" class="w-4 h-4 mr-1"></i> Save Changes`; document.getElementById('panneSubmitButton').disabled = false; document.getElementById('panneId_form').value = panne.id; document.getElementById('panne_vehicle_id_form').value = panne.vehicle_id; document.getElementById('panne_category_id_form').value = panne.category_panne_id; document.getElementById('panne_description_form').value = panne.description || ''; document.getElementById('panne_date_form').value = getISODateTimeString(new Date(panne.panne_date)); lucide.createIcons(); openModal('addPanneModal'); }
+  async function openViewPanneModal(id) { if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to view.", "error"); return; } const panne = await apiRequest(`/panne/${id}`); if (!panne) { openInfoStatusModal("Error", "Could not fetch panne details.", "error"); return; } const vehicleDisplay = panne.vehicle?.plate_number || 'N/A'; const categoryDisplay = panne.category_panne?.panne_name || 'N/A'; document.getElementById('view-panne-id').textContent = panne.id; document.getElementById('view-panne-vehicle').textContent = vehicleDisplay; document.getElementById('view-panne-category').textContent = categoryDisplay; document.getElementById('view-panne-description').textContent = panne.description || 'N/A'; document.getElementById('view-panne-status').textContent = panne.status.charAt(0).toUpperCase() + panne.status.slice(1).replace(/_/g, ' '); document.getElementById('view-panne-panne_date').textContent = new Date(panne.panne_date).toLocaleString(); document.getElementById('view-panne-created_at').textContent = new Date(panne.created_at).toLocaleString(); openModal('viewPanneModal'); }
+  
+  async function handlePanneFormSubmit(event) {
+    event.preventDefault();
+    if (!getAuthToken()) { openInfoStatusModal("Authentication Required", "Please log in.", "error"); return; }
+    const submitButton = document.getElementById('panneSubmitButton');
+    if (submitButton.disabled) return;
+    submitButton.disabled = true;
+
+    const panneDateValue = document.getElementById('panne_date_form').value;
+    if (!panneDateValue) { openInfoStatusModal("Validation Error", "Panne Date is required.", "error"); submitButton.disabled = false; return; }
+    const panneDateTime = new Date(panneDateValue);
+    if (isNaN(panneDateTime.getTime()) || panneDateTime > new Date()) { openInfoStatusModal("Validation Error", "A valid Panne Date that is not in the future is required.", "error"); submitButton.disabled = false; return; }
+    
+    const formData = {
+        vehicle_id: parseInt(document.getElementById('panne_vehicle_id_form').value),
+        category_panne_id: parseInt(document.getElementById('panne_category_id_form').value),
+        description: document.getElementById('panne_description_form').value.trim() || null,
+        panne_date: panneDateTime.toISOString()
+    };
+    
+    const isNewRecord = !panneToEditId;
+    if (isNewRecord) {
+        formData.status = 'active';
+    }
+
+    if (!formData.vehicle_id || !formData.category_panne_id) {
+        openInfoStatusModal("Validation Error", "Vehicle and Category are required.", "error");
+        submitButton.disabled = false; return;
+    }
+    
+    const actionType = isNewRecord ? "add" : "update";
+    openGenericConfirmModal(
+        isNewRecord ? "Confirm Add Panne" : "Confirm Update", `Are you sure you want to ${actionType} this panne record?`,
+        isNewRecord ? "Add" : "Update", isNewRecord ? "plus-circle" : "save",
+        async (data) => {
+            try {
+                // Step 1: Create or update the panne record.
+                const panneResult = isNewRecord ? await apiRequest('/panne/', 'POST', data) : await apiRequest(`/panne/${panneToEditId}`, 'PUT', data);
+
+                if (panneResult) {
+                    // Step 2: If a new, active panne was created, update the vehicle's status via the new dedicated endpoint.
+                    if (isNewRecord && data.status === 'active') {
+                        console.log(`New 'active' panne created. Updating status for vehicle ID: ${data.vehicle_id}.`);
+                        
+                        const vehicleStatusPayload = { status: VEHICLE_STATUS_OUT_OF_SERVICE };
+
+                        const vehicleUpdateResult = await apiRequest(`/vehicle/${data.vehicle_id}/status`, 'PATCH', vehicleStatusPayload);
+
+                        if (vehicleUpdateResult) {
+                            openInfoStatusModal("Success", `Panne created & vehicle status updated to 'Out of Service'!`, "success");
+                        } else {
+                            openInfoStatusModal("Partial Success", "Panne record was created, but the vehicle's status could not be updated. Please check it manually.", "error", 5000);
+                        }
+                    } else {
+                        // This was an edit, not a new record, so no status change is triggered.
+                        openInfoStatusModal("Success", `Panne record updated successfully!`, "success");
+                    }
+                    closeAddPanneModal();
+                    await fetchAndRenderPannes();
+                } else {
+                    if (submitButton) submitButton.disabled = false;
+                }
+            } catch (error) {
+                console.error(`Error during ${actionType} panne record:`, error);
+                if (submitButton) submitButton.disabled = false;
+            }
+        },
+        formData
+    );
+  }
+  
   function openConfirmDeletePanneModal(id) { if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to delete.", "error"); return; } openGenericConfirmModal( "Confirm Deletion", `Are you sure you want to permanently delete panne record ID: ${id}?`, "Delete", "trash-2", async (recordIdToDelete) => { const result = await apiRequest(`/panne/${recordIdToDelete}`, 'DELETE'); if (result === true) { openInfoStatusModal("Success", `Panne record ID: ${recordIdToDelete} deleted.`, "success"); currentPannePage = 1; await fetchAndRenderPannes(); } }, id ); }
 
   // --- Export Functions ---
-  function exportPannesExcel() { if (!getAuthToken()) { openInfoStatusModal("Export Error", "Please log in to export data.", "error"); return; } if (typeof XLSX === 'undefined') { openInfoStatusModal("Error", "Excel library (XLSX) is not loaded.", "error"); return;} try { const recordsToExport = getFilteredPannes(); if (!recordsToExport || recordsToExport.length === 0) { openInfoStatusModal("Info", "No data to export based on current filters.", "info"); return; } const data = recordsToExport.map(p => ({ ID: p.id, Vehicle: p.vehicle ? `${p.vehicle.make || ''} ${p.vehicle.model || ''} (${p.vehicle.plate_number || 'N/A'})` : 'N/A', Category: p.category_panne?.panne_name || 'N/A', Description: p.description || '', Status: p.status, 'Panne Date': new Date(p.panne_date).toLocaleString(), 'Reported At': new Date(p.created_at).toLocaleString() })); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Pannes"); XLSX.writeFile(wb, "pannes_issues_export.xlsx"); openInfoStatusModal("Success", "Data exported to Excel.", "success"); } catch (error) { console.error("Excel Export Error:", error); openInfoStatusModal("Export Error", `Failed to export to Excel: ${error.message || 'Unknown error'}.`, "error"); } }
-  function exportPannesPDF() { if (!getAuthToken()) { openInfoStatusModal("Export Error", "Please log in to export data.", "error"); return;} if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') { openInfoStatusModal("Error", "PDF library (jsPDF) is not loaded.", "error"); return;} try { const recordsToExport = getFilteredPannes(); if (!recordsToExport || recordsToExport.length === 0) { openInfoStatusModal("Info", "No data to export based on current filters.", "info"); return;} const { jsPDF } = window.jspdf; const doc = new jsPDF('l'); if (typeof doc.autoTable !== 'function') { openInfoStatusModal("Error", "PDF AutoTable plugin is not loaded.", "error"); return;} doc.setFontSize(18); doc.text('Panne (Issue) Records', 14, 15); const headers = [['ID', 'Vehicle (Plate)', 'Category', 'Status', 'Panne Date', 'Description']]; const data = recordsToExport.map(p => [ p.id, p.vehicle?.plate_number || 'N/A', p.category_panne?.panne_name || 'N/A', p.status, new Date(p.panne_date).toLocaleDateString(), (p.description || '').substring(0, 50) ]); doc.autoTable({ head: headers, body: data, startY: 25, theme:'grid', headStyles:{fillColor:[220, 53, 69], textColor:255}, columnStyles: { 0:{cellWidth:15}, 1:{cellWidth:40}, 2:{cellWidth:40}, 3:{cellWidth:30}, 4:{cellWidth:30}, 5:{cellWidth:80} } }); doc.save('pannes_issues_export.pdf'); openInfoStatusModal("Success", "Data exported to PDF.", "success"); } catch (error) { console.error("PDF Export Error:", error); openInfoStatusModal("Export Error", `Failed to export to PDF: ${error.message || 'Unknown error'}.`, "error"); } }
+  function exportPannesExcel() {
+      if (!getAuthToken()) { openInfoStatusModal("Export Error", "Please log in to export data.", "error"); return; }
+      const recordsToExport = getFilteredPannes();
+      if (!recordsToExport || recordsToExport.length === 0) { openInfoStatusModal("Info", "No data to export based on current filters.", "info"); return; }
+      const data = recordsToExport.map(p => ({
+          ID: p.id,
+          'Vehicle (Plate)': p.vehicle?.plate_number || 'N/A',
+          Category: p.category_panne?.panne_name || 'N/A',
+          Description: p.description || '',
+          Status: p.status,
+          'Panne Date': new Date(p.panne_date).toLocaleString(),
+          'Reported At': new Date(p.created_at).toLocaleString()
+      }));
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Pannes");
+      XLSX.writeFile(wb, "pannes_issues_export.xlsx");
+      openInfoStatusModal("Success", "Data exported to Excel.", "success");
+  }
+
+  function exportPannesPDF() {
+      if (!getAuthToken()) { openInfoStatusModal("Export Error", "Please log in to export data.", "error"); return; }
+      const recordsToExport = getFilteredPannes();
+      if (!recordsToExport || recordsToExport.length === 0) { openInfoStatusModal("Info", "No data to export based on current filters.", "info"); return; }
+      const { jsPDF } = window.jspdf; const doc = new jsPDF('l'); doc.setFontSize(18); doc.text('Panne (Issue) Records', 14, 15);
+      const headers = [['ID', 'Vehicle (Plate)', 'Category', 'Status', 'Panne Date', 'Description']];
+      const data = recordsToExport.map(p => [ p.id, p.vehicle?.plate_number || 'N/A', p.category_panne?.panne_name || 'N/A', p.status, new Date(p.panne_date).toLocaleDateString(), (p.description || '').substring(0, 50) ]);
+      doc.autoTable({ head: headers, body: data, startY: 25, theme: 'grid', headStyles: { fillColor: [220, 53, 69], textColor: 255 }, columnStyles: { 0: { cellWidth: 15 }, 1: { cellWidth: 40 }, 2: { cellWidth: 40 }, 3: { cellWidth: 30 }, 4: { cellWidth: 30 }, 5: { cellWidth: 80 } } });
+      doc.save('pannes_issues_export.pdf');
+      openInfoStatusModal("Success", "Data exported to PDF.", "success");
+  }
 
 </script>
 <script src="/static/js/global.js"></script> 

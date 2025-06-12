@@ -8,6 +8,15 @@ from enum import Enum
 # --- Pydantic Schemas for Dashboard Responses ---
 # (You might want to put these in your main schemas.py and import them)
 
+
+#This is to ensure the vehicle is eligible to fuel again
+class EligibilityResponse(BaseModel):
+    eligible: bool
+    message: str
+
+
+#######################################################################################################################
+
 class KPIStats(BaseModel):
     total_vehicles: int
     planned_trips: int 
@@ -291,16 +300,6 @@ class Config:
 # ... (Your TripResponse schema should remain the same, using VehicleNestedInTrip)
 
 
-
-""" class VehicleNestedInTrip(BaseModel): # Or whatever you named your simplified vehicle schema
-    id: int
-    plate_number: Optional[str] = None 
-    make: Optional[str] = None 
-    model: Optional[str] = None
-    # Add any other vehicle fields you want to see with the trip
-    class Config:
-        from_attributes = True # Pydantic v2+ (formerly orm_mode = True) """
-
 class DriverNestedInTrip(BaseModel): # If you also load driver
     id: int
     first_name: Optional[str] = None
@@ -403,6 +402,13 @@ class VehicleOut(VehicleBase):
     class Config:
         from_attributes = True
 ##################################################################################################################
+# In your schemas.py file, add this new class:
+
+class VehicleStatusUpdate(BaseModel):
+    status: str = Field(..., description="The new status for the vehicle (e.g., available, hors_service, in_mission)")
+
+
+########################################################################################################################
 
 class CategoryDocumentBase(BaseModel):
     doc_name: str
@@ -469,6 +475,17 @@ class MaintenanceBase(BaseModel):
     maintenance_cost: float
     receipt: str
     maintenance_date: datetime
+    status: str = Field(default="active", max_length=50, description="Status of maintenance (e.g., active, completed)")
+
+
+class MaintenanceUpdate(BaseModel): # For partial updates, all fields should be optional
+    cat_maintenance_id: Optional[int] = None # Made optional to align with nullable=True in DB if that's the case
+    vehicle_id: int
+    garage_id: Optional[int] = None # Made optional to align with nullable=True in DB if that's the case
+    maintenance_cost: float
+    receipt: str
+    maintenance_date: datetime
+    status: str = Field(default="active", max_length=50, description="Status of maintenance (e.g., active, completed)")
 
 class MaintenanceCreate(MaintenanceBase):
     pass # No changes needed here, it inherits the corrected fields

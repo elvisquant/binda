@@ -94,7 +94,7 @@ class Fuel(Base):
     vehicle = relationship("Vehicle")
     #fuel_type=relationship("fuel_type")
 
-#########################################################################################################################
+##################################################################################################################################
 class Vehicle(Base):
     __tablename__ = "vehicle"
     id = Column(Integer, primary_key=True, index=True)
@@ -157,11 +157,12 @@ class Maintenance(Base):
     cat_maintenance_id = Column(Integer, ForeignKey("category_maintenance.id", ondelete="SET NULL"), nullable=True)
     vehicle_id = Column(Integer, ForeignKey("vehicle.id", ondelete="CASCADE"), nullable=False) # ForeignKey references 'vehicle.id'
     garage_id = Column(Integer, ForeignKey("garage.id", ondelete="SET NULL"), nullable=True)
-
     maintenance_cost = Column(Float, default=0.0, nullable=False)
     receipt = Column(String, nullable=False)
     maintenance_date = Column(TIMESTAMP(timezone=True), nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
+    status = Column(String(50), default="active", nullable=False) # Added max length, nullable=False
+    
     
   
     vehicle = relationship("Vehicle") 

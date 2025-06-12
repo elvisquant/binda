@@ -72,5 +72,24 @@ def update_vehicle(id:int,updated_vehicle:schemas.VehicleCreate,db:Session = Dep
 ############################################################################################################################
 
 
+@router.patch("/{id}/status", status_code=status.HTTP_204_NO_CONTENT)
+def update_vehicle_status(id: int, status_update: schemas.VehicleStatusUpdate, db: Session = Depends(get_db)):
+    """
+    Update only the status of a specific vehicle.
+    This is a more efficient and secure way to handle simple status changes.
+    """
+    vehicle_query = db.query(models.Vehicle).filter(models.Vehicle.id == id)
+    vehicle = vehicle_query.first()
 
+    if vehicle is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Vehicle with id {id} not found")
+
+    # Update only the status field
+    vehicle_query.update({"status": status_update.status}, synchronize_session=False)
+    db.commit()
+
+    # We return no content on success, as indicated by HTTP 204
+    return
+################################################################################################################################
 

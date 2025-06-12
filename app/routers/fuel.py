@@ -10,6 +10,8 @@ from datetime import date as date_type, datetime # For potential date filtering
 from .. import models, schemas, oauth2
 from ..database import get_db
 
+
+
 router = APIRouter(
     prefix="/fuel",
     tags=['Fuel Records'],
@@ -183,3 +185,74 @@ def delete_existing_fuel_record(
     db.delete(db_fuel_record)
     db.commit()
     return # No response body for 204 status
+
+
+
+
+
+
+# --- ADD THIS NEW ENDPOINT TO THE END OF THE FILE ---
+
+@router.get("/check-eligibility/{vehicle_id}", response_model=schemas.EligibilityResponse)
+def check_fuel_eligibility(vehicle_id: int, db: Session = Depends(get_db)):
+    """
+    Checks if a vehicle is eligible for fueling based on two business rules:
+    1. The vehicle's status must be 'available'.
+    2. A 'Completed' trip must have occurred since the last fueling.
+    """
+    # Fetch the vehicle first
+    vehicle = db.query(models.Vehicle).filter(models.Vehicle.id == vehicle_id).first()
+    if not vehicle:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"message": f"Vehicle with ID {vehicle_id} not found."}
+        )
+
+    # --- RULE 1: Check if the vehicle status is 'available' ---
+    if vehicle.status != 'available':
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "eligible": False,
+                "message": f"Vehicle is not eligible for fueling. Its current status is '{vehicle.status}'."
+            }
+        )
+
+    # --- RULE 2: Check for a completed trip since the last fueling ---
+
+    # Step 2.1: Find the most recent fuel log for this vehicle
+    last_fuel_record = db.query(models.Fuel).filter(
+        models.Fuel.vehicle_id == vehicle_id
+    ).order_by(desc(models.Fuel.created_at)).first()
+
+    # Step 2.2: If there is a previous fuel record, we must check for a trip
+    if last_fuel_record:
+        # Get the timestamp of the last fueling
+        last_fueling_time = last_fuel_record.created_at
+
+        # Step 2.3: Check if a trip with status 'Completed' exists for this vehicle
+        # where the trip's end_time is AFTER the last fueling time.
+        # We use end_time as it signifies the completion of the trip.
+        completed_trip_exists = db.query(models.Trip).filter(
+            models.Trip.vehicle_id == vehicle_id,
+            models.Trip.status == 'Completed',
+            models.Trip.end_time > last_fueling_time
+        ).first() # We only need to know if at least one exists
+
+        if not completed_trip_exists:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "eligible": False,
+                    "message": "A completed trip is required since the last refueling on " + last_fueling_time.strftime('%Y-%m-%d %H:%M')
+                }
+            )
+
+    # If the code reaches here, it means:
+    # - The vehicle status is 'available'.
+    # - EITHER this is the vehicle's very first fueling OR a completed trip has occurred since the last one.
+    # Therefore, the vehicle is eligible.
+    return schemas.EligibilityResponse(
+        eligible=True,
+        message="Vehicle is eligible for fueling."
+    )

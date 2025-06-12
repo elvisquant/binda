@@ -27,19 +27,16 @@
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
 
-<!-- Main application wrapper -->
 <div class="flex h-screen">
 
-    <!-- Sidebar (Left) - Modified for responsiveness -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg 
-                             transform -translate-x-full transition-transform duration-300 ease-in-out 
-                             md:relative md:translate-x-0 md:shadow-lg md:border-r dark:border-gray-700 
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg
+                             transform -translate-x-full transition-transform duration-300 ease-in-out
+                             md:relative md:translate-x-0 md:shadow-lg md:border-r dark:border-gray-700
                              flex flex-col flex-shrink-0">
       <div class="flex justify-between items-center">
         <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
           <i data-lucide="command" class="w-7 h-7"></i><span>FleetDash</span>
         </div>
-        <!-- Close button for mobile sidebar -->
         <button id="sidebar-close-button" class="md:hidden text-gray-700 dark:text-gray-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
           <i data-lucide="x" class="w-6 h-6"></i>
         </button>
@@ -52,9 +49,6 @@
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
               <i data-lucide="pie-chart" class="w-5 h-5"></i><a href="analytics">Analytics</a>
             </li>
-            <!--li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
-              <i data-lucide="users" class="w-5 h-5"></i><a href="users">User</a>
-            </!li-->
             <li class="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
               <i data-lucide="user" class="w-5 h-5"></i><a href="driver">Driver</a>
             </li>
@@ -85,35 +79,20 @@
        </div>
     </aside>
 
-    <!-- Overlay for mobile menu -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
-    
-    <!-- Content Area Wrapper (Header + Main Content + Right Sidebar) -->
+
     <div class="flex-1 flex flex-col overflow-hidden">
-      
-      <!-- Header (Mobile Hamburger, Desktop Title, Theme Toggle, User Info) -->
+
       <header class="bg-white dark:bg-gray-800 shadow p-3 flex justify-between items-center flex-shrink-0 h-16">
-          <!-- Hamburger Menu Button - visible only on mobile -->
           <button id="mobile-menu-button" class="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none p-2">
               <i data-lucide="menu" class="w-6 h-6"></i>
           </button>
-          
-          <!-- Mobile Title - visible only on mobile -->
-          <div class="text-lg font-bold text-primary dark:text-primary-light md:hidden">
-              FleetDash
-          </div>
-
-          <!-- Desktop Title/Context - hidden on mobile -->
           <div class="hidden md:block text-xl font-semibold text-gray-700 dark:text-gray-200">
               Trip Management
           </div>
-          
-          <!-- Right side of header: Theme Toggle & User Info -->
           <div class="flex items-center space-x-3">
               <button id="theme-toggle-header" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
-                  <!-- Icon will be set by JS -->
               </button>
-              <!-- User info for desktop header - hidden on mobile -->
               <div class="hidden md:flex items-center space-x-2">
                   <div class="text-sm font-semibold" id="userDisplayNameHeader">User</div>
                   <div class="text-xs text-gray-500 dark:text-gray-400">Admin</div>
@@ -121,17 +100,15 @@
           </div>
       </header>
 
-      <!-- Main scrollable content area (Main Page Content + Right Sidebar) -->
       <div class="flex-1 flex overflow-hidden">
         <main class="flex-1 overflow-y-auto p-6">
-          <!-- Trip Table Section -->
           <section id="trip-section" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
             <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
               <div class="flex flex-wrap gap-2 items-center">
                 <button onclick="openAddTripModal()" class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 text-sm shadow-sm">
                   <i data-lucide="plus" class="w-4 h-4"></i> Add Trip
                 </button>
-                <input type="text" id="tripSearch" placeholder="Search trips (location, purpose, ID...)" class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
+                <input type="text" id="tripSearch" placeholder="Search trips..." class="border dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-black dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-auto">
               </div>
               <div class="flex flex-wrap gap-2 items-center">
                 <button onclick="exportTripsExcel()" class="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 text-sm shadow-sm">📄 Excel</button>
@@ -178,14 +155,13 @@
           </section>
         </main>
 
-        <!-- Right Sidebar -->
          <aside class="w-1/5 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden lg:block flex-shrink-0 border-l dark:border-gray-700 overflow-y-auto">
             <div class="flex justify-end items-center">
                 <div class="text-right">
                     <div class="text-sm font-semibold" id="userDisplayNameRightSidebar">User</div>
                     <div class="text-xs text-gray-500 dark:text-gray-400" id="userRoleDisplayRightSidebar">Role</div>
                 </div>
-                <img id="rightSidebarAdminAvatar" src="https://i.pravatar.cc/40?u=admin_stats_page" alt="Admin" class="w-10 h-10 rounded-full ml-2 object-cover">
+                <img id="rightSidebarAdminAvatar" src="https://i.pravatar.cc/40?u=fleet_manager" alt="Admin" class="w-10 h-10 rounded-full ml-2 object-cover">
             </div>
             <hr class="dark:border-gray-700/50">
             <div>
@@ -209,245 +185,58 @@
     </div>
 </div>
 
-<!-- Add/Edit Trip Modal -->
 <div id="addTripModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
   <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
-        <div>
-          <h3 class="text-xl font-bold text-gray-800 dark:text-white" id="tripModalTitle">Add New Trip</h3>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Fill in the trip details below</p>
-        </div>
-        <button onclick="closeAddTripModal()" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-          <i data-lucide="x" class="w-5 h-5 text-gray-500 dark:text-gray-400"></i>
-        </button>
+        <div><h3 class="text-xl font-bold text-gray-800 dark:text-white" id="tripModalTitle">Add New Trip</h3><p class="text-sm text-gray-500 dark:text-gray-400">Fill in the trip details below</p></div>
+        <button onclick="closeAddTripModal()" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"><i data-lucide="x" class="w-5 h-5 text-gray-500 dark:text-gray-400"></i></button>
       </div>
       <form id="addTripForm" class="space-y-4">
         <input type="hidden" id="tripId_form">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label for="trip_vehicle_id_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vehicle</label>
-              <select id="trip_vehicle_id_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"></select>
-            </div>
-            <div>
-              <label for="trip_driver_id_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Driver</label>
-              <select id="trip_driver_id_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"></select>
-            </div>
-        </div>
-         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label for="trip_start_location_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Location</label>
-              <input type="text" id="trip_start_location_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="e.g., Main Office">
-            </div>
-            <div>
-              <label for="trip_end_location_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Location</label>
-              <input type="text" id="trip_end_location_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="e.g., Client Site A">
-            </div>
+            <div><label for="trip_vehicle_id_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vehicle</label><select id="trip_vehicle_id_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"></select></div>
+            <div><label for="trip_driver_id_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Driver</label><select id="trip_driver_id_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"></select></div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label for="trip_start_time_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Time</label>
-              <input type="datetime-local" id="trip_start_time_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
-            </div>
-            <div>
-              <label for="trip_end_time_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Time (Optional)</label>
-              <input type="datetime-local" id="trip_end_time_form" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
-            </div>
+            <div><label for="trip_start_location_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Location</label><input type="text" id="trip_start_location_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="e.g., Main Office"></div>
+            <div><label for="trip_end_location_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Location</label><input type="text" id="trip_end_location_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="e.g., Client Site A"></div>
         </div>
-        <div>
-            <label for="trip_purpose_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Purpose</label>
-            <input type="text" id="trip_purpose_form" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="e.g., Delivery, Client Meeting">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div><label for="trip_start_time_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Time</label><input type="datetime-local" id="trip_start_time_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"></div>
+            <div><label for="trip_end_time_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Time (Required for completion)</label><input type="datetime-local" id="trip_end_time_form" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"></div>
         </div>
-        <div>
-            <label for="trip_status_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-            <select id="trip_status_form" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"></select>
-        </div>
-        <div>
-            <label for="trip_notes_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes (Optional)</label>
-            <textarea id="trip_notes_form" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Any additional details about the trip..."></textarea>
-        </div>
-        <div class="flex justify-end gap-3 pt-4">
-          <button type="button" onclick="closeAddTripModal()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
-          <button type="submit" id="tripSubmitButton" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center gap-2">
-            <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Trip
-          </button>
-        </div>
+        <div><label for="trip_purpose_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Purpose</label><input type="text" id="trip_purpose_form" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="e.g., Delivery, Client Meeting"></div>
+        <div><label for="trip_notes_form" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes (Optional)</label><textarea id="trip_notes_form" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Any additional details..."></textarea></div>
+        <div class="flex justify-end gap-3 pt-4"><button type="button" onclick="closeAddTripModal()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button><button type="submit" id="tripSubmitButton" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center gap-2"><i data-lucide="plus-circle" class="w-4 h-4"></i> Add Trip</button></div>
       </form>
     </div>
   </div>
 </div>
-
-<!-- View Trip Record Modal -->
 <div id="viewTripModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
   <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
     <div class="p-6">
-      <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xl font-bold text-gray-800 dark:text-white">Trip Details</h3>
-        <button onclick="closeViewTripModal()" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-          <i data-lucide="x" class="w-5 h-5 text-gray-500 dark:text-gray-400"></i>
-        </button>
-      </div>
-      <div id="viewTripDetails" class="space-y-3 text-sm">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
-            <div><span class="view-detail-label">Trip ID:</span> <span id="view-trip-id" class="view-detail-value"></span></div>
-            <div><span class="view-detail-label">Vehicle:</span> <span id="view-trip-vehicle" class="view-detail-value"></span></div>
-            <div><span class="view-detail-label">Driver:</span> <span id="view-trip-driver" class="view-detail-value"></span></div>
-            <div><span class="view-detail-label">Start Location:</span> <span id="view-trip-start_location" class="view-detail-value"></span></div>
-            <div><span class="view-detail-label">End Location:</span> <span id="view-trip-end_location" class="view-detail-value"></span></div>
-            <div><span class="view-detail-label">Start Time:</span> <span id="view-trip-start_time" class="view-detail-value"></span></div>
-            <div><span class="view-detail-label">End Time:</span> <span id="view-trip-end_time" class="view-detail-value"></span></div>
-            <div><span class="view-detail-label">Purpose:</span> <span id="view-trip-purpose" class="view-detail-value"></span></div>
-            <div><span class="view-detail-label">Status:</span> <span id="view-trip-status" class="view-detail-value"></span></div>
-            <div class="md:col-span-2"><span class="view-detail-label">Notes:</span> <p id="view-trip-notes" class="view-detail-value whitespace-pre-wrap mt-1"></p></div>
-            <div><span class="view-detail-label">Created At:</span> <span id="view-trip-created_at" class="view-detail-value"></span></div>
-        </div>
-      </div>
-      <div class="flex justify-end pt-6">
-          <button type="button" onclick="closeViewTripModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg">Close</button>
-      </div>
+      <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold text-gray-800 dark:text-white">Trip Details</h3><button onclick="closeViewTripModal()" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"><i data-lucide="x" class="w-5 h-5 text-gray-500 dark:text-gray-400"></i></button></div>
+      <div id="viewTripDetails" class="space-y-3 text-sm"><div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3"><div><span class="view-detail-label">Trip ID:</span> <span id="view-trip-id" class="view-detail-value"></span></div><div><span class="view-detail-label">Vehicle:</span> <span id="view-trip-vehicle" class="view-detail-value"></span></div><div><span class="view-detail-label">Driver:</span> <span id="view-trip-driver" class="view-detail-value"></span></div><div><span class="view-detail-label">Start Location:</span> <span id="view-trip-start_location" class="view-detail-value"></span></div><div><span class="view-detail-label">End Location:</span> <span id="view-trip-end_location" class="view-detail-value"></span></div><div><span class="view-detail-label">Start Time:</span> <span id="view-trip-start_time" class="view-detail-value"></span></div><div><span class="view-detail-label">End Time:</span> <span id="view-trip-end_time" class="view-detail-value"></span></div><div><span class="view-detail-label">Purpose:</span> <span id="view-trip-purpose" class="view-detail-value"></span></div><div><span class="view-detail-label">Status:</span> <span id="view-trip-status" class="view-detail-value"></span></div><div class="md:col-span-2"><span class="view-detail-label">Notes:</span> <p id="view-trip-notes" class="view-detail-value whitespace-pre-wrap mt-1"></p></div><div><span class="view-detail-label">Created At:</span> <span id="view-trip-created_at" class="view-detail-value"></span></div></div></div>
+      <div class="flex justify-end pt-6"><button type="button" onclick="closeViewTripModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg">Close</button></div>
     </div>
   </div>
 </div>
-
-<!-- Generic Confirmation Modal (reused) -->
 <div id="genericConfirmModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
-  <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md">
-    <div class="p-6">
-      <div class="flex justify-between items-center mb-4">
-        <h3 id="genericConfirmModalTitle" class="text-xl font-bold text-gray-800 dark:text-white">Confirm Action</h3>
-        <button onclick="closeGenericConfirmModal()" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-          <i data-lucide="x" class="w-5 h-5 text-gray-500 dark:text-gray-400"></i>
-        </button>
-      </div>
-      <p id="genericConfirmModalMessage" class="text-sm text-gray-600 dark:text-gray-400 mb-6">Are you sure you want to proceed?</p>
-      <div class="flex justify-end gap-3 pt-4">
-        <button onclick="closeGenericConfirmModal()"
-                class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
-          Cancel
-        </button>
-        <button id="genericConfirmModalConfirmBtn"
-                class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center gap-2">
-          Confirm
-        </button>
-      </div>
-    </div>
-  </div>
+  <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md"><div class="p-6"><div class="flex justify-between items-center mb-4"><h3 id="genericConfirmModalTitle" class="text-xl font-bold">Confirm</h3><button onclick="closeGenericConfirmModal()" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"><i data-lucide="x" class="w-5 h-5"></i></button></div><p id="genericConfirmModalMessage" class="text-sm mb-6">Are you sure?</p><div class="flex justify-end gap-3 pt-4"><button onclick="closeGenericConfirmModal()" class="px-4 py-2 border rounded-lg">Cancel</button><button id="genericConfirmModalConfirmBtn" class="px-4 py-2 bg-blue-500 text-white rounded-lg">Confirm</button></div></div></div>
 </div>
-
-<!-- Information/Status Modal (reused) -->
 <div id="infoStatusModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
-  <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md">
-    <div class="p-6 text-center">
-      <div id="infoStatusModalIconContainer" class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-      </div>
-      <h3 id="infoStatusModalTitle" class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-2">Status</h3>
-      <div class="mt-2">
-        <p id="infoStatusModalMessage" class="text-sm text-gray-500 dark:text-gray-400">Message here.</p>
-      </div>
-      <div class="mt-5 sm:mt-6">
-        <button type="button"
-                onclick="closeInfoStatusModal()"
-                id="infoStatusModalOkButton"
-                class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm">
-          OK
-        </button>
-      </div>
-    </div>
-  </div>
+  <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md"><div class="p-6 text-center"><div id="infoStatusModalIconContainer" class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4"></div><h3 id="infoStatusModalTitle" class="text-lg font-medium mb-2">Status</h3><div class="mt-2"><p id="infoStatusModalMessage" class="text-sm">Message.</p></div><div class="mt-5"><button type="button" onclick="closeInfoStatusModal()" id="infoStatusModalOkButton" class="inline-flex justify-center w-full rounded-md px-4 py-2 font-medium sm:text-sm">OK</button></div></div></div>
 </div>
 
 <script>
   const API_BASE_URL = '';
   const LOGIN_PAGE_URL = '/login';
 
-  // --- Authentication Helper ---
-  function getAuthToken() { return localStorage.getItem('accessToken'); }
-  function parseJwt(token) { try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { console.error("JWT Parse Error:", e); return null; }}
-
-  function updateUserInfoDisplay() {
-    const token = getAuthToken();
-    const userDisplayElements = [
-        document.getElementById('userDisplayNameHeader'),
-        document.getElementById('userDisplayNameRightSidebar')
-    ];
-
-    userDisplayElements.forEach(userDisplayElement => {
-        if (!userDisplayElement) return;
-        if (token) {
-            const decoded = parseJwt(token);
-            userDisplayElement.textContent = (decoded && decoded.sub) ? decoded.sub : 'User (Authenticated)';
-        } else {
-            userDisplayElement.textContent = 'Guest';
-        }
-    });
-     // For role display, which is separate
-    const userRoleElements = [
-        document.getElementById('userRoleDisplayRightSidebar')
-    ];
-    userRoleElements.forEach(roleEl => {
-        if (!roleEl) return;
-        const parentDiv = roleEl.parentElement;
-        if(parentDiv) {
-            if (token) {
-                const decoded = parseJwt(token);
-                roleEl.textContent = (decoded && decoded.role) ? decoded.role.charAt(0).toUpperCase() + decoded.role.slice(1) : 'Member';
-                parentDiv.style.display = '';
-            } else {
-                roleEl.textContent = '';
-                parentDiv.style.display = 'none';
-            }
-        }
-    });
-  }
-
-  async function apiRequest(endpoint, method = 'GET', body = null) {
-    const token = getAuthToken();
-    const headers = { 'Content-Type': 'application/json' };
-    
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-    } else if (!endpoint.startsWith('/login')) {
-        console.warn(`WARN: Protected endpoint ${endpoint} called without token.`);
-    }
-
-    const config = { method, headers };
-    if (body) config.body = JSON.stringify(body);
-
-    try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-      if (response.status === 401 && !endpoint.endsWith('/login/')) {
-        openInfoStatusModal("Authentication Error", "Session expired or unauthorized. Please log in again.", "error", 3000);
-        return null;
-      }
-      if (response.status === 204) return true; 
-
-      const responseData = await response.json().catch(async (jsonError) => {
-          const text = await response.text();
-          console.error(`JSON Parse Error for ${endpoint}. Status: ${response.status}. Response text (first 100 chars): ${text.substring(0,100)}...`, jsonError);
-          if (!response.ok) { return Promise.reject({ detail: text || `Server error ${response.status}` }); }
-          throw new Error(`Invalid JSON response from server (status ${response.status}). Check console for raw response.`);
-      });
-
-      if (!response.ok) {
-        const errorDetail = responseData.detail || (typeof responseData === 'object' ? JSON.stringify(responseData) : responseData) || 'Unknown error from server.';
-        console.error(`API Error for ${endpoint}: ${response.status}`, errorDetail);
-        const errorMsg = Array.isArray(errorDetail) ? errorDetail.map(e => e.msg || e.detail).join(', ') : errorDetail;
-        openInfoStatusModal(`API Error: ${response.status}`, errorMsg, "error");
-        return null;
-      }
-      return responseData;
-    } catch (error) {
-      console.error(`Network/Catch Error during API request to ${endpoint}:`, error);
-      openInfoStatusModal("Request Error", error.message || "A network error occurred. Please try again.", "error");
-      return null;
-    }
-  }
-
-  // --- Global Variables for Trips ---
   let allFetchedTripsFromServer = [];
-  let vehicleDataForDropdown = []; 
-  let driverDataForDropdown = [];   
-  const mockTripStatuses = ["planned", "ongoing", "completed"]; 
+  let allFetchedVehiclesFromServer = [];
+  let driverDataForDropdown = [];
+  let periodicUpdateInterval = null;
 
   const tripsPerPage = 5;
   let currentTripPage = 1;
@@ -459,151 +248,252 @@
   let currentActionData = null;
   let infoStatusModalTimeout = null;
 
-  // --- Sidebar & Theme ---
-  const sidebar = document.getElementById('sidebar'); const mobileMenuButton = document.getElementById('mobile-menu-button'); const sidebarCloseButton = document.getElementById('sidebar-close-button'); const sidebarOverlay = document.getElementById('sidebar-overlay'); const themeToggleButton = document.getElementById('theme-toggle-header'); function openMobileMenu() { if (sidebar && sidebarOverlay) { sidebar.classList.remove('-translate-x-full'); sidebar.classList.add('translate-x-0'); sidebarOverlay.classList.remove('hidden'); document.body.classList.add('overflow-hidden', 'md:overflow-auto'); } } function closeMobileMenu() { if (sidebar && sidebarOverlay) { sidebar.classList.add('-translate-x-full'); sidebar.classList.remove('translate-x-0'); sidebarOverlay.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); } } function setInitialThemeIcon() { if (themeToggleButton) { if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { document.documentElement.classList.add('dark'); themeToggleButton.innerHTML = '<i data-lucide="sun" class="w-5 h-5"></i>'; } else { document.documentElement.classList.remove('dark'); themeToggleButton.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>'; } lucide.createIcons(); } } function toggleTheme() { if (document.documentElement.classList.contains('dark')) { document.documentElement.classList.remove('dark'); localStorage.setItem('theme', 'light'); } else { document.documentElement.classList.add('dark'); localStorage.setItem('theme', 'dark'); } setInitialThemeIcon(); }
+  function getAuthToken() { return localStorage.getItem('accessToken'); }
+  function parseJwt(token) { try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { return null; } }
 
-  // --- Dashboard Widget Functions ---
-  async function fetchAndDisplayPerformanceInsights() { const insightsList = document.getElementById('keyPerformanceInsightsList'); if (!insightsList) return; insightsList.innerHTML = `<li class="flex items-start space-x-2"><i data-lucide="loader-2" class="w-4 h-4 text-gray-400 animate-spin mt-0.5 shrink-0"></i><span>Loading insights...</span></li>`; lucide.createIcons(); const data = await apiRequest('/dashboard-data/performance-insights'); if (!data) { insightsList.innerHTML = `<li class="flex items-start space-x-2 text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 shrink-0"></i><span>Failed to load insights.</span></li>`; lucide.createIcons(); return; } let insightsHTML = ''; const { fuel_efficiency, maintenance_compliance } = data; if (fuel_efficiency) { let trendColor = 'text-gray-500 dark:text-gray-400', trendText = 'steady'; if (fuel_efficiency.trend === 'up') { trendColor = 'text-green-500'; trendText = 'improving'; } else if (fuel_efficiency.trend === 'down') { trendColor = 'text-red-500'; trendText = 'worsening'; } const percentageText = fuel_efficiency.percentage_change !== null ? `(${fuel_efficiency.percentage_change > 0 ? '+' : ''}${fuel_efficiency.percentage_change}%)` : '(No prior data)'; insightsHTML += `<li class="flex items-start space-x-2"><i data-lucide="droplet" class="w-4 h-4 text-blue-500 mt-0.5 shrink-0"></i><div><span>Fuel Efficiency is <span class="${trendColor} font-semibold">${trendText}</span>.</span><span class="block text-gray-400 dark:text-gray-500 text-xs">Consumption vs last month ${percentageText}.</span></div></li>`; } if (maintenance_compliance) { insightsHTML += `<li class="flex items-start space-x-2"><i data-lucide="wrench" class="w-4 h-4 text-yellow-500 mt-0.5 shrink-0"></i><div><span><span class="font-semibold">${maintenance_compliance.total_maintenance_records}</span> maintenance records logged.</span><span class="block text-gray-400 dark:text-gray-500 text-xs">Total historical tasks.</span></div></li>`; } insightsList.innerHTML = insightsHTML || `<li>No performance data available.</li>`; lucide.createIcons(); }
-  async function fetchAndDisplayAlerts() { const alertsList = document.getElementById('notificationsList'); const notificationCountSpan = document.getElementById('notificationCount'); if (!alertsList || !notificationCountSpan) return; alertsList.innerHTML = `<div class="flex items-start space-x-2 p-2.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><i data-lucide="loader-2" class="w-5 h-5 text-gray-400 animate-spin mt-0.5 flex-shrink-0"></i><p class="text-xs text-gray-700 dark:text-gray-300">Loading alerts...</p></div>`; lucide.createIcons(); const data = await apiRequest('/dashboard-data/alerts'); if (!data) { alertsList.innerHTML = `<div class="flex items-start space-x-2 text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 shrink-0"></i><p class="text-xs">Failed to load alerts.</p></div>`; notificationCountSpan.textContent = '0'; lucide.createIcons(); return; } notificationCountSpan.textContent = data.total_alerts || '0'; let alertsHTML = ''; const createAlertItemHTML = (alert, icon, colorClass) => { if (!alert) return ''; return `<div class="flex items-start space-x-2 p-2.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><i data-lucide="${icon}" class="w-5 h-5 ${colorClass} mt-0.5 flex-shrink-0"></i><div><p class="text-xs font-semibold text-gray-800 dark:text-gray-200">${alert.plate_number}</p><p class="text-xs text-gray-600 dark:text-gray-300">${alert.message}</p></div></div>`; }; alertsHTML += createAlertItemHTML(data.critical_panne, 'shield-alert', 'text-red-500'); alertsHTML += createAlertItemHTML(data.maintenance_alert, 'calendar-clock', 'text-blue-500'); alertsHTML += createAlertItemHTML(data.trip_alert, 'route', 'text-purple-500'); if (data.total_alerts === 0) { alertsHTML = `<div class="flex items-center justify-center text-center p-4"><div class="text-gray-500 dark:text-gray-400"><i data-lucide="check-circle" class="w-8 h-8 mx-auto mb-2 text-green-500"></i><p class="text-xs">All clear! No new alerts.</p></div></div>`; } alertsList.innerHTML = alertsHTML; lucide.createIcons(); }
-  async function initializeDashboardWidgets() { await Promise.all([ fetchAndDisplayPerformanceInsights(), fetchAndDisplayAlerts() ]); }
+  function updateUserInfoDisplay() {
+      const token = getAuthToken();
+      const decoded = token ? parseJwt(token) : null;
+      const userName = decoded ? decoded.sub : 'Guest';
+      const userRole = decoded ? (decoded.role || 'Member') : 'Guest';
+      document.querySelectorAll('#userDisplayNameHeader, #userDisplayNameRightSidebar').forEach(el => { if (el) el.textContent = userName; });
+      document.querySelectorAll('#userRoleDisplayRightSidebar').forEach(el => { if (el) el.textContent = userRole.charAt(0).toUpperCase() + userRole.slice(1); });
+  }
 
-  // --- MODAL CONTROL ---
-  function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); document.body.style.overflow = ''; }
-  function openModal(modalId) { document.getElementById(modalId).classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+  async function apiRequest(endpoint, method = 'GET', body = null) {
+      const token = getAuthToken();
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const config = { method, headers };
+      if (body) config.body = JSON.stringify(body);
+      try {
+          const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+          if (response.status === 401 && !endpoint.includes('login')) {
+              openInfoStatusModal("Authentication Error", "Session expired. Please log in again.", "error", 4000);
+              return null;
+          }
+          if (response.status === 204) return true;
+          const data = await response.json();
+          if (!response.ok) {
+              const errorMsg = data.detail || `An unknown error occurred on endpoint ${endpoint}.`;
+              console.error(`API Error on ${method} ${endpoint}:`, response.status, data);
+              openInfoStatusModal(`API Error (${response.status})`, Array.isArray(errorMsg) ? errorMsg.map(e => e.msg).join(', ') : errorMsg, "error");
+              return null;
+          }
+          return data;
+      } catch (error) {
+          console.error(`Network/Fetch Error on ${method} ${endpoint}:`, error);
+          openInfoStatusModal("Network Error", "Could not connect to the server. Please check your connection.", "error");
+          return null;
+      }
+  }
+
+  function setInitialThemeIcon() {
+      const themeToggleButton = document.getElementById('theme-toggle-header');
+      if (!themeToggleButton) return;
+      if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+          themeToggleButton.innerHTML = `<i data-lucide="sun" class="w-5 h-5"></i>`;
+      } else {
+          document.documentElement.classList.remove('dark');
+          themeToggleButton.innerHTML = `<i data-lucide="moon" class="w-5 h-5"></i>`;
+      }
+      lucide.createIcons();
+  }
+  function toggleTheme() {
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+      setInitialThemeIcon();
+  }
+  function openMobileMenu() { document.getElementById('sidebar')?.classList.remove('-translate-x-full'); document.getElementById('sidebar-overlay')?.classList.remove('hidden'); }
+  function closeMobileMenu() { document.getElementById('sidebar')?.classList.add('-translate-x-full'); document.getElementById('sidebar-overlay')?.classList.add('hidden'); }
+  function closeModal(modalId) { const modal = document.getElementById(modalId); if(modal) modal.classList.add('hidden'); document.body.style.overflow = ''; }
+  function openModal(modalId) { const modal = document.getElementById(modalId); if(modal) modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
   function closeAddTripModal() { closeModal('addTripModal'); tripToEditId = null; document.getElementById('addTripForm').reset(); }
   function closeViewTripModal() { closeModal('viewTripModal'); }
   function closeGenericConfirmModal() { closeModal('genericConfirmModal'); currentConfirmAction = null; currentActionData = null; }
   function closeInfoStatusModal() { if (infoStatusModalTimeout) { clearTimeout(infoStatusModalTimeout); infoStatusModalTimeout = null; } closeModal('infoStatusModal'); }
-  function openGenericConfirmModal(title, message, confirmButtonText, confirmButtonIcon, onConfirmCallback, actionData = null) { document.getElementById('genericConfirmModalTitle').textContent = title; document.getElementById('genericConfirmModalMessage').textContent = message; const confirmBtn = document.getElementById('genericConfirmModalConfirmBtn'); confirmBtn.innerHTML = `<i data-lucide="${confirmButtonIcon || 'check-circle'}" class="w-4 h-4"></i> ${confirmButtonText || 'Confirm'}`; if(confirmButtonIcon === 'trash-2'){ confirmBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600'); confirmBtn.classList.add('bg-red-500', 'hover:bg-red-600');} else { confirmBtn.classList.remove('bg-red-500', 'hover:bg-red-600'); confirmBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');} lucide.createIcons(); currentConfirmAction = onConfirmCallback; currentActionData = actionData; openModal('genericConfirmModal'); }
-  function openInfoStatusModal(title, message, type = 'success', autoCloseDelay = 3000) { const modal = document.getElementById('infoStatusModal'); const titleEl = document.getElementById('infoStatusModalTitle'); const messageEl = document.getElementById('infoStatusModalMessage'); const iconContainer = document.getElementById('infoStatusModalIconContainer'); const okButton = document.getElementById('infoStatusModalOkButton'); titleEl.textContent = title; messageEl.textContent = message; if (infoStatusModalTimeout) clearTimeout(infoStatusModalTimeout); iconContainer.innerHTML = ''; if (type === 'success') { iconContainer.className = 'mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4'; iconContainer.innerHTML = `<i data-lucide="check" class="h-6 w-6 text-green-600"></i>`; okButton.className = 'inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:text-sm';} else if (type === 'error') { iconContainer.className = 'mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4'; iconContainer.innerHTML = `<i data-lucide="x-circle" class="h-6 w-6 text-red-600"></i>`; okButton.className = 'inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:text-sm';} else { iconContainer.className = 'mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4'; iconContainer.innerHTML = `<i data-lucide="info" class="h-6 w-6 text-blue-600"></i>`; okButton.className = 'inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm';} lucide.createIcons(); openModal('infoStatusModal'); if (autoCloseDelay > 0) { infoStatusModalTimeout = setTimeout(() => { closeInfoStatusModal(); }, autoCloseDelay); } }
+  function openGenericConfirmModal(title, message, confirmButtonText, confirmButtonIcon, onConfirmCallback, actionData = null) {
+      document.getElementById('genericConfirmModalTitle').textContent = title;
+      document.getElementById('genericConfirmModalMessage').textContent = message;
+      const btn = document.getElementById('genericConfirmModalConfirmBtn');
+      btn.innerHTML = `<i data-lucide="${confirmButtonIcon}" class="w-4 h-4 mr-2"></i> ${confirmButtonText}`;
+      lucide.createIcons();
+      currentConfirmAction = onConfirmCallback;
+      currentActionData = actionData;
+      openModal('genericConfirmModal');
+  }
+  function openInfoStatusModal(title, message, type = 'success', autoCloseDelay = 3500) {
+      const icons = { success: { class: 'bg-green-100 text-green-600', icon: 'check-circle' }, error: { class: 'bg-red-100 text-red-600', icon: 'x-circle' }, info: { class: 'bg-blue-100 text-blue-600', icon: 'info' }};
+      const config = icons[type] || icons.info;
+      document.getElementById('infoStatusModalTitle').textContent = title;
+      document.getElementById('infoStatusModalMessage').textContent = message;
+      const iconContainer = document.getElementById('infoStatusModalIconContainer');
+      iconContainer.className = `mx-auto flex items-center justify-center h-12 w-12 rounded-full ${config.class} mb-4`;
+      iconContainer.innerHTML = `<i data-lucide="${config.icon}" class="w-6 h-6"></i>`;
+      document.getElementById('infoStatusModalOkButton').className = `inline-flex justify-center w-full rounded-md px-4 py-2 font-medium sm:text-sm text-white ${config.class.replace('-100', '-600')}`;
+      lucide.createIcons();
+      openModal('infoStatusModal');
+      if (autoCloseDelay) infoStatusModalTimeout = setTimeout(closeInfoStatusModal, autoCloseDelay);
+  }
 
-  // --- DOMContentLoaded & Event Listeners ---
   document.addEventListener('DOMContentLoaded', async () => {
+      const themeToggleButton = document.getElementById('theme-toggle-header');
+      const mobileMenuButton = document.getElementById('mobile-menu-button');
+      const sidebarCloseButton = document.getElementById('sidebar-close-button');
+      const sidebarOverlay = document.getElementById('sidebar-overlay');
+      
       lucide.createIcons();
       updateUserInfoDisplay();
+      setInitialThemeIcon();
       
       themeToggleButton?.addEventListener('click', toggleTheme);
-      setInitialThemeIcon();
-
       mobileMenuButton?.addEventListener('click', openMobileMenu);
       sidebarCloseButton?.addEventListener('click', closeMobileMenu);
       sidebarOverlay?.addEventListener('click', closeMobileMenu);
-      document.querySelectorAll('#sidebar nav a').forEach(link => {
-          link.addEventListener('click', () => { if (window.innerWidth < 768) closeMobileMenu(); });
-      });
-
-      document.getElementById('addTripModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeAddTripModal(); });
-      document.getElementById('viewTripModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeViewTripModal(); });
-      document.getElementById('genericConfirmModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeGenericConfirmModal(); });
+      document.getElementById('addTripForm')?.addEventListener('submit', handleTripFormSubmit);
+      document.getElementById('tripSearch')?.addEventListener('input', () => { currentTripPage = 1; renderTripsTable(); });
+      document.getElementById('global-logout-btn')?.addEventListener('click', (e) => { e.preventDefault(); localStorage.removeItem('accessToken'); if(periodicUpdateInterval) clearInterval(periodicUpdateInterval); window.location.href = LOGIN_PAGE_URL; });
+      
       document.getElementById('genericConfirmModalConfirmBtn').addEventListener('click', async () => { if (typeof currentConfirmAction === 'function') await currentConfirmAction(currentActionData); closeGenericConfirmModal(); });
-      document.getElementById('infoStatusModal').addEventListener('click', e => { if (e.target.id === 'infoStatusModal' || e.target.closest('#infoStatusModalOkButton')) closeInfoStatusModal(); });
 
-      document.getElementById('global-logout-btn')?.addEventListener('click', (e) => {
-          e.preventDefault();
-          localStorage.removeItem('accessToken');
-          openInfoStatusModal("Logged Out", "You have been successfully logged out.", "success", 2500);
-          updateUserInfoDisplay();
-          allFetchedTripsFromServer = [];
+      if (getAuthToken()) {
+          await initializePageData();
+      } else {
           renderTripsTable();
-          document.getElementById('keyPerformanceInsightsList').innerHTML = `<li class="flex items-start space-x-2 text-gray-500"><i data-lucide="log-in" class="w-4 h-4 mt-0.5 shrink-0"></i><span>Please log in to see insights.</span></li>`;
-          document.getElementById('notificationsList').innerHTML = `<div class="flex items-start space-x-2 text-gray-500 p-2.5"><i data-lucide="log-in" class="w-5 h-5 mt-0.5 shrink-0"></i><p class="text-xs">Please log in to see alerts.</p></div>`;
-          document.getElementById('notificationCount').textContent = '0';
-          lucide.createIcons();
-      });
-      await initializeTripSection();
+          initializeDashboardWidgets();
+      }
+      setActiveTripDateFilterButton('all');
   });
 
-  // --- Initializer & Helpers ---
-  function getISODateString(date) { return new Date(date).toISOString().split('T')[0]; }
-  function formatDateTimeForDisplay(dateTimeString) {
-    if (!dateTimeString) return 'N/A';
-    try { return new Date(dateTimeString).toLocaleString(); } 
-    catch (e) { return dateTimeString; }
-  }
-  async function initializeTripSection() {
-    await populateTripFormDropdowns();
-    if(getAuthToken()) {
-        await fetchAndRenderTrips();
-        await initializeDashboardWidgets();
-    } else {
-        renderTripsTable();
-    }
-    document.getElementById('tripSearch').addEventListener('input', () => { currentTripPage = 1; renderTripsTable(); });
-    document.getElementById('addTripForm').addEventListener('submit', handleTripFormSubmit);
-    setActiveTripDateFilterButton('all');
+  async function initializePageData() {
+      await Promise.all([
+          fetchAllTrips(),
+          fetchAllVehicles(),
+          fetchAllDrivers(),
+          initializeDashboardWidgets()
+      ]);
+      await runPeriodicUpdates(true);
+      if (periodicUpdateInterval) clearInterval(periodicUpdateInterval);
+      periodicUpdateInterval = setInterval(runPeriodicUpdates, 30000);
   }
 
-  // --- Dropdowns ---
-  async function populateTripFormDropdowns() {
-    [vehicleDataForDropdown, driverDataForDropdown] = await Promise.all([
-        apiRequest('/vehicle/?limit=200'),
-        apiRequest('/driver/?limit=200')
-    ]);
-    vehicleDataForDropdown = vehicleDataForDropdown || [];
-    driverDataForDropdown = driverDataForDropdown || [];
+  async function fetchAllTrips() { allFetchedTripsFromServer = await apiRequest(`/trip/?limit=1000`) || []; }
+  async function fetchAllVehicles() { allFetchedVehiclesFromServer = await apiRequest(`/vehicle/?limit=1000`) || []; }
+  async function fetchAllDrivers() { driverDataForDropdown = await apiRequest(`/driver/?limit=1000`) || []; }
 
-    const populateSelect = (selectId, data, valueField, textFormatter, placeholder) => {
-        const select = document.getElementById(selectId);
-        select.innerHTML = `<option value="">${placeholder}</option>`;
-        (data || []).forEach(item => {
-            select.add(new Option(textFormatter(item), item[valueField]));
-        });
-    };
-    populateSelect('trip_vehicle_id_form', vehicleDataForDropdown, 'id', v => `${v.make || ''} ${v.model || ''} (${v.plate_number || 'N/A'})`, "Select Vehicle");
-    populateSelect('trip_driver_id_form', driverDataForDropdown, 'id', d => `${d.first_name} ${d.last_name} (ID: ${d.id})`, "Select Driver");
-
-    const statusSelect = document.getElementById('trip_status_form');
-    statusSelect.innerHTML = '<option value="">Select Status</option>';
-    mockTripStatuses.forEach(s => {
-        const o=document.createElement('option'); o.value=s;
-        o.textContent=s.charAt(0).toUpperCase() + s.slice(1).replace(/_/g, ' '); statusSelect.appendChild(o);
-    });
+  async function runPeriodicUpdates(isInitialLoad = false) {
+      if (!getAuthToken()) return;
+      const tripStatusChanges = await updateTripStatuses();
+      const vehicleStatusChanges = await updateVehicleStatusesBasedOnTrips();
+      if (isInitialLoad || tripStatusChanges || vehicleStatusChanges) {
+          renderTripsTable();
+      }
   }
 
-  // --- Data Fetching & Rendering ---
-  async function fetchAndRenderTrips() {
-    if (!getAuthToken()) {
-        allFetchedTripsFromServer = [];
-        renderTripsTable();
-        return;
-    }
-    const data = await apiRequest(`/trip/?limit=200`);
-    allFetchedTripsFromServer = Array.isArray(data) ? data : [];
-    renderTripsTable();
+  async function updateTripStatuses() {
+      const now = new Date();
+      let hasChanges = false;
+      const updatePromises = [];
+      allFetchedTripsFromServer.forEach(trip => {
+          if (trip.status === 'completed' || trip.status === 'cancelled') return;
+          const startTime = new Date(trip.start_time);
+          const endTime = trip.end_time ? new Date(trip.end_time) : null;
+          let newStatus = trip.status;
+          if (endTime && now > endTime) newStatus = 'completed';
+          else if (now >= startTime) newStatus = 'ongoing';
+          else newStatus = 'planned';
+          if (newStatus !== trip.status) {
+              hasChanges = true;
+              trip.status = newStatus;
+              const tripCopy = {...trip};
+              updatePromises.push(apiRequest(`/trip/${trip.id}`, 'PUT', tripCopy));
+          }
+      });
+      if(updatePromises.length > 0) await Promise.all(updatePromises);
+      return hasChanges;
   }
   
+  async function updateVehicleStatusesBasedOnTrips() {
+      let hasChanges = false;
+      const updatePromises = [];
+      const vehicleStatusMap = {};
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      allFetchedTripsFromServer.forEach(trip => {
+          if (trip.status === 'ongoing' && trip.vehicle_id) {
+              vehicleStatusMap[trip.vehicle_id] = 'in_use';
+          }
+      });
+
+      allFetchedTripsFromServer.forEach(trip => {
+          if (trip.status === 'planned' && trip.vehicle_id) {
+              const tripStartDateStr = new Date(trip.start_time).toISOString().split('T')[0];
+              if (tripStartDateStr === todayStr && !vehicleStatusMap[trip.vehicle_id]) {
+                  vehicleStatusMap[trip.vehicle_id] = 'booked';
+              }
+          }
+      });
+      
+      for (const vehicle of allFetchedVehiclesFromServer) {
+          if (vehicle.status === 'hors_service' || vehicle.status === 'in_maintenance') {
+              continue; 
+          }
+          const requiredStatus = vehicleStatusMap[vehicle.id] || 'available';
+
+          if (vehicle.status !== requiredStatus) {
+              hasChanges = true;
+              const originalVehicle = allFetchedVehiclesFromServer.find(v => v.id === vehicle.id);
+              if (originalVehicle) {
+                  const updatedVehicleData = { ...originalVehicle, status: requiredStatus };
+                  updatePromises.push(apiRequest(`/vehicle/${vehicle.id}`, 'PUT', updatedVehicleData));
+                  vehicle.status = requiredStatus; 
+              }
+          }
+      }
+
+      if (updatePromises.length > 0) {
+          await Promise.all(updatePromises);
+      }
+      return hasChanges;
+  }
+
   function getFilteredTrips() {
     let records = [...allFetchedTripsFromServer];
     if (activeTripDateFilter !== 'all') {
-        const range = (activeTripDateFilter === 'custom' && customTripFilterStartDate && customTripFilterEndDate)
-            ? { startDate: customTripFilterStartDate, endDate: customTripFilterEndDate }
-            : { startDate: getISODateString(new Date(new Date().setDate(new Date().getDate() - (activeTripDateFilter === 'today' ? 0 : (activeTripDateFilter === 'last7days' ? 6 : 29))))), endDate: getISODateString(new Date()) };
-        if (range.startDate && range.endDate) {
-            records = records.filter(r => {
-                if (!r.start_time) return false;
-                const recordStartDate = getISODateString(new Date(r.start_time));
-                return recordStartDate >= range.startDate && recordStartDate <= range.endDate;
-            });
+        let range = {};
+        if (activeTripDateFilter === 'custom' && customTripFilterStartDate && customTripFilterEndDate) {
+            range = { startDate: customTripFilterStartDate, endDate: customTripFilterEndDate };
+        } else {
+            const now = new Date();
+            let startDate = new Date(now);
+            if(activeTripDateFilter === 'last7days') startDate.setDate(now.getDate() - 6);
+            if(activeTripDateFilter === 'last30days') startDate.setDate(now.getDate() - 29);
+            startDate.setHours(0,0,0,0);
+            range = { startDate: startDate.toISOString().split('T')[0], endDate: now.toISOString().split('T')[0] };
         }
+        records = records.filter(r => {
+            if (!r.start_time) return false;
+            const recordStartDate = r.start_time.split('T')[0];
+            return recordStartDate >= range.startDate && recordStartDate <= range.endDate;
+        });
     }
     const searchTerm = document.getElementById('tripSearch').value.toLowerCase();
     if (searchTerm) {
         records = records.filter(r => {
-            const vehicle = vehicleDataForDropdown.find(v => v.id === r.vehicle_id);
+            const vehicle = allFetchedVehiclesFromServer.find(v => v.id === r.vehicle_id);
             const driver = driverDataForDropdown.find(d => d.id === r.driver_id);
-            const vehicleText = (vehicle ? vehicle.plate_number : '').toLowerCase();
-            const driverText = (driver ? `${driver.first_name} ${driver.last_name}` : '').toLowerCase();
-            return (r.start_location?.toLowerCase().includes(searchTerm)) ||
-                   (r.end_location?.toLowerCase().includes(searchTerm)) ||
-                   (r.purpose?.toLowerCase().includes(searchTerm)) ||
-                   (r.status?.toLowerCase().includes(searchTerm)) ||
-                   vehicleText.includes(searchTerm) ||
-                   driverText.includes(searchTerm);
+            return (r.id.toString().includes(searchTerm)) ||
+                    (vehicle && vehicle.plate_number.toLowerCase().includes(searchTerm)) ||
+                    (driver && `${driver.first_name} ${driver.last_name}`.toLowerCase().includes(searchTerm)) ||
+                    (r.start_location && r.start_location.toLowerCase().includes(searchTerm)) ||
+                    (r.end_location && r.end_location.toLowerCase().includes(searchTerm)) ||
+                    (r.status && r.status.toLowerCase().includes(searchTerm));
         });
     }
     return records;
   }
-  
+
   function renderTripsTable() {
     const tripsBody = document.getElementById('tripsBody');
     if (!getAuthToken()) {
@@ -614,63 +504,297 @@
     }
 
     const filteredRecords = getFilteredTrips();
-    const totalRecords = filteredRecords.length;
-    const totalPages = Math.ceil(totalRecords / tripsPerPage);
-    if (currentTripPage > totalPages) currentTripPage = totalPages || 1;
-    
-    const start = (currentTripPage - 1) * tripsPerPage;
-    const paginatedRecords = filteredRecords.slice(start, start + tripsPerPage);
+    currentTripPage = Math.min(currentTripPage, Math.ceil(filteredRecords.length / tripsPerPage) || 1);
+    const paginatedRecords = filteredRecords.slice((currentTripPage - 1) * tripsPerPage, currentTripPage * tripsPerPage);
+    document.getElementById('tripsCount').textContent = `Showing ${paginatedRecords.length > 0 ? (currentTripPage - 1) * tripsPerPage + 1 : 0} to ${(currentTripPage - 1) * tripsPerPage + paginatedRecords.length} of ${filteredRecords.length} records`;
 
-    if (paginatedRecords.length > 0) {
-        tripsBody.innerHTML = paginatedRecords.map(r => {
-            const vehicle = vehicleDataForDropdown.find(v => v.id === r.vehicle_id);
-            const driver = driverDataForDropdown.find(d => d.id === r.driver_id);
-            const vehicleDisplay = vehicle ? vehicle.plate_number : `VID ${r.vehicle_id}`;
-            const driverDisplay = driver ? `${driver.first_name} ${driver.last_name}` : `DID ${r.driver_id}`;
-            const statusFormatted = r.status ? (r.status.charAt(0).toUpperCase() + r.status.slice(1).replace(/_/g, ' ')) : 'N/A';
-            const statusColor = r.status === "completed" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : r.status === "ongoing" ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" : r.status === "planned" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200" : r.status === "cancelled" ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200" : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
+    tripsBody.innerHTML = paginatedRecords.length ? paginatedRecords.map(r => {
+        const isLocked = r.status.toLowerCase() === 'completed' || r.status.toLowerCase() === 'ongoing';
+        const vehicle = allFetchedVehiclesFromServer.find(v => v.id === r.vehicle_id);
+        const driver = driverDataForDropdown.find(d => d.id === r.driver_id);
+        const statusFormatted = (r.status || 'N/A').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        const statusColor = { planned: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200", ongoing: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200", completed: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200", cancelled: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200", booked: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200" }[r.status] || "bg-gray-100";
+        const disabledTitle = `Cannot modify an ${r.status} trip`;
 
-            return `<tr class="border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50" data-id="${r.id}">
-                        <td class="py-3 px-2">${r.id}</td> <td class="px-2">${vehicleDisplay}</td> <td class="px-2">${driverDisplay}</td>
-                        <td class="px-2">${r.start_location || 'N/A'}</td> <td class="px-2">${r.end_location || 'N/A'}</td>
-                        <td class="px-2">${formatDateTimeForDisplay(r.start_time)}</td>
-                        <td class="px-2"><span class="px-2 py-1 text-xs rounded-full ${statusColor}">${statusFormatted}</span></td>
-                        <td class="px-2 text-center whitespace-nowrap">
-                            <button onclick="openViewTripModal(${r.id})" class="text-green-600 dark:text-green-400 p-1" title="View"><i data-lucide="eye" class="w-4 h-4"></i></button>
-                            <button onclick="openEditTripModal(${r.id})" class="text-blue-600 dark:text-blue-400 p-1 ml-1" title="Edit"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                            <button onclick="openConfirmDeleteTripModal(${r.id})" class="text-red-600 dark:text-red-400 p-1 ml-1" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                        </td></tr>`;
-        }).join('');
-    } else {
-        tripsBody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-gray-500">No trips match your current filter criteria.</td></tr>`; 
-    }
+        return `<tr class="border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td class="py-3 px-2">${r.id}</td>
+                    <td class="px-2">${vehicle ? vehicle.plate_number : `VID ${r.vehicle_id}`}</td>
+                    <td class="px-2">${driver ? `${driver.first_name} ${driver.last_name}` : `DID ${r.driver_id}`}</td>
+                    <td class="px-2">${r.start_location}</td> <td class="px-2">${r.end_location}</td>
+                    <td class="px-2">${formatDateTimeForDisplay(r.start_time)}</td>
+                    <td class="px-2"><span class="px-2 py-1 text-xs rounded-full ${statusColor}">${statusFormatted}</span></td>
+                    <td class="px-2 text-center whitespace-nowrap">
+                        <button onclick="openViewTripModal(${r.id})" class="p-1"><i data-lucide="eye" class="w-4 h-4 text-green-500"></i></button>
+                        <button onclick="openEditTripModal(${r.id})" 
+                                class="p-1 ml-1 disabled:opacity-50 disabled:cursor-not-allowed" 
+                                title="${isLocked ? disabledTitle : 'Edit'}" 
+                                ${isLocked ? 'disabled' : ''}>
+                                <i data-lucide="edit-2" class="w-4 h-4 text-blue-500"></i>
+                        </button>
+                        <button onclick="openConfirmDeleteTripModal(${r.id})" 
+                                class="p-1 ml-1 disabled:opacity-50 disabled:cursor-not-allowed" 
+                                title="${isLocked ? disabledTitle : 'Delete'}" 
+                                ${isLocked ? 'disabled' : ''}>
+                                <i data-lucide="trash-2" class="w-4 h-4 text-red-500"></i>
+                        </button>
+                    </td></tr>`;
+    }).join('') : `<tr><td colspan="8" class="text-center py-8 text-gray-500">No trips found for the current filter.</td></tr>`;
+
     lucide.createIcons();
-    const startRecord = totalRecords > 0 ? start + 1 : 0;
-    const endRecord = start + paginatedRecords.length;
-    document.getElementById('tripsCount').textContent = `Showing ${startRecord} to ${endRecord} of ${totalRecords} records`;
-    renderTripPagination(totalRecords); 
+    renderTripPagination(filteredRecords.length);
+  }
+  
+  function renderTripPagination(totalRecords) {
+      const totalPages = Math.ceil(totalRecords / tripsPerPage);
+      const paginationContainer = document.getElementById('tripsPagination');
+      paginationContainer.innerHTML = '';
+      if(totalPages <= 1) return;
+      const btnClasses = "px-3 py-1.5 text-sm rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-900 focus:ring-blue-500";
+      const itemClasses = "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700";
+      const disabledClasses = "bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed";
+      const prevButton = Object.assign(document.createElement('button'), { innerHTML: `<i data-lucide="chevron-left" class="w-4 h-4"></i>`, className: `${btnClasses} ${currentTripPage === 1 ? disabledClasses : itemClasses}`, disabled: currentTripPage === 1, onclick: () => { if(currentTripPage > 1) {currentTripPage--; renderTripsTable();} } });
+      const pageInfo = Object.assign(document.createElement('span'), { className: "px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400", textContent: `Page ${currentTripPage} of ${totalPages}` });
+      const nextButton = Object.assign(document.createElement('button'), { innerHTML: `<i data-lucide="chevron-right" class="w-4 h-4"></i>`, className: `${btnClasses} ${currentTripPage >= totalPages ? disabledClasses : itemClasses}`, disabled: currentTripPage >= totalPages, onclick: () => { if(currentTripPage < totalPages) {currentTripPage++; renderTripsTable();} } });
+      paginationContainer.append(prevButton, pageInfo, nextButton);
+      lucide.createIcons();
   }
 
-  function renderTripPagination(totalRecords) { const totalPages = Math.ceil(totalRecords / tripsPerPage); const paginationContainer = document.getElementById('tripsPagination'); paginationContainer.innerHTML = ''; if (totalPages <= 1) return; const btnClasses = "px-3 py-1.5 text-sm rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-900 focus:ring-blue-500"; const itemClasses = "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"; const disabledClasses = "bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed"; const prevButton = Object.assign(document.createElement('button'), { innerHTML: `<i data-lucide="chevron-left" class="w-4 h-4 inline-block mr-1"></i> Prev`, className: `${btnClasses} ${currentTripPage === 1 ? disabledClasses : itemClasses}`, disabled: currentTripPage === 1, onclick: () => { if(currentTripPage > 1) {currentTripPage--; renderTripsTable();} } }); const pageInfo = Object.assign(document.createElement('span'), { className: "px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400", textContent: `Page ${currentTripPage} of ${totalPages}` }); const nextButton = Object.assign(document.createElement('button'), { innerHTML: `Next <i data-lucide="chevron-right" class="w-4 h-4 inline-block ml-1"></i>`, className: `${btnClasses} ${currentTripPage >= totalPages ? disabledClasses : itemClasses}`, disabled: currentTripPage >= totalPages, onclick: () => { if(currentTripPage < totalPages) {currentTripPage++; renderTripsTable();} } }); paginationContainer.append(prevButton, pageInfo, nextButton); lucide.createIcons(); }
+  function formatDateTimeForInput(isoString) { return isoString ? isoString.slice(0, 16) : ''; }
+  function formatDateTimeForDisplay(isoString) { return isoString ? new Date(isoString).toLocaleString() : 'N/A'; }
+  
+  function populateFormDropdowns(currentVehicleId = null) {
+      const vehicleSelect = document.getElementById('trip_vehicle_id_form');
+      const driverSelect = document.getElementById('trip_driver_id_form');
+      
+      const availableVehicles = allFetchedVehiclesFromServer.filter(v => v.status === 'available' || v.id === currentVehicleId);
+      vehicleSelect.innerHTML = '<option value="">Select Vehicle</option>';
+      
+      availableVehicles.forEach(v => {
+          let displayText = `${v.plate_number} (${v.make} ${v.model})`;
 
-  // --- Modal & Form Handling ---
-  async function openAddTripModal() { if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to add a trip.", "error"); return; } tripToEditId = null; document.getElementById('addTripForm').reset(); await populateTripFormDropdowns(); document.getElementById('tripModalTitle').textContent = "Add New Trip"; document.getElementById('tripSubmitButton').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4"></i> Add Trip`; lucide.createIcons(); openModal('addTripModal'); }
-  function formatDateTimeForInput(dateTimeString) { if (!dateTimeString) return ''; const date = new Date(dateTimeString); if (isNaN(date.getTime())) return ''; const year = date.getFullYear(); const month = (date.getMonth() + 1).toString().padStart(2, '0'); const day = date.getDate().toString().padStart(2, '0'); const hours = date.getHours().toString().padStart(2, '0'); const minutes = date.getMinutes().toString().padStart(2, '0'); return `${year}-${month}-${day}T${hours}:${minutes}`; }
-  async function openEditTripModal(id) { if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to edit a trip.", "error"); return; } const recordToEdit = await apiRequest(`/trip/${id}`); if (!recordToEdit) { openInfoStatusModal("Error","Could not fetch trip details for editing.", "error"); return; } tripToEditId = id; document.getElementById('addTripForm').reset(); await populateTripFormDropdowns(); document.getElementById('tripModalTitle').textContent = "Edit Trip Record"; document.getElementById('tripSubmitButton').innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> Save Changes`; document.getElementById('tripId_form').value = recordToEdit.id; document.getElementById('trip_vehicle_id_form').value = recordToEdit.vehicle_id; document.getElementById('trip_driver_id_form').value = recordToEdit.driver_id; document.getElementById('trip_start_location_form').value = recordToEdit.start_location || ''; document.getElementById('trip_end_location_form').value = recordToEdit.end_location || ''; document.getElementById('trip_start_time_form').value = formatDateTimeForInput(recordToEdit.start_time); document.getElementById('trip_end_time_form').value = formatDateTimeForInput(recordToEdit.end_time); document.getElementById('trip_purpose_form').value = recordToEdit.purpose || ''; document.getElementById('trip_status_form').value = recordToEdit.status || ''; document.getElementById('trip_notes_form').value = recordToEdit.notes || ''; lucide.createIcons(); openModal('addTripModal'); }
-  async function openViewTripModal(id) { const record = await apiRequest(`/trip/${id}`); if (!record) { openInfoStatusModal("Error", "Could not fetch trip details for viewing.", "error"); return; } const vehicle = vehicleDataForDropdown.find(v => v.id === record.vehicle_id); const driver = driverDataForDropdown.find(d => d.id === record.driver_id); document.getElementById('view-trip-id').textContent = record.id; document.getElementById('view-trip-vehicle').textContent = vehicle ? `${vehicle.plate_number} (${vehicle.make || ''} ${vehicle.model || ''})` : `VehicleID ${record.vehicle_id}`; document.getElementById('view-trip-driver').textContent = driver ? `${driver.first_name} ${driver.last_name}` : `DriverID ${record.driver_id}`; document.getElementById('view-trip-start_location').textContent = record.start_location || 'N/A'; document.getElementById('view-trip-end_location').textContent = record.end_location || 'N/A'; document.getElementById('view-trip-start_time').textContent = formatDateTimeForDisplay(record.start_time); document.getElementById('view-trip-end_time').textContent = formatDateTimeForDisplay(record.end_time); document.getElementById('view-trip-purpose').textContent = record.purpose || 'N/A'; document.getElementById('view-trip-status').textContent = record.status ? (record.status.charAt(0).toUpperCase() + record.status.slice(1).replace(/_/g, ' ')) : 'N/A'; document.getElementById('view-trip-notes').textContent = record.notes || 'No notes provided.'; document.getElementById('view-trip-created_at').textContent = formatDateTimeForDisplay(record.created_at); openModal('viewTripModal'); }
-  async function handleTripFormSubmit(event) { event.preventDefault(); if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to submit the form.", "error"); return; } const startTimeValue = document.getElementById('trip_start_time_form').value; const endTimeValue = document.getElementById('trip_end_time_form').value; if (!startTimeValue) { openInfoStatusModal("Validation Error", "Start time is required.", "error"); return; } const startTimeObj = new Date(startTimeValue); let endTimeObj = null; if (endTimeValue) { endTimeObj = new Date(endTimeValue); if (endTimeObj <= startTimeObj) { openInfoStatusModal("Validation Error", "End time must be after start time.", "error"); return; } } const tripData = { vehicle_id: parseInt(document.getElementById('trip_vehicle_id_form').value), driver_id: parseInt(document.getElementById('trip_driver_id_form').value), start_location: document.getElementById('trip_start_location_form').value.trim(), end_location: document.getElementById('trip_end_location_form').value.trim(), start_time: startTimeObj.toISOString(), end_time: endTimeObj ? endTimeObj.toISOString() : null, purpose: document.getElementById('trip_purpose_form').value.trim() || null, status: document.getElementById('trip_status_form').value, notes: document.getElementById('trip_notes_form').value.trim() || null }; if (isNaN(tripData.vehicle_id) || isNaN(tripData.driver_id) || !tripData.start_location || !tripData.end_location || !tripData.status) { openInfoStatusModal("Validation Error", "Please fill all required Trip fields: Vehicle, Driver, Start/End Location, Start Time, and Status.", "error"); return; } const actionType = tripToEditId ? "update" : "add"; openGenericConfirmModal( tripToEditId ? "Confirm Update" : "Confirm Add Trip", `Are you sure you want to ${actionType} this trip${tripToEditId ? "'s details" : ""}?`, tripToEditId ? "Update" : "Add Trip", tripToEditId ? "save" : "plus-circle", async (dataForAction) => { let result; if (tripToEditId) { result = await apiRequest(`/trip/${tripToEditId}`, 'PUT', dataForAction); } else { result = await apiRequest('/trip/', 'POST', dataForAction); } if (result) { openInfoStatusModal("Success", `Trip record ${tripToEditId ? 'updated' : 'added'} successfully!`, "success"); closeAddTripModal(); currentTripPage = 1; await fetchAndRenderTrips(); } }, tripData ); }
-  function openConfirmDeleteTripModal(id) { if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in to delete a trip.", "error"); return; } openGenericConfirmModal( "Confirm Deletion", "Are you sure you want to permanently delete this trip record? This action cannot be undone.", "Delete", "trash-2", async () => { const result = await apiRequest(`/trip/${id}`, 'DELETE'); if (result) { openInfoStatusModal("Success", "Trip record deleted successfully!", "success"); currentTripPage = 1; await fetchAndRenderTrips(); } } ); }
+          const futureTrips = allFetchedTripsFromServer
+              .filter(trip => 
+                  trip.vehicle_id === v.id && 
+                  trip.status === 'planned' &&
+                  new Date(trip.start_time) > new Date()
+              )
+              .sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
 
-  // --- Filter & Export ---
-  function applyTripDateFilter(filterType) { activeTripDateFilter = filterType; customTripFilterStartDate = null; customTripFilterEndDate = null; document.getElementById('tripCustomDateRange').classList.add('hidden'); setActiveTripDateFilterButton(filterType); currentTripPage = 1; renderTripsTable(); }
+          if (futureTrips.length > 0) {
+              const nextTripDate = new Date(futureTrips[0].start_time).toLocaleDateString();
+              displayText = `${v.plate_number} (Available before ${nextTripDate})`;
+          }
+
+          vehicleSelect.add(new Option(displayText, v.id));
+      });
+
+      driverSelect.innerHTML = '<option value="">Select Driver</option>';
+      driverDataForDropdown.forEach(d => driverSelect.add(new Option(`${d.first_name} ${d.last_name}`, d.id)));
+  }
+
+  async function openAddTripModal() {
+      if (!getAuthToken()) return openInfoStatusModal("Authentication Required", "Please log in.", "error");
+      tripToEditId = null;
+      document.getElementById('addTripForm').reset();
+      populateFormDropdowns();
+      document.getElementById('tripModalTitle').textContent = "Add New Trip";
+      document.getElementById('tripSubmitButton').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4 mr-2"></i> Add Trip`;
+      lucide.createIcons();
+      openModal('addTripModal');
+  }
+
+  async function openEditTripModal(id) {
+      if (!getAuthToken()) return openInfoStatusModal("Authentication Required", "Please log in.", "error");
+      const record = allFetchedTripsFromServer.find(t => t.id === id);
+      if (!record) return openInfoStatusModal("Error", "Could not find trip details.", "error");
+      tripToEditId = id;
+      document.getElementById('addTripForm').reset();
+      populateFormDropdowns(record.vehicle_id);
+      
+      Object.keys(record).forEach(key => {
+          const el = document.getElementById(`trip_${key}_form`);
+          if (el) el.value = key.includes('time') ? formatDateTimeForInput(record[key]) : record[key];
+      });
+      document.getElementById('trip_vehicle_id_form').value = record.vehicle_id;
+      document.getElementById('trip_driver_id_form').value = record.driver_id;
+      document.getElementById('tripModalTitle').textContent = "Edit Trip Record";
+      document.getElementById('tripSubmitButton').innerHTML = `<i data-lucide="save" class="w-4 h-4 mr-2"></i> Save Changes`;
+      lucide.createIcons();
+      openModal('addTripModal');
+  }
+
+  async function handleTripFormSubmit(event) {
+      event.preventDefault();
+      const startTimeValue = document.getElementById('trip_start_time_form').value;
+      const endTimeValue = document.getElementById('trip_end_time_form').value;
+      
+      if (endTimeValue && new Date(endTimeValue) <= new Date(startTimeValue)) {
+          return openInfoStatusModal("Validation Error", "End time must be after start time.", "error");
+      }
+      
+      const tripData = {
+          vehicle_id: parseInt(document.getElementById('trip_vehicle_id_form').value),
+          driver_id: parseInt(document.getElementById('trip_driver_id_form').value),
+          start_location: document.getElementById('trip_start_location_form').value,
+          end_location: document.getElementById('trip_end_location_form').value,
+          start_time: new Date(startTimeValue).toISOString(),
+          end_time: endTimeValue ? new Date(endTimeValue).toISOString() : null,
+          purpose: document.getElementById('trip_purpose_form').value || null,
+          notes: document.getElementById('trip_notes_form').value || null,
+      };
+
+      if (!tripToEditId) tripData.status = 'planned';
+
+      if (isNaN(tripData.vehicle_id) || isNaN(tripData.driver_id)) {
+          return openInfoStatusModal("Validation Error", "Vehicle and Driver are required.", "error");
+      }
+
+      const action = tripToEditId ? 'update' : 'add';
+      openGenericConfirmModal( `Confirm ${action}`, `Are you sure you want to ${action} this trip?`,
+          action.charAt(0).toUpperCase() + action.slice(1), tripToEditId ? 'save' : 'plus-circle',
+          async (data) => {
+              const endpoint = tripToEditId ? `/trip/${tripToEditId}` : '/trip/';
+              const method = tripToEditId ? 'PUT' : 'POST';
+              const result = await apiRequest(endpoint, method, data);
+              if (result) {
+                  openInfoStatusModal("Success", `Trip ${action}ed successfully!`, "success");
+                  closeAddTripModal();
+                  await initializePageData();
+              }
+          }, tripData
+      );
+  }
+
+  async function openViewTripModal(id) {
+    const record = allFetchedTripsFromServer.find(t => t.id === id);
+    if (!record) return openInfoStatusModal("Error", "Could not find trip details.", "error");
+    const vehicle = allFetchedVehiclesFromServer.find(v => v.id === record.vehicle_id);
+    const driver = driverDataForDropdown.find(d => d.id === record.driver_id);
+    document.getElementById('view-trip-id').textContent = record.id;
+    document.getElementById('view-trip-vehicle').textContent = vehicle ? `${vehicle.plate_number} (${vehicle.make} ${vehicle.model})` : 'N/A';
+    document.getElementById('view-trip-driver').textContent = driver ? `${driver.first_name} ${driver.last_name}` : 'N/A';
+    document.getElementById('view-trip-start_location').textContent = record.start_location;
+    document.getElementById('view-trip-end_location').textContent = record.end_location;
+    document.getElementById('view-trip-start_time').textContent = formatDateTimeForDisplay(record.start_time);
+    document.getElementById('view-trip-end_time').textContent = formatDateTimeForDisplay(record.end_time);
+    document.getElementById('view-trip-purpose').textContent = record.purpose || 'N/A';
+    document.getElementById('view-trip-status').textContent = (record.status || 'N/A').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    document.getElementById('view-trip-notes').textContent = record.notes || 'None';
+    document.getElementById('view-trip-created_at').textContent = formatDateTimeForDisplay(record.created_at);
+    openModal('viewTripModal');
+  }
+
+  function openConfirmDeleteTripModal(id) {
+      openGenericConfirmModal("Confirm Deletion", "Are you sure you want to delete this trip? This cannot be undone.", "Delete", "trash-2",
+          async () => {
+              const result = await apiRequest(`/trip/${id}`, 'DELETE');
+              if (result) {
+                  openInfoStatusModal("Success", "Trip deleted.", "success");
+                  await initializePageData();
+              }
+          }
+      );
+  }
+  
+  function applyTripDateFilter(type) { activeTripDateFilter = type; customTripFilterStartDate = null; customTripFilterEndDate = null; document.getElementById('tripCustomDateRange').classList.add('hidden'); setActiveTripDateFilterButton(type); currentTripPage = 1; renderTripsTable(); }
   function toggleTripCustomDateRange() { document.getElementById('tripCustomDateRange').classList.toggle('hidden'); if (!document.getElementById('tripCustomDateRange').classList.contains('hidden')) { setActiveTripDateFilterButton('trip-filter-custom-btn'); } else if (activeTripDateFilter === 'custom') { applyTripDateFilter('all'); } }
-  function applyTripCustomDateFilter() { const startDate = document.getElementById('tripCustomStartDate').value; const endDate = document.getElementById('tripCustomEndDate').value; if (!startDate || !endDate) { openInfoStatusModal("Input Error", "Please select both start and end dates for the trip filter.", "error"); return; } if (new Date(startDate) > new Date(endDate)) { openInfoStatusModal("Input Error", "Start date cannot be after end date.", "error"); return; } activeTripDateFilter = 'custom'; customTripFilterStartDate = startDate; customTripFilterEndDate = endDate; setActiveTripDateFilterButton('trip-filter-custom-btn'); currentTripPage = 1; renderTripsTable(); }
-  function setActiveTripDateFilterButton(filterId) { document.querySelectorAll('#trip-section .date-filter-btn').forEach(btn => btn.classList.remove('active')); const activeBtn = document.getElementById(filterId.startsWith('trip-filter-') ? filterId : `trip-filter-${filterId}`); if (activeBtn) activeBtn.classList.add('active'); }
+  function applyTripCustomDateFilter() { const startDate = document.getElementById('tripCustomStartDate').value; const endDate = document.getElementById('tripCustomEndDate').value; if (!startDate || !endDate || new Date(startDate) > new Date(endDate)) { return openInfoStatusModal("Input Error", "Please select a valid date range.", "error"); } activeTripDateFilter = 'custom'; customTripFilterStartDate = startDate; customTripFilterEndDate = endDate; setActiveTripDateFilterButton('trip-filter-custom-btn'); currentTripPage = 1; renderTripsTable(); }
+  function setActiveTripDateFilterButton(id) { document.querySelectorAll('#trip-section .date-filter-btn').forEach(btn => btn.classList.remove('active')); const activeBtn = document.getElementById(id.startsWith('trip-filter-') ? id : `trip-filter-${id}`); if (activeBtn) activeBtn.classList.add('active'); }
+  
+  function exportTripsExcel() {
+    if (!getAuthToken()) { return openInfoStatusModal("Error", "Please log in to export data.", "error"); }
+    const records = getFilteredTrips();
+    if (records.length === 0) { return openInfoStatusModal("Info", "No data to export for the current filter.", "info"); }
 
-  function exportTripsExcel() { if (!getAuthToken()) { openInfoStatusModal("Export Error", "Please log in to export data.", "error"); return; } const recordsToExport = getFilteredTrips(); if (recordsToExport.length === 0) { openInfoStatusModal("Export Info", "No trip data to export based on current filters.", "info"); return; } const wsData = recordsToExport.map(r => { const vehicle = vehicleDataForDropdown.find(v => v.id === r.vehicle_id); const driver = driverDataForDropdown.find(d => d.id === r.driver_id); return { 'ID': r.id, 'Vehicle Plate': vehicle ? vehicle.plate_number : `ID ${r.vehicle_id}`, 'Driver Name': driver ? `${driver.first_name} ${driver.last_name}` : `ID ${r.driver_id}`, 'Start Location': r.start_location, 'End Location': r.end_location, 'Start Time': formatDateTimeForDisplay(r.start_time), 'End Time': formatDateTimeForDisplay(r.end_time), 'Purpose': r.purpose, 'Status': r.status, 'Notes': r.notes, 'Created At': formatDateTimeForDisplay(r.created_at) }}); const ws = XLSX.utils.json_to_sheet(wsData); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Trips"); XLSX.writeFile(wb, "trips_export.xlsx"); }
-  function exportTripsPDF() { if (!getAuthToken()) { openInfoStatusModal("Export Error", "Please log in to export data.", "error"); return; } const {jsPDF} = window.jspdf; const doc = new jsPDF('l'); doc.setFontSize(18); doc.text('Trip Records', 14, 15); const recordsToExport = getFilteredTrips(); if (recordsToExport.length === 0) { openInfoStatusModal("Export Info", "No trip data to export based on current filters.", "info"); return; } const headers = [['ID', 'Vehicle', 'Driver', 'Start Loc', 'End Loc', 'Start Time', 'Status']]; const data = recordsToExport.map(r => { const vehicle = vehicleDataForDropdown.find(v => v.id === r.vehicle_id); const driver = driverDataForDropdown.find(d => d.id === r.driver_id); return [ r.id, vehicle ? vehicle.plate_number : `VID:${r.vehicle_id}`, driver ? `${driver.first_name.substring(0,1)}. ${driver.last_name}` : `DID:${r.driver_id}`, r.start_location.substring(0,15), r.end_location.substring(0,15), new Date(r.start_time).toLocaleDateString(), r.status ]}); doc.autoTable({ head: headers, body: data, startY: 25, theme:'grid', headStyles:{fillColor:[59,130,246], textColor:255}, columnStyles: { 0:{cellWidth: 10}, 1:{cellWidth:30}, 2:{cellWidth:30}, 3:{cellWidth:35}, 4:{cellWidth:35}, 5:{cellWidth:30}, 6:{cellWidth:25} } }); doc.save('trips_export.pdf'); }
+    const wsData = records.map(r => {
+        const vehicle = allFetchedVehiclesFromServer.find(v => v.id === r.vehicle_id);
+        const driver = driverDataForDropdown.find(d => d.id === r.driver_id);
+        return {
+            'ID': r.id,
+            'Vehicle Plate': vehicle ? vehicle.plate_number : `VID: ${r.vehicle_id}`,
+            'Driver Name': driver ? `${driver.first_name} ${driver.last_name}` : `DID: ${r.driver_id}`,
+            'Start Location': r.start_location,
+            'End Location': r.end_location,
+            'Start Time': formatDateTimeForDisplay(r.start_time),
+            'End Time': formatDateTimeForDisplay(r.end_time),
+            'Purpose': r.purpose,
+            'Status': r.status,
+            'Notes': r.notes
+        };
+    });
+    const ws = XLSX.utils.json_to_sheet(wsData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Trips");
+    XLSX.writeFile(wb, "trips_export.xlsx");
+  }
 
+  function exportTripsPDF() {
+    if (!getAuthToken()) { return openInfoStatusModal("Error", "Please log in to export data.", "error"); }
+    const records = getFilteredTrips();
+    if (records.length === 0) { return openInfoStatusModal("Info", "No data to export for the current filter.", "info"); }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('l');
+    doc.setFontSize(18);
+    doc.text('Trip Records', 14, 15);
+
+    const headers = [['ID', 'Vehicle', 'Driver', 'Start Loc', 'End Loc', 'Start Time', 'Status']];
+    const data = records.map(r => {
+        const vehicle = allFetchedVehiclesFromServer.find(v => v.id === r.vehicle_id);
+        const driver = driverDataForDropdown.find(d => d.id === r.driver_id);
+        return [
+            r.id,
+            vehicle ? vehicle.plate_number : `VID:${r.vehicle_id}`,
+            driver ? `${driver.first_name.substring(0, 1)}. ${driver.last_name}` : `DID:${r.driver_id}`,
+            r.start_location,
+            r.end_location,
+            new Date(r.start_time).toLocaleDateString(),
+            r.status
+        ];
+    });
+
+    doc.autoTable({
+        head: headers,
+        body: data,
+        startY: 25,
+        theme: 'grid',
+        headStyles: { fillColor: [59, 130, 246], textColor: 255 }
+    });
+    doc.save('trips_export.pdf');
+  }
+
+  async function initializeDashboardWidgets() {
+      if (!getAuthToken()) {
+          document.getElementById('keyPerformanceInsightsList').innerHTML = '<li>Please log in to see insights.</li>';
+          document.getElementById('notificationsList').innerHTML = '<div>Please log in to see alerts.</div>';
+          document.getElementById('notificationCount').textContent = '0';
+          return;
+      }
+      const [insights, alerts] = await Promise.all([
+          apiRequest('/dashboard-data/performance-insights'),
+          apiRequest('/dashboard-data/alerts')
+      ]);
+
+      const insightsList = document.getElementById('keyPerformanceInsightsList');
+      if (insights && insights.fuel_efficiency) {
+          insightsList.innerHTML = `<li>Fuel Efficiency: ${insights.fuel_efficiency.trend}</li>`;
+      } else {
+          insightsList.innerHTML = '<li>Could not load insights.</li>';
+      }
+
+      const alertsList = document.getElementById('notificationsList');
+      if (alerts) {
+          document.getElementById('notificationCount').textContent = alerts.total_alerts || 0;
+          let alertHTML = '';
+          if(alerts.critical_panne) alertHTML += `<div class="p-2.5 bg-red-50 dark:bg-red-900/20 rounded-lg text-red-700 dark:text-red-300">${alerts.critical_panne.message} on ${alerts.critical_panne.plate_number}</div>`;
+          if(alerts.maintenance_alert) alertHTML += `<div class="p-2.5 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg text-yellow-700 dark:text-yellow-300">${alerts.maintenance_alert.message} for ${alerts.maintenance_alert.plate_number}</div>`;
+          alertsList.innerHTML = alertHTML || '<div>No new alerts.</div>';
+      } else {
+          alertsList.innerHTML = '<div>Could not load alerts.</div>';
+          document.getElementById('notificationCount').textContent = '0';
+      }
+      lucide.createIcons();
+  }
 </script>
-<script src="/static/js/global.js"></script> 
 </body>
 </html>
