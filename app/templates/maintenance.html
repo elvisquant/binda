@@ -32,9 +32,9 @@
 <div class="flex h-screen">
 
     <!-- Sidebar (Left) - Modified for responsiveness -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg 
-                             transform -translate-x-full transition-transform duration-300 ease-in-out 
-                             md:relative md:translate-x-0 md:shadow-lg md:border-r dark:border-gray-700 
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg
+                             transform -translate-x-full transition-transform duration-300 ease-in-out
+                             md:relative md:translate-x-0 md:shadow-lg md:border-r dark:border-gray-700
                              flex flex-col flex-shrink-0">
       <div class="flex justify-between items-center">
         <div class="text-2xl font-bold flex items-center space-x-2 text-primary dark:text-primary-light">
@@ -85,16 +85,16 @@
 
     <!-- Overlay for mobile menu -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
-    
+
     <!-- Content Area Wrapper (Header + Main Content + Right Sidebar) -->
     <div class="flex-1 flex flex-col overflow-hidden">
-      
+
       <!-- Header (Mobile Hamburger, Desktop Title, Theme Toggle, User Info) -->
       <header class="bg-white dark:bg-gray-800 shadow p-3 flex justify-between items-center flex-shrink-0 h-16">
           <button id="mobile-menu-button" class="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none p-2">
               <i data-lucide="menu" class="w-6 h-6"></i>
           </button>
-          
+
           <div class="text-lg font-bold text-primary dark:text-primary-light md:hidden">
               FleetDash
           </div>
@@ -102,7 +102,7 @@
           <div class="hidden md:block text-xl font-semibold text-gray-700 dark:text-gray-200">
               Maintenance Management
           </div>
-          
+
           <div class="flex items-center space-x-3">
               <button id="theme-toggle-header" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
               </button>
@@ -119,8 +119,7 @@
           <!-- Maintenance Table Section -->
           <section id="maintenance-section" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
             <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
-              <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-2 sm:mb-0">Records</h2>
-              <div class="flex flex-wrap gap-2 items-center">
+               <div class="flex flex-wrap gap-2 items-center">
                 <button id="openAddMaintenanceModalButton" class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 text-sm shadow-sm">
                   <i data-lucide="plus" class="w-4 h-4"></i> Add Maintenance
                 </button>
@@ -173,7 +172,7 @@
         </main>
 
         <!-- Right Sidebar -->
-         <aside class="w-1/5 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden lg:block flex-shrink-0 border-l dark:border-gray-700 overflow-y-auto">
+        <aside class="w-1/5 bg-white dark:bg-gray-800/95 backdrop-blur-sm p-4 space-y-6 shadow-lg hidden lg:block flex-shrink-0 border-l dark:border-gray-700 overflow-y-auto">
             <div class="flex justify-end items-center">
                 <div class="text-right">
                     <div class="text-sm font-semibold text-gray-800 dark:text-white" id="userDisplayNameRightSidebar">User</div>
@@ -344,7 +343,7 @@
   const MAINTENANCE_API_ENDPOINT = '/maintenance/';
   const CAT_MAINTENANCE_API_ENDPOINT = '/category_maintenance/';
   const GARAGE_API_ENDPOINT = '/garage/';
-  
+
   const VEHICLE_STATUS_IN_MAINTENANCE = 'in_maintenance';
   const VEHICLE_STATUS_AVAILABLE = 'available';
 
@@ -373,13 +372,13 @@
   async function apiRequest(endpoint, method = 'GET', body = null) {
     const token = getAuthToken();
     const headers = { 'Content-Type': 'application/json' };
-    
+
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
     } else if (!endpoint.startsWith('/login')) {
         console.warn(`WARN: Protected endpoint ${endpoint} called without token.`);
     }
-    
+
     const config = { method, headers };
     if (body) config.body = JSON.stringify(body);
 
@@ -434,11 +433,126 @@
 
   // --- Sidebar & Theme ---
   const sidebar = document.getElementById('sidebar'); const mobileMenuButton = document.getElementById('mobile-menu-button'); const sidebarCloseButton = document.getElementById('sidebar-close-button'); const sidebarOverlay = document.getElementById('sidebar-overlay'); const themeToggleButton = document.getElementById('theme-toggle-header'); function openMobileMenu() { if (sidebar && sidebarOverlay) { sidebar.classList.remove('-translate-x-full'); sidebar.classList.add('translate-x-0'); sidebarOverlay.classList.remove('hidden'); document.body.classList.add('overflow-hidden', 'md:overflow-auto'); } } function closeMobileMenu() { if (sidebar && sidebarOverlay) { sidebar.classList.add('-translate-x-full'); sidebar.classList.remove('translate-x-0'); sidebarOverlay.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); } } function setInitialThemeIcon() { if (themeToggleButton) { if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { document.documentElement.classList.add('dark'); themeToggleButton.innerHTML = '<i data-lucide="sun" class="w-5 h-5"></i>'; } else { document.documentElement.classList.remove('dark'); themeToggleButton.innerHTML = '<i data-lucide="moon" class="w-5 h-5"></i>'; } lucide.createIcons(); } } function toggleTheme() { if (document.documentElement.classList.contains('dark')) { document.documentElement.classList.remove('dark'); localStorage.setItem('theme', 'light'); } else { document.documentElement.classList.add('dark'); localStorage.setItem('theme', 'dark'); } setInitialThemeIcon(); }
-  
-  // --- Dashboard Widgets ---
-  async function initializeDashboardWidgets() { /* ... implementation from previous versions ... */ }
-  async function fetchAndDisplayPerformanceInsights() { /* ... implementation from previous versions ... */ }
-  async function fetchAndDisplayAlerts() { /* ... implementation from previous versions ... */ }
+
+  // --- Dashboard Widget Functions ---
+  async function fetchAndDisplayPerformanceInsights() {
+      const insightsList = document.getElementById('keyPerformanceInsightsList');
+      if (!insightsList) return;
+
+      insightsList.innerHTML = `<li class="flex items-start space-x-2"><i data-lucide="loader-2" class="w-4 h-4 text-gray-400 animate-spin mt-0.5 shrink-0"></i><span>Loading insights...</span></li>`;
+      lucide.createIcons();
+
+      const result = await apiRequest('/dashboard-data/performance-insights');
+      if (!result || !result.data) {
+          insightsList.innerHTML = `<li class="flex items-start space-x-2 text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 shrink-0"></i><span>Failed to load insights.</span></li>`;
+          lucide.createIcons();
+          return;
+      }
+      const data = result.data;
+
+      let insightsHTML = '';
+
+      const { fuel_efficiency } = data;
+      if (fuel_efficiency) {
+          let trendIcon = 'minus';
+          let trendColor = 'text-gray-500 dark:text-gray-400';
+          let trendText = 'steady';
+
+          if (fuel_efficiency.trend === 'up') {
+              trendIcon = 'trending-up';
+              trendColor = 'text-green-500';
+              trendText = 'improving';
+          } else if (fuel_efficiency.trend === 'down') {
+              trendIcon = 'trending-down';
+              trendColor = 'text-red-500';
+              trendText = 'worsening';
+          }
+
+          const percentageText = fuel_efficiency.percentage_change !== null
+              ? `(${fuel_efficiency.percentage_change > 0 ? '+' : ''}${fuel_efficiency.percentage_change}%)`
+              : '(No prior data)';
+
+          insightsHTML += `
+              <li class="flex items-start space-x-2">
+                  <i data-lucide="droplet" class="w-4 h-4 text-blue-500 mt-0.5 shrink-0"></i>
+                  <div>
+                      <span>Fuel Efficiency is <span class="${trendColor} font-semibold">${trendText}</span>.</span>
+                      <span class="block text-gray-400 dark:text-gray-500 text-xs">Consumption vs last month ${percentageText}.</span>
+                  </div>
+              </li>`;
+      }
+
+      const { maintenance_compliance } = data;
+      if (maintenance_compliance) {
+          insightsHTML += `
+              <li class="flex items-start space-x-2">
+                  <i data-lucide="wrench" class="w-4 h-4 text-yellow-500 mt-0.5 shrink-0"></i>
+                  <div>
+                      <span><span class="font-semibold">${maintenance_compliance.total_maintenance_records}</span> maintenance records logged.</span>
+                      <span class="block text-gray-400 dark:text-gray-500 text-xs">Total historical maintenance tasks.</span>
+                  </div>
+              </li>`;
+      }
+
+      insightsList.innerHTML = insightsHTML || `<li>No performance data available.</li>`;
+      lucide.createIcons();
+  }
+
+  async function fetchAndDisplayAlerts() {
+      const alertsList = document.getElementById('notificationsList');
+      const notificationCountSpan = document.getElementById('notificationCount');
+      if (!alertsList || !notificationCountSpan) return;
+
+      alertsList.innerHTML = `<div class="flex items-start space-x-2 p-2.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><i data-lucide="loader-2" class="w-5 h-5 text-gray-400 animate-spin mt-0.5 flex-shrink-0"></i><p class="text-xs text-gray-700 dark:text-gray-300">Loading alerts...</p></div>`;
+      lucide.createIcons();
+
+      const result = await apiRequest('/dashboard-data/alerts');
+      if (!result || !result.data) {
+          alertsList.innerHTML = `<div class="flex items-start space-x-2 text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 shrink-0"></i><p class="text-xs">Failed to load alerts.</p></div>`;
+          notificationCountSpan.textContent = '0';
+          lucide.createIcons();
+          return;
+      }
+      const data = result.data;
+
+      notificationCountSpan.textContent = data.total_alerts || '0';
+      let alertsHTML = '';
+
+      const createAlertItemHTML = (alert, icon, colorClass) => {
+          if (!alert) return '';
+          return `
+              <div class="flex items-start space-x-2 p-2.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg">
+                  <i data-lucide="${icon}" class="w-5 h-5 ${colorClass} mt-0.5 flex-shrink-0"></i>
+                  <div>
+                      <p class="text-xs font-semibold text-gray-800 dark:text-gray-200">${alert.plate_number}</p>
+                      <p class="text-xs text-gray-600 dark:text-gray-300">${alert.message}</p>
+                  </div>
+              </div>`;
+      };
+
+      alertsHTML += createAlertItemHTML(data.critical_panne, 'shield-alert', 'text-red-500');
+      alertsHTML += createAlertItemHTML(data.maintenance_alert, 'calendar-clock', 'text-blue-500');
+      alertsHTML += createAlertItemHTML(data.trip_alert, 'route', 'text-purple-500');
+
+      if (data.total_alerts === 0) {
+          alertsHTML = `<div class="flex items-center justify-center text-center p-4">
+                          <div class="text-gray-500 dark:text-gray-400">
+                             <i data-lucide="check-circle" class="w-8 h-8 mx-auto mb-2 text-green-500"></i>
+                             <p class="text-xs">All clear! No new alerts.</p>
+                          </div>
+                        </div>`;
+      }
+
+      alertsList.innerHTML = alertsHTML;
+      lucide.createIcons();
+  }
+
+  async function initializeDashboardWidgets() {
+      await Promise.all([
+          fetchAndDisplayPerformanceInsights(),
+          fetchAndDisplayAlerts()
+      ]);
+  }
 
   // --- Modal Control ---
   function closeModal(modalId) { document.getElementById(modalId)?.classList.add('hidden'); document.body.style.overflow = ''; }
@@ -455,7 +569,7 @@
       lucide.createIcons();
       updateUserInfoDisplay();
       setInitialThemeIcon();
-      
+
       themeToggleButton?.addEventListener('click', toggleTheme);
       mobileMenuButton?.addEventListener('click', openMobileMenu);
       sidebarCloseButton?.addEventListener('click', closeMobileMenu);
@@ -477,7 +591,7 @@
       document.getElementById('cancelGenericConfirmModalButton')?.addEventListener('click', closeGenericConfirmModal);
       document.getElementById('genericConfirmModalConfirmBtn')?.addEventListener('click', async () => { if (typeof currentConfirmAction === 'function') await currentConfirmAction(currentActionData); closeGenericConfirmModal(); });
       document.getElementById('global-logout-btn')?.addEventListener('click', (e) => { e.preventDefault(); localStorage.removeItem('accessToken'); window.location.href = LOGIN_PAGE_URL; });
-      
+
       // Page specific events
       document.getElementById('openAddMaintenanceModalButton')?.addEventListener('click', openAddMaintenanceModal);
       document.getElementById('exportExcelButton')?.addEventListener('click', exportMaintenancesExcel);
@@ -492,7 +606,7 @@
       document.getElementById('maintenance-filter-all').addEventListener('click', () => applyMaintenanceDateFilter('all'));
       document.getElementById('maintenance-filter-custom-btn').addEventListener('click', toggleMaintenanceCustomDateRange);
       document.getElementById('applyCustomDateFilterButton').addEventListener('click', applyMaintenanceCustomDateFilter);
-      
+
       await initializeMaintenanceSection();
   });
 
@@ -573,7 +687,7 @@
         queryParams += `&start_date=${range.startDate}&end_date=${range.endDate}`;
       }
     }
-    
+
     const apiResult = await apiRequest(`${MAINTENANCE_API_ENDPOINT}?${queryParams}`);
     if (!apiResult) {
         allMaintenances = [];
@@ -594,7 +708,7 @@
       const category = allMaintenanceCategories.find(c => c.id === m.cat_maintenance_id);
       const vehicle = allVehiclesForDropdown.find(v => v.id === m.vehicle_id);
       const garage = allGaragesForDropdown.find(g => g.id === m.garage_id);
-      
+
       const statusColor = isCompleted ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
 
       return `<tr class="border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50">
@@ -613,7 +727,7 @@
                 </td></tr>`;
     }).join('') : `<tr><td colspan="9" class="text-center py-8 text-gray-500">No maintenance records found.</td></tr>`;
     lucide.createIcons();
-    
+
     const startRecord = allMaintenances.length > 0 ? (currentMaintenancePage - 1) * maintenancesPerPage + 1 : 0;
     const endRecord = startRecord + allMaintenances.length - 1;
     document.getElementById('maintenancesCount').textContent = `Showing ${startRecord} to ${endRecord} of ${totalMaintenanceRecords} records`;
@@ -624,24 +738,58 @@
     const totalPages = Math.ceil(totalRecords / maintenancesPerPage);
     const paginationContainer = document.getElementById('maintenancesPagination');
     paginationContainer.innerHTML = '';
+
     if (totalPages <= 1) return;
 
-    const btnClasses = "px-3 py-1.5 text-sm rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-900 focus:ring-blue-500";
-    const itemClasses = "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700";
+    const buttonClasses = "px-3 py-1.5 text-sm rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-900 focus:ring-blue-500";
+    const inactiveClasses = "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700";
     const disabledClasses = "bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed";
-    
-    const prevButton = Object.assign(document.createElement('button'), { innerHTML: `<i data-lucide="chevron-left" class="w-4 h-4 inline-block mr-1"></i> Prev`, className: `${btnClasses} ${currentMaintenancePage === 1 ? disabledClasses : itemClasses}`, disabled: currentMaintenancePage === 1, onclick: () => { if(currentMaintenancePage > 1) {currentMaintenancePage--; fetchAndRenderMaintenances();} } });
-    const pageInfo = Object.assign(document.createElement('span'), { className: "px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400", textContent: `Page ${currentMaintenancePage} of ${totalPages}` });
-    const nextButton = Object.assign(document.createElement('button'), { innerHTML: `Next <i data-lucide="chevron-right" class="w-4 h-4 inline-block ml-1"></i>`, className: `${btnClasses} ${currentMaintenancePage >= totalPages ? disabledClasses : itemClasses}`, disabled: currentMaintenancePage >= totalPages, onclick: () => { if(currentMaintenancePage < totalPages) {currentMaintenancePage++; fetchAndRenderMaintenances();} } });
-    
-    paginationContainer.append(prevButton, pageInfo, nextButton);
+
+    const prevButton = document.createElement('button');
+    prevButton.innerHTML = `<i data-lucide="chevron-left" class="w-4 h-4 inline-block mr-1"></i> Prev`;
+    prevButton.className = `${buttonClasses} ${currentMaintenancePage === 1 ? disabledClasses : inactiveClasses}`;
+    if (currentMaintenancePage > 1) {
+        prevButton.onclick = () => { currentMaintenancePage--; fetchAndRenderMaintenances(); };
+    } else { prevButton.disabled = true; }
+    paginationContainer.appendChild(prevButton);
+
+    const pageInfo = document.createElement('span');
+    pageInfo.className = "px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400";
+    pageInfo.textContent = `Page ${currentMaintenancePage} of ${totalPages}`;
+    paginationContainer.appendChild(pageInfo);
+
+    const nextButton = document.createElement('button');
+    nextButton.innerHTML = `Next <i data-lucide="chevron-right" class="w-4 h-4 inline-block ml-1"></i>`;
+    const hasMore = currentMaintenancePage < totalPages;
+    nextButton.className = `${buttonClasses} ${!hasMore ? disabledClasses : inactiveClasses}`;
+    if (hasMore) {
+        nextButton.onclick = () => { currentMaintenancePage++; fetchAndRenderMaintenances(); };
+    } else { nextButton.disabled = true; }
+    paginationContainer.appendChild(nextButton);
+
     lucide.createIcons();
   }
 
   // --- Helper Functions ---
   function getISODateString(date) {
     if (!(date instanceof Date) || isNaN(date)) return '';
-    return date.toISOString().split('T')[0];
+    const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+    const localISOTime = (new Date(date - tzoffset)).toISOString().slice(0, -1);
+    return localISOTime.split('T')[0];
+  }
+
+  function getDateRange(filterType) {
+    const today = new Date(); today.setHours(0,0,0,0);
+    let startDate = new Date(today);
+    let endDate = new Date(today);
+    endDate.setHours(23,59,59,999);
+    switch(filterType) {
+        case 'today': break;
+        case 'last7days': startDate.setDate(today.getDate() - 6); break;
+        case 'last30days': startDate.setDate(today.getDate() - 29); break;
+        default: return { startDate: null, endDate: null };
+    }
+    return { startDate: getISODateString(startDate), endDate: getISODateString(endDate) };
   }
 
   // --- Modal Operations ---
@@ -651,9 +799,6 @@
     document.getElementById('addMaintenanceForm').reset();
     document.getElementById('maintenanceModalTitle').textContent = "Add New Maintenance";
     document.getElementById('maintenanceSubmitButton').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4 mr-1"></i> Add Record`;
-
-    // No need to call populateLookupData() here as it's called on page load
-    // and after any action that changes vehicle status.
 
     const populate = (selectId, data, valueField, textField, placeholder) => {
         const select = document.getElementById(selectId);
@@ -669,13 +814,14 @@
 
     const vehicleSelect = document.getElementById('vehicle_id_form');
     const availableVehicles = allVehiclesForDropdown.filter(v => v.status === VEHICLE_STATUS_AVAILABLE);
-    
+
     if (availableVehicles.length > 0) {
         populate('vehicle_id_form', availableVehicles, 'id', 'plate_number', 'Select an Available Vehicle');
     } else {
         vehicleSelect.innerHTML = `<option value="">No available vehicles found</option>`;
     }
 
+    document.getElementById('maintenance_date_form').value = getISODateString(new Date());
     document.getElementById('maintenance_status_form').value = 'Active';
     document.getElementById('maintenance_status_form').disabled = true;
     document.getElementById('vehicle_id_form').disabled = false;
@@ -683,16 +829,16 @@
     openModal('addMaintenanceModal');
     lucide.createIcons();
   }
-  
+
   async function openEditMaintenanceModal(id) {
     if (!getAuthToken()) { openInfoStatusModal("Authentication Required","Please log in.", "error"); return; }
-    
+
     const apiResult = await apiRequest(`${MAINTENANCE_API_ENDPOINT}${id}`);
     if (!apiResult || !apiResult.data) { openInfoStatusModal("Error","Could not fetch record.", "error"); return; }
     const m = apiResult.data;
 
     maintenanceToEditId = id;
-    populateMaintenanceDropdowns(); 
+    populateMaintenanceDropdowns();
 
     document.getElementById('maintenanceModalTitle').textContent = "Edit Maintenance Record";
     document.getElementById('maintenanceSubmitButton').innerHTML = `<i data-lucide="save" class="w-4 h-4 mr-1"></i> Save Changes`;
@@ -702,18 +848,18 @@
     document.getElementById('original_vehicle_id_form').value = m.vehicle_id;
     document.getElementById('cat_maintenance_id_form').value = m.cat_maintenance_id;
     document.getElementById('vehicle_id_form').value = m.vehicle_id;
-    document.getElementById('vehicle_id_form').disabled = true; 
+    document.getElementById('vehicle_id_form').disabled = true;
     document.getElementById('maintenance_cost_form').value = m.maintenance_cost;
     document.getElementById('maintenance_receipt_form').value = m.receipt;
     document.getElementById('maintenance_garage_id_form').value = m.garage_id;
     document.getElementById('maintenance_date_form').value = getISODateString(new Date(m.maintenance_date));
     document.getElementById('maintenance_status_form').value = m.status;
     document.getElementById('maintenance_status_form').disabled = false;
-    
+
     openModal('addMaintenanceModal');
     lucide.createIcons();
   }
-  
+
   async function openViewMaintenanceModal(id) {
       const { data: m } = await apiRequest(`${MAINTENANCE_API_ENDPOINT}${id}`);
       if (!m) { openInfoStatusModal("Error", "Could not fetch record details.", "error"); return; }
@@ -731,7 +877,7 @@
       document.getElementById('view-maintenance-garage').textContent = garage?.nom_garage || 'N/A';
       document.getElementById('view-maintenance-maintenance_date').textContent = new Date(m.maintenance_date).toLocaleDateString();
       document.getElementById('view-maintenance-created_at').textContent = new Date(m.created_at).toLocaleString();
-      
+
       openModal('viewMaintenanceModal');
   }
 
@@ -766,51 +912,46 @@
         const vehicleId = formData.vehicle_id; // Vehicle ID cannot be changed in the edit form.
 
         const result = await apiRequest(`${MAINTENANCE_API_ENDPOINT}${maintenanceToEditId}`, 'PUT', formData);
-        
+
         if (result) {
             let infoMessage = "Maintenance record updated successfully!";
             let vehicleStatusUpdated = false;
 
-            // Logic to update vehicle status if the maintenance status has changed.
             if (formData.status !== originalStatus) {
                 if (formData.status === 'Completed' && originalStatus === 'Active') {
-                    // Maintenance finished: Vehicle becomes available.
                     await handleVehicleStatusUpdate(vehicleId, VEHICLE_STATUS_AVAILABLE);
                     infoMessage = "Record updated. Vehicle is now available.";
                     vehicleStatusUpdated = true;
                 } else if (formData.status === 'Active' && originalStatus !== 'Active') {
-                    // Maintenance (re)started: Vehicle is now in maintenance.
                     await handleVehicleStatusUpdate(vehicleId, VEHICLE_STATUS_IN_MAINTENANCE);
                     infoMessage = "Record updated. Vehicle is now in maintenance.";
                     vehicleStatusUpdated = true;
                 }
             }
-            
+
             openInfoStatusModal("Success", infoMessage, "success");
             closeAddMaintenanceModal();
-            await fetchAndRenderMaintenances(); // Refresh the main table
-            // If a vehicle's status changed, we must refresh the dropdown data.
+            await fetchAndRenderMaintenances();
             if (vehicleStatusUpdated) {
                 await populateLookupData();
             }
         }
     } else { // --- CREATE LOGIC ---
-        formData.status = 'Active'; // New maintenance records are always 'Active'.
+        formData.status = 'Active';
         const result = await apiRequest(MAINTENANCE_API_ENDPOINT, 'POST', formData);
         if (result) {
-            // A new 'Active' maintenance means the vehicle goes into maintenance.
             await handleVehicleStatusUpdate(formData.vehicle_id, VEHICLE_STATUS_IN_MAINTENANCE);
             openInfoStatusModal("Success", "Maintenance record added. Vehicle status updated to 'In Maintenance'.", "success");
             closeAddMaintenanceModal();
-            await fetchAndRenderMaintenances(); // Refresh the main table
-            await populateLookupData(); // Refresh dropdown data as a vehicle is now unavailable.
+            await fetchAndRenderMaintenances();
+            await populateLookupData();
         }
     }
     submitButton.disabled = false;
   }
-  
+
   function openConfirmDeleteMaintenanceModal(id) {
-    openGenericConfirmModal("Confirm Deletion", `Are you sure you want to delete maintenance record ID: ${id}? This action cannot be undone and will not change the vehicle's status.`, "Delete", "trash-2", 
+    openGenericConfirmModal("Confirm Deletion", `Are you sure you want to delete maintenance record ID: ${id}? This will not change the vehicle's status.`, "Delete", "trash-2",
       async (recordId) => {
         const result = await apiRequest(`${MAINTENANCE_API_ENDPOINT}${recordId}`, 'DELETE');
         if (result) {
@@ -840,8 +981,7 @@
   async function exportMaintenancesExcel() {
     const records = await getFullFilteredDataForExport();
     if (!records || records.length === 0) { openInfoStatusModal("Info", "No data to export based on current filters.", "info"); return; }
-    
-    // Use lookup arrays to enrich data for export
+
     const data = records.map(m => {
         const category = allMaintenanceCategories.find(c => c.id === m.cat_maintenance_id);
         const vehicle = allVehiclesForDropdown.find(v => v.id === m.vehicle_id);
@@ -871,8 +1011,7 @@
     const {jsPDF} = window.jspdf; const doc = new jsPDF('l');
     doc.setFontSize(18); doc.text('Maintenance Records', 14, 15);
     const headers = [['ID', 'Category', 'Vehicle', 'Status', 'Cost ($)', 'Garage', 'Maint. Date']];
-    
-    // Use lookup arrays to enrich data for export
+
     const data = records.map(m => {
         const category = allMaintenanceCategories.find(c => c.id === m.cat_maintenance_id);
         const vehicle = allVehiclesForDropdown.find(v => v.id === m.vehicle_id);
@@ -895,6 +1034,6 @@
   }
 
 </script>
-<script src="/static/js/global.js"></script> 
+<script src="/static/js/global.js"></script>
 </body>
 </html>

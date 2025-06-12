@@ -115,7 +115,8 @@ def read_all_trips(
 def read_all_trips(
     db: Session = Depends(get_db),
     skip: int = 0,
-    limit: int = Query(default=100, ge=1, le=1000),
+    #limit: int = Query(default=100, ge=1, le=1000),
+    limit: int = 1000,
     search: Optional[str] = Query(default=None),
     status_filter: Optional[str] = Query(default=None, alias="status"),
     vehicle_id_filter: Optional[int] = Query(default=None, alias="vehicle_id"),
