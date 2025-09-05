@@ -3,7 +3,7 @@ from datetime import datetime # For default values or type hinting if needed
 import enum # For Python enum
 from typing import List, Optional
 from datetime import datetime, date , timedelta
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from sqlalchemy.sql.expression import text
@@ -20,13 +20,22 @@ class User(Base):
     password = Column(String, nullable=False) # Hashed password
     
     # MODIFIED: Replaced is_active with status
-    status = Column(String(50), nullable=False, default="pending_approval") # e.g., "active", "inactive", "pending_approval"
+    #status = Column(String(50), nullable=False, default="pending_approval") # e.g., "active", "inactive", "pending_approval"
+    # FIX: add server_default so Postgres always sets it
+    status = Column(
+        String(50),
+        nullable=False,
+        server_default=text("'pending_approval'")
+    )
     
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
     
     # You might want to add roles or other fields later
     # role = Column(String(50), default="user") 
     # Add other fields as needed (e.g., is_superuser, roles, etc.)
+
+
+
 ##################################################################################################################
 
 class Driver(Base):

@@ -1,31 +1,32 @@
-version: "3.9"
+version: '3.8'
 
 services:
-  api:
+  elvispronda_api:
     build: .
-    container_name: elvispronda_api
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-    volumes:
-      - .:/app
     ports:
       - "8000:8000"
-    env_file:
-      - .env
+    environment:
+      - DATABASE_HOSTNAME=elvispronda_db
+      - DATABASE_PORT=5432
+      - DATABASE_PASSWORD=mypassword
+      - DATABASE_NAME=mydatabase
+      - DATABASE_USERNAME=myuser
+      - SECRET_KEY=09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
     depends_on:
-      - db
+      - elvispronda_db
 
-  db:
-    image: postgres:15
-    container_name: elvispronda_db
-    restart: always
-    ports:
-      - "5432:5432"
+  elvispronda_db:
+    image: postgres:13
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+      - POSTGRES_DB=mydatabase
+    ports:
+      - "5432:5432"
 
 volumes:
   postgres_data:

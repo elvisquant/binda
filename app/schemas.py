@@ -70,7 +70,8 @@ class UserBase(BaseModel):
     email: EmailStr = Field(..., example="root@gmail.com")
     
     # MODIFIED: Replaced is_active with status
-    status: str = Field(..., example="active", description="User account status (e.g., active, inactive)")
+    #status: str = Field(..., example="active", description="User account status (e.g., active, inactive)")
+    status: Optional[str] = Field("pending_approval", example="active")
     # If using Enum: status: UserStatusEnum = Field(..., example=UserStatusEnum.active)
 
 
@@ -304,7 +305,8 @@ class DriverNestedInTrip(BaseModel): # If you also load driver
     id: int
     first_name: Optional[str] = None
     last_name: Optional[str] = None
-    class Config: from_attributes = True
+    class Config: 
+        from_attributes = True
 
 
 
@@ -650,8 +652,8 @@ class FuelRecordDetail(BaseModel):
     notes: Optional[str] = None
 
     class Config:
-        orm_mode = True
-        # from_attributes = True # For Pydantic V2
+        #orm_mode = True
+        rom_attributes = True
 
 class ReparationRecordDetail(BaseModel):
     id: int
@@ -662,8 +664,8 @@ class ReparationRecordDetail(BaseModel):
     provider: Optional[str] = None
 
     class Config:
-        orm_mode = True
-        # from_attributes = True
+        #orm_mode = True
+        rom_attributes = True
 
 class MaintenanceRecordDetail(BaseModel):
     id: int
@@ -674,8 +676,8 @@ class MaintenanceRecordDetail(BaseModel):
     provider: Optional[str] = None
 
     class Config:
-        orm_mode = True
-        # from_attributes = True
+        #orm_mode = True
+        rom_attributes = True
 
 class PurchaseRecordDetail(BaseModel):
     id: int # Vehicle ID
@@ -686,8 +688,8 @@ class PurchaseRecordDetail(BaseModel):
     purchase_price: Optional[float] = 0.0
 
     class Config:
-        orm_mode = True
-        # from_attributes = True
+        #orm_mode = True
+        rom_attributes = True
 
 class DetailedReportDataResponse(BaseModel):
     fuel_records: List[FuelRecordDetail] = []
